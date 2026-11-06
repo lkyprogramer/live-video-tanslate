@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/start"
+    },
+    {
+      "$ref": "#/$defs/ready"
+    },
+    {
+      "$ref": "#/$defs/caption"
+    },
+    {
+      "$ref": "#/$defs/finish"
+    },
+    {
+      "$ref": "#/$defs/finished"
+    },
+    {
+      "$ref": "#/$defs/warning"
+    },
+    {
+      "$ref": "#/$defs/error"
+    }
+  ],
+  "$defs": {
+    "start": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "start"
+        },
+        "version": {
+          "const": 1
+        },
+        "profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "token": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audio": {
+          "const": {
+            "format": "s16le",
+            "sample_rate": 16000,
+            "channels": 1
+          }
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "profile_id",
+        "token",
+        "audio"
+      ],
+      "additionalProperties": false
+    },
+    "ready": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ready"
+        },
+        "version": {
+          "const": 1
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "const": "zh-Hans"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "session_id",
+        "profile_id",
+        "language"
+      ],
+      "additionalProperties": false
+    },
+    "caption": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "caption"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start_sample": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_sample": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "text_zh": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "seq",
+        "start_sample",
+        "end_sample",
+        "text_zh"
+      ],
+      "additionalProperties": false
+    },
+    "finish": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "finish"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "finished": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "finished"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accepted_samples": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "accepted_samples"
+      ],
+      "additionalProperties": false
+    },
+    "warning": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "warning"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "code"
+      ],
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "error"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type",
+        "code"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

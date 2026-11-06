@@ -1,0 +1,138 @@
+[
+  {
+    "id": "csj-aps",
+    "kind": "speech-corpus",
+    "file": "csj-aps.pcm",
+    "source_offset": 0,
+    "duration": 35.172,
+    "sha256": "d6707de339c004926dd4d10c0ee5f14ee1594d0ab509fdc467fdcb819a2a1e86"
+  },
+  {
+    "id": "csj-reproduction",
+    "kind": "speech-corpus",
+    "file": "csj-reproduction.pcm",
+    "source_offset": 0,
+    "duration": 41.076,
+    "sha256": "a7e1040258df957a130cf14fac1270796588b7402b41a9970fc57f0c29621db8"
+  },
+  {
+    "id": "csj-sps",
+    "kind": "speech-corpus",
+    "file": "csj-sps.pcm",
+    "source_offset": 0,
+    "duration": 69.336,
+    "sha256": "be6a90a74917050757abff52fc4acac5572731a69163f69406a79639a7fcb70c"
+  },
+  {
+    "id": "csj-interview_aps",
+    "kind": "speech-corpus",
+    "file": "csj-interview_aps.pcm",
+    "source_offset": 0,
+    "duration": 71.750125,
+    "sha256": "74bcb63423ce3fb62527cbcedeed73a0633c6431e99a3a2b442792093cd9ed6f"
+  },
+  {
+    "id": "csj-task",
+    "kind": "speech-corpus",
+    "file": "csj-task.pcm",
+    "source_offset": 0,
+    "duration": 40.562,
+    "sha256": "1facd0bbfa202613cfee2e4421a0012b3d767ad99f5792bd8f0154f0afb181cb"
+  },
+  {
+    "id": "offsiderule",
+    "kind": "video",
+    "file": "offsiderule.pcm",
+    "source_offset": 0,
+    "duration": 97.42,
+    "sha256": "983002c3dff00e1138ae7f41670c3c238f12ad9ce983908e5cbdb7279b155c21"
+  },
+  {
+    "id": "wmf-01",
+    "kind": "video",
+    "file": "wmf-01.pcm",
+    "source_offset": 0,
+    "duration": 275.9725,
+    "sha256": "08763bbebd0c3c536fcc989b9647a3380519f5d843070e6c04c204b32058f2c2"
+  },
+  {
+    "id": "wmf-02",
+    "kind": "video",
+    "file": "wmf-02.pcm",
+    "source_offset": 276,
+    "duration": 252.6,
+    "sha256": "cbe1a5841dd16188dc29e357dc5649a3a59e708bd90c550f4601edcdce0a03f6"
+  },
+  {
+    "id": "wmf-03",
+    "kind": "video",
+    "file": "wmf-03.pcm",
+    "source_offset": 528.6,
+    "duration": 192.4,
+    "sha256": "cfda608a779b1fdd3582957c0b878d3d4c09b73c534851ac711cca649533e686"
+  },
+  {
+    "id": "wmf-04",
+    "kind": "video",
+    "file": "wmf-04.pcm",
+    "source_offset": 721,
+    "duration": 257.0,
+    "sha256": "c753fd56e9ff5aea42c8c2d27df2fd9b692edfe647bbc16f877bc142e7ef8eb0"
+  },
+  {
+    "id": "wmf-05",
+    "kind": "video",
+    "file": "wmf-05.pcm",
+    "source_offset": 978,
+    "duration": 177.0,
+    "sha256": "31ef8d2efedee76b7e0ef5604fbf0bf66730ae5341235285dabd478a2ad8c6f4"
+  },
+  {
+    "id": "wmf-06",
+    "kind": "video",
+    "file": "wmf-06.pcm",
+    "source_offset": 1155,
+    "duration": 234.7,
+    "sha256": "c37daba9971d405eca408cece3a2a06a197772aa63b03457dbc1ef2394a8ed6b"
+  },
+  {
+    "id": "first-photo",
+    "kind": "short-first",
+    "file": "first-photo.pcm",
+    "source_offset": 3.84,
+    "duration": 7.0,
+    "sha256": "835c5e292dbdd83aa5604b0f2047917735fe4e4b89bb89548bd35fbd87953c80"
+  },
+  {
+    "id": "first-strangers",
+    "kind": "short-first",
+    "file": "first-strangers.pcm",
+    "source_offset": 11.75,
+    "duration": 7.0,
+    "sha256": "d00cdc06ad766ec8bcc1dbb2c3d7fec113746e8621d878626f8dc43a2a6c1acb"
+  },
+  {
+    "id": "first-europe",
+    "kind": "short-first",
+    "file": "first-europe.pcm",
+    "source_offset": 323.8,
+    "duration": 8.0,
+    "sha256": "cc0f89bf3e71f01dacd53a1a693cf0e39bf4029da674f38dc80ea1c200021e59"
+  },
+  {
+    "id": "first-slides",
+    "kind": "short-first",
+    "file": "first-slides.pcm",
+    "source_offset": 697.019,
+    "duration": 8.0,
+    "sha256": "601578f5194ddda07d8e87bc4c363995659e5264b41f6a6570773ef1b9956093"
+  },
+  {
+    "id": "silence",
+    "kind": "negative",
+    "file": "silence.pcm",
+    "source_offset": 0,
+    "duration": 10.0,
+    "sha256": "ac2878215ad33205d1732578c89f25ededaad1b676911c540825bcf4baa42d9b"
+  }
+]

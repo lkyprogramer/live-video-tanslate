@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <title>本地中文字幕设置</title>
+  <link rel="stylesheet" href="options.css">
+  <script src="options.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>本地中文字幕</h1>
+    <p>在播放日语视频的标签页点击扩展图标，启动或停止字幕。</p>
+    <form>
+      <label for="token">本地服务令牌</label>
+      <input id="token" name="token" type="password" autocomplete="off" required>
+      <label for="profile">识别与翻译配置</label>
+      <select id="profile" name="profile"><option value="">使用服务默认配置</option></select>
+      <div class="buttons"><button id="refresh" type="button">刷新配置</button><button type="submit">保存</button></div>
+    </form>
+    <p id="status" role="status"></p>
+    <p class="hint">新配置在下一次点击图标启动字幕时生效。输出语言为简体中文。</p>
+  </main>
+</body>
+</html>

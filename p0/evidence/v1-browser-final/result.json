@@ -1,0 +1,37 @@
+{
+  "chrome": "Chrome/157.0.8103.38",
+  "profiles": [
+    "",
+    "reazon-hy",
+    "whisper-small"
+  ],
+  "local": "包含照片。",
+  "firstVisibleMs": 6702,
+  "afterSeek": "包含照片。",
+  "fullscreen": true,
+  "nativeFullscreenNotice": true,
+  "switches": [
+    {
+      "profile": "whisper-small",
+      "caption": "我的文件里包含照片。"
+    },
+    {
+      "profile": "reazon-hy",
+      "caption": "包含照片。"
+    }
+  ],
+  "youtube": "早上好",
+  "lifecycle": {
+    "takeover": "包含照片。",
+    "sourceChange": true,
+    "rate15": [
+      "我的部分里包含了名字和一句话。",
+      "名字的话，让我读一下吧。"
+    ],
+    "eof": true,
+    "workerRestart": true,
+    "disconnect": true,
+    "serviceRestart": "这里包含了照片。",
+    "navigationStopsCapture": true
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "profile": "reazon-hy",
+  "cases": [
+    {
+      "id": "csj-aps",
+      "eof": true,
+      "captions": 6,
+      "warnings": 0,
+      "max_send_late_ms": 1.99,
+      "drain_seconds": 0.32901300000096967
+    },
+    {
+      "id": "csj-reproduction",
+      "eof": true,
+      "captions": 6,
+      "warnings": 0,
+      "max_send_late_ms": 1.98,
+      "drain_seconds": 0.24104295800591302
+    },
+    {
+      "id": "csj-sps",
+      "eof": true,
+      "captions": 18,
+      "warnings": 0,
+      "max_send_late_ms": 26.45,
+      "drain_seconds": 0.3048328749967055
+    },
+    {
+      "id": "csj-interview_aps",
+      "eof": true,
+      "captions": 14,
+      "warnings": 1,
+      "max_send_late_ms": 17.51,
+      "drain_seconds": 0.20916112501302564
+    },
+    {
+      "id": "csj-task",
+      "eof": true,
+      "captions": 11,
+      "warnings": 0,
+      "max_send_late_ms": 15.68,
+      "drain_seconds": 0.27045800000441034
+    },
+    {
+      "id": "offsiderule",
+      "eof": true,
+      "captions": 16,
+      "warnings": 2,
+      "max_send_late_ms": 37.34,
+      "drain_seconds": 0.002330208006313228
+    },
+    {
+      "id": "wmf-01",
+      "eof": true,
+      "captions": 49,
+      "warnings": 1,
+      "max_send_late_ms": 14.45,
+      "drain_seconds": 0.0041077919921121975
+    },
+    {
+      "id": "wmf-02",
+      "eof": true,
+      "captions": 45,
+      "warnings": 1,
+      "max_send_late_ms": 19.02,
+      "drain_seconds": 0.2527979169884986
+    },
+    {
+      "id": "wmf-03",
+      "eof": true,
+      "captions": 33,
+      "warnings": 0,
+      "max_send_late_ms": 6.78,
+      "drain_seconds": 0.2651527920039314
+    },
+    {
+      "id": "wmf-04",
+      "eof": true,
+      "captions": 45,
+      "warnings": 0,
+      "max_send_late_ms": 41.78,
+      "drain_seconds": 0.003471457996056415
+    },
+    {
+      "id": "wmf-05",
+      "eof": true,
+      "captions": 32,
+      "warnings": 0,
+      "max_send_late_ms": 22.62,
+      "drain_seconds": 0.0032919160003075376
+    },
+    {
+      "id": "wmf-06",
+      "eof": true,
+      "captions": 43,
+      "warnings": 0,
+      "max_send_late_ms": 15.89,
+      "drain_seconds": 0.2553134580055598
+    },
+    {
+      "id": "first-photo",
+      "eof": true,
+      "captions": 2,
+      "warnings": 0,
+      "max_send_late_ms": 1.88,
+      "drain_seconds": 0.363753290992463
+    },
+    {
+      "id": "first-strangers",
+      "eof": true,
+      "captions": 1,
+      "warnings": 0,
+      "max_send_late_ms": 1.84,
+      "drain_seconds": 0.3889197910029907
+    },
+    {
+      "id": "first-europe",
+      "eof": true,
+      "captions": 2,
+      "warnings": 0,
+      "max_send_late_ms": 2.41,
+      "drain_seconds": 0.2294767910061637
+    },
+    {
+      "id": "first-slides",
+      "eof": true,
+      "captions": 3,
+      "warnings": 0,
+      "max_send_late_ms": 2.04,
+      "drain_seconds": 0.2268090830039
+    },
+    {
+      "id": "silence",
+      "eof": true,
+      "captions": 0,
+      "warnings": 0,
+      "max_send_late_ms": 1.35,
+      "drain_seconds": 0.0032778749882709235
+    }
+  ]
+}

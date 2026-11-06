@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "本地日语视频中文字幕",
+  "version": "0.1.0",
+  "description": "用 Mac 本地服务将 Chrome 标签页的日语音频实时翻译为简体中文字幕。",
+  "minimum_chrome_version": "116",
+  "action": {"default_title": "启动或停止中文字幕"},
+  "background": {"service_worker": "worker.js", "type": "module"},
+  "options_ui": {"page": "options.html", "open_in_tab": true},
+  "permissions": ["activeTab", "scripting", "tabCapture", "offscreen", "storage"],
+  "host_permissions": ["http://127.0.0.1/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://127.0.0.1:18765 ws://127.0.0.1:18765"
+  }
+}

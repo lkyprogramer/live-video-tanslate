@@ -1,0 +1,29 @@
+{
+  "profile": "reazon-hy",
+  "cases": [
+    {
+      "id": "csj-task",
+      "eof": true,
+      "captions": 11,
+      "warnings": 0,
+      "max_send_late_ms": 3.42,
+      "drain_seconds": 0.30348845800280344
+    },
+    {
+      "id": "offsiderule",
+      "eof": true,
+      "captions": 16,
+      "warnings": 2,
+      "max_send_late_ms": 3.42,
+      "drain_seconds": 0.0019558330078126573
+    },
+    {
+      "id": "silence",
+      "eof": true,
+      "captions": 0,
+      "warnings": 0,
+      "max_send_late_ms": 1.92,
+      "drain_seconds": 0.0031423330074176192
+    }
+  ]
+}

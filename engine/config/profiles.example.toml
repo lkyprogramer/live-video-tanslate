@@ -1,0 +1,29 @@
+schema_version = 1
+default_profile_id = "reazon-hy"
+cache_root = "../../.model-cache"
+
+[server]
+port = 18765
+allowed_origin = "chrome-extension://<extension-id>"
+
+[profiles.reazon-hy]
+label = "ReazonSpeech · 本地简中"
+type = "local_pipeline"
+enabled = true
+
+[profiles.reazon-hy.asr]
+type = "reazon_sherpa"
+model_revision = "291488c8151be24d7da4bf7af26e533fad96e407"
+threads = 2
+vad_pause_ms = 600
+
+[profiles.reazon-hy.mt]
+type = "hy_mt2_mlx"
+model_revision = "e5c6fe56c7b3bc77fae5ae92db31f2178f1e6912"
+
+[profiles.whisper-small]
+label = "WhisperLiveKit · small 对照"
+type = "whisperlivekit_ws"
+enabled = false
+url = "ws://127.0.0.1:18766/asr"
+token_env = "WLK_API_TOKEN"

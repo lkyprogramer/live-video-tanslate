@@ -1,0 +1,9 @@
+{
+  "start": {"type":"start","version":1,"profile_id":"reazon-hy","token":"fixture-token","audio":{"format":"s16le","sample_rate":16000,"channels":1}},
+  "ready": {"type":"ready","version":1,"session_id":"s-1","profile_id":"reazon-hy","language":"zh-Hans"},
+  "caption": {"type":"caption","session_id":"s-1","seq":1,"start_sample":0,"end_sample":3200,"text_zh":"我这边有照片。"},
+  "finish": {"type":"finish"},
+  "finished": {"type":"finished","session_id":"s-1","accepted_samples":3200},
+  "warning": {"type":"warning","session_id":"s-1","code":"translation_invalid"},
+  "error": {"type":"error","code":"profile_unavailable","reason":"not_ready"}
+}
