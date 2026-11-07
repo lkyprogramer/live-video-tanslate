@@ -38,6 +38,7 @@ def sample(root_pid, libproc, mach, host):
     tree = subprocess.check_output(["/bin/ps", "-axo", "pid=,ppid=,comm="], text=True)
     children = {}
     xpc_pids = []
+    translation_pids = []
     for line in tree.splitlines():
         raw_pid, raw_parent, command = line.split(maxsplit=2)
         pid, parent = int(raw_pid), int(raw_parent)
@@ -46,6 +47,8 @@ def sample(root_pid, libproc, mach, host):
             "/localspeechrecognition.xpc/Contents/MacOS/localspeechrecognition"
         ):
             xpc_pids.append(pid)
+        if command == "/System/Library/Frameworks/Translation.framework/translationd":
+            translation_pids.append(pid)
 
     def usage_for(pids):
         processes = {}
@@ -80,16 +83,18 @@ def sample(root_pid, libproc, mach, host):
     return {
         "t": sampled_at, "processes": processes,
         "apple_speech_xpc": xpc, "host_cpu_ticks": list(ticks),
+        "apple_translation_daemon": usage_for(translation_pids),
         "gpu_pct": counters.get("Device Utilization %"),
         "gpu_in_use_bytes": counters.get("In use system memory"),
     }
 
 
 def summarize(points, tick_to_ns):
-    proc_cpu, xpc_cpu, host_cpu = [], [], []
+    proc_cpu, xpc_cpu, translation_cpu, host_cpu = [], [], [], []
     for prev, now in zip(points, points[1:]):
         seconds = now["t"] - prev["t"]
-        for key, counters in (("processes", proc_cpu), ("apple_speech_xpc", xpc_cpu)):
+        for key, counters in (("processes", proc_cpu), ("apple_speech_xpc", xpc_cpu),
+                              ("apple_translation_daemon", translation_cpu)):
             if key in now and key in prev:
                 counters.append(sum(
                     curr[1] - prev[key][pid][1]
@@ -115,6 +120,11 @@ def summarize(points, tick_to_ns):
             sum(p[2] for p in row["apple_speech_xpc"].values()) / 2**20
             for row in points if "apple_speech_xpc" in row
         ), default=0), 2) if xpc_cpu else None,
+        "apple_translation_daemon_cpu_avg_pct": round(statistics.mean(translation_cpu), 2) if translation_cpu else None,
+        "apple_translation_daemon_footprint_peak_mib": round(max((
+            sum(p[2] for p in row["apple_translation_daemon"].values()) / 2**20
+            for row in points if "apple_translation_daemon" in row
+        ), default=0), 2) if translation_cpu else None,
         "host_cpu_avg_pct": round(statistics.mean(host_cpu), 2) if host_cpu else None,
         "host_gpu_avg_pct": round(statistics.mean(gpu), 2) if gpu else None,
         "host_gpu_p95_pct": percentile(gpu, .95),

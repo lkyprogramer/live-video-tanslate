@@ -33,14 +33,14 @@ MODEL_REVISIONS = {
 }
 
 
-def wait_ready(server):
+def wait_ready(server, port):
     started = time.monotonic()
     local_http = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     while time.monotonic() - started < 180:
         if server.poll() is not None:
             raise RuntimeError(f"Engine exited during startup ({server.returncode})")
         try:
-            with local_http.open(f"http://{HOST}:{PORT}/health", timeout=1) as response:
+            with local_http.open(f"http://{HOST}:{port}/health", timeout=1) as response:
                 health = json.load(response)
             if health.get("ready") and health.get("backend") == "mlx-whisper":
                 return time.monotonic() - started
@@ -50,11 +50,11 @@ def wait_ready(server):
     raise TimeoutError("Engine readiness exceeded 180 seconds")
 
 
-async def replay(audio, token, trace_file):
+async def replay(audio, token, trace_file, port):
     loop = asyncio.get_running_loop()
     end_of_audio = len(audio) / BYTES_PER_SECOND
     async with websockets.connect(
-        f"ws://{HOST}:{PORT}/asr?mode=full",
+        f"ws://{HOST}:{port}/asr?mode=full",
         additional_headers={"Authorization": f"Bearer {token}"},
         proxy=None,
     ) as ws:
@@ -104,6 +104,9 @@ def main():
     parser.add_argument("model", choices=("small", "large-v3-turbo"))
     parser.add_argument("output", type=Path)
     parser.add_argument("--only", nargs="+", metavar="CLIP")
+    parser.add_argument("--variant", choices=("mixed", "full-mlx", "localagreement"), default="mixed")
+    parser.add_argument("--port", type=int, default=PORT)
+    parser.add_argument("--log-level", default="WARNING")
     args = parser.parse_args()
 
     suite = json.loads(SUITE.read_text())
@@ -114,7 +117,7 @@ def main():
 
     cache = ROOT / ".model-cache"
     decoder_cache = cache / "whisper-pt"
-    if not (decoder_cache / f"{args.model}.pt").is_file():
+    if args.variant == "mixed" and not (decoder_cache / f"{args.model}.pt").is_file():
         raise RuntimeError(f"Missing local Whisper PyTorch decoder checkpoint for {args.model}")
     for repo, revision in MODEL_REVISIONS.items():
         main_ref = cache / f"hub/models--mlx-community--{repo}/refs/main"
@@ -122,8 +125,8 @@ def main():
             raise RuntimeError(f"Unexpected cached model revision for {repo}")
 
     with socket.socket() as check_port:
-        if check_port.connect_ex((HOST, PORT)) == 0:
-            raise RuntimeError(f"Port {PORT} is already in use")
+        if check_port.connect_ex((HOST, args.port)) == 0:
+            raise RuntimeError(f"Port {args.port} is already in use")
 
     args.output.mkdir(parents=True, exist_ok=False)
     token = secrets.token_urlsafe(32)
@@ -134,20 +137,25 @@ def main():
         "HF_HUB_DISABLE_IMPLICIT_TOKEN": "1",
         "PYTHONUNBUFFERED": "1",
     }
+    launcher = [str(Path(sys.executable).parent / "whisperlivekit-server")]
+    if args.variant == "full-mlx":
+        launcher = [sys.executable, str(Path(__file__).resolve()), "--serve-full-mlx"]
+    policy = "localagreement" if args.variant == "localagreement" else "simulstreaming"
     command = [
-        str(Path(sys.executable).parent / "whisperlivekit-server"),
-        "--host", HOST, "--port", str(PORT), "--pcm-input",
+        *launcher,
+        "--host", HOST, "--port", str(args.port), "--pcm-input",
         "--warmup-file", str(ROOT / "../whisper.cpp/samples/jfk.wav"),
         "--model_cache_dir", str(decoder_cache),
-        "--backend", "mlx-whisper", "--backend-policy", "simulstreaming", "--model", args.model,
+        "--backend", "mlx-whisper", "--backend-policy", policy, "--model", args.model,
         "--language", "ja", "--target-language", "zh-cn",
         "--translation-backend", "mlx-llm-mt", "--mlx-llm-mt-model", "hy-mt2-1.8b-4bit",
         "--retention-seconds", "30", "--max-concurrent-sessions", "1",
-        "--max-buffered-audio", "4", "--backpressure-timeout", "1", "--log-level", "WARNING",
+        "--max-buffered-audio", "4", "--backpressure-timeout", "1", "--log-level", args.log_level,
     ]
     summary = {
         "started_utc": datetime.now(timezone.utc).isoformat(),
         "model": args.model,
+        "variant": args.variant,
         "model_revisions": MODEL_REVISIONS,
         "engine_command": command,
         "cases": [],
@@ -156,7 +164,7 @@ def main():
         with (args.output / "server.log").open("w") as server_log:
             server = subprocess.Popen(command, env=env, stdout=server_log, stderr=subprocess.STDOUT)
             try:
-                summary["ready_seconds"] = round(wait_ready(server), 3)
+                summary["ready_seconds"] = round(wait_ready(server, args.port), 3)
                 print(f"{args.model} ready in {summary['ready_seconds']}s", flush=True)
                 for clip in suite:
                     if server.poll() is not None:
@@ -167,7 +175,7 @@ def main():
                     print(f"{args.model} {clip['id']} {clip['duration']:.1f}s", flush=True)
                     with (args.output / f"{clip['id']}.jsonl").open("w", buffering=1) as trace:
                         mark(clip["id"], "start")
-                        result = asyncio.run(replay(audio, token, trace))
+                        result = asyncio.run(replay(audio, token, trace, args.port))
                         mark(clip["id"], "end")
                     summary["cases"].append(clip | result)
                     print(result, flush=True)
@@ -187,4 +195,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if sys.argv[1:2] == ["--serve-full-mlx"]:
+        from whisperlivekit.basic_server import main as serve
+        from whisperlivekit.simul_whisper.backend import SimulStreamingASR
+
+        # WLK 0.2.26 reads this setting at initialization, but its CLI does
+        # not expose it. Apply the setting only to this benchmark child.
+        SimulStreamingASR.use_full_mlx = True
+        del sys.argv[1]
+        serve()
+    else:
+        main()
