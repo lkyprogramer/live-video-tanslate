@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "checks": {
+    "inputs_and_executed_sources_unchanged": true,
+    "baseline_asr_text_exact": 88,
+    "baseline_mt_text_exact": {
+      "11": 62,
+      "29": 62
+    },
+    "mt_settings_identical": true,
+    "native_eof_same_input_accounting": true,
+    "inherited_rubric_sha256": "817bfb277226289196d99a6c775ab2447a1623e7bb82f525aa9921219917f273",
+    "denominator": 34,
+    "paired_gate": "failed",
+    "even_optimistic_net": {
+      "11": -3,
+      "29": -3
+    },
+    "successful_resource_runs": 6,
+    "python_compile_cli": "passed",
+    "human_verified": false,
+    "holdout_accessed": false,
+    "e6": "skipped",
+    "production_default_changed": false
+  }
+}

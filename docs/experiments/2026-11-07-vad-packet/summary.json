@@ -1,0 +1,203 @@
+{
+  "experiment": "Silero v6.2 with original3200-sample packet calls and native EOF",
+  "date": "2026-11-07",
+  "hardware": "Apple M1 Pro,32GiB unified memory",
+  "variable": "VAD checkpoint only",
+  "packet_samples": 3200,
+  "sample_rate": 16000,
+  "eof": "native; no padding",
+  "vad": {
+    "threshold": 0.5,
+    "min_speech_s": 0.15,
+    "min_silence_s": 0.6,
+    "max_speech_s": 4
+  },
+  "vad_models": {
+    "v4": {
+      "sha256": "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6"
+    },
+    "v6": {
+      "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+    }
+  },
+  "v6_revision": "be95df9152c0d7618fa1edfeb296fc3dae32376f",
+  "runtime": {
+    "sherpa-onnx": "2.0.1",
+    "numpy": "2.5.4",
+    "mlx": "0.31.2",
+    "mlx-lm": "0.31.3",
+    "whisperlivekit": "0.2.26",
+    "transformers": "5.22.1"
+  },
+  "asr_revision": "291488c8151be24d7da4bf7af26e533fad96e407",
+  "mt_revision": "e5c6fe56c7b3bc77fae5ae92db31f2178f1e6912",
+  "asr_threads": 2,
+  "mt_seeds": [
+    11,
+    29
+  ],
+  "results": {
+    "denominator": 34,
+    "review": "ai_reviewed",
+    "human_verified": false,
+    "paired": {
+      "11": {
+        "baseline": 20,
+        "candidate_lower": 13,
+        "candidate_upper": 17,
+        "net_lower": -7,
+        "net_upper": -3,
+        "restored": [
+          "csj-reproduction/2-3",
+          "csj-task/6"
+        ],
+        "lost": [
+          "csj-task/12-15",
+          "csj-task/20",
+          "csj-task/9",
+          "wmf-04/131-132",
+          "wmf-04/136",
+          "wmf-04/153-155",
+          "wmf-04/161-165",
+          "wmf-04/170-172",
+          "wmf-04/179"
+        ],
+        "uncertain": [
+          "csj-task/12-15",
+          "wmf-04/133-135",
+          "wmf-04/153-155",
+          "wmf-04/161-165"
+        ],
+        "new_critical_errors": [
+          {
+            "unit": "wmf-04/131-132",
+            "output_id": "wmf-04/1",
+            "type": "entity_relation",
+            "source": "付録をつけるということそれから定義",
+            "actual": "添加附录，也就是定义",
+            "baseline": "添加附录，然后就是定义了"
+          },
+          {
+            "unit": "wmf-04/136",
+            "output_id": "wmf-04/5",
+            "type": "document_identity",
+            "source": "憲章",
+            "actual": "宪法",
+            "baseline": "第一行是序言"
+          }
+        ],
+        "passed": false,
+        "common_tolerance_removed": {
+          "unit": "wmf-04/158-160",
+          "baseline": 19,
+          "lower": 12,
+          "upper": 16
+        }
+      },
+      "29": {
+        "baseline": 18,
+        "candidate_lower": 12,
+        "candidate_upper": 15,
+        "net_lower": -6,
+        "net_upper": -3,
+        "restored": [
+          "csj-task/6"
+        ],
+        "lost": [
+          "csj-task/12-15",
+          "csj-task/20",
+          "csj-task/9",
+          "wmf-04/136",
+          "wmf-04/153-155",
+          "wmf-04/170-172",
+          "wmf-04/179"
+        ],
+        "uncertain": [
+          "csj-task/12-15",
+          "wmf-04/133-135",
+          "wmf-04/153-155"
+        ],
+        "new_critical_errors": [
+          {
+            "unit": "wmf-04/136",
+            "output_id": "wmf-04/5",
+            "type": "document_identity",
+            "source": "憲章",
+            "actual": "宪法",
+            "baseline": "第一行是序言"
+          },
+          {
+            "unit": "wmf-04/161-165",
+            "output_id": "wmf-04/28",
+            "type": "modality",
+            "source": "私にも発言権があるのか",
+            "actual": "我也有发言权",
+            "baseline": "我也有发言权吗"
+          }
+        ],
+        "passed": false,
+        "common_tolerance_removed": {
+          "unit": "wmf-04/158-160",
+          "baseline": 17,
+          "lower": 11,
+          "upper": 14
+        }
+      }
+    },
+    "qualified_for_realtime": false,
+    "conclusion": "v6.2 plus original packet calls/native EOF did not qualify; keep reazon-hy",
+    "e6": "skipped: even optimistic semantic bound fails paired gain gate and new critical errors exist"
+  },
+  "workload": {
+    "v4": {
+      "asr_calls": 88,
+      "empty_asr": 0,
+      "asr_audio_s": 375.388,
+      "asr_decode_s": 6.863080002964125,
+      "asr_p95_s": 0.15,
+      "photo_release_logical_s": 6.2,
+      "mt": {
+        "11": {
+          "calls": 62,
+          "output_characters": 896,
+          "wall_total_s": 15.073219246973167,
+          "wall_p95_s": 0.416,
+          "filtered": []
+        },
+        "29": {
+          "calls": 62,
+          "output_characters": 893,
+          "wall_total_s": 14.984777333011152,
+          "wall_p95_s": 0.413,
+          "filtered": []
+        }
+      }
+    },
+    "v6": {
+      "asr_calls": 78,
+      "empty_asr": 0,
+      "asr_audio_s": 389.844,
+      "asr_decode_s": 7.0183284950617235,
+      "asr_p95_s": 0.185,
+      "photo_release_logical_s": 7.8,
+      "mt": {
+        "11": {
+          "calls": 53,
+          "output_characters": 866,
+          "wall_total_s": 13.516426585032605,
+          "wall_p95_s": 0.427,
+          "filtered": []
+        },
+        "29": {
+          "calls": 53,
+          "output_characters": 849,
+          "wall_total_s": 13.426151790044969,
+          "wall_p95_s": 0.43,
+          "filtered": []
+        }
+      }
+    }
+  },
+  "raw_evidence": "Local only:p0/evidence/vad-packet-20261107-0423",
+  "scope": "Offline screening with AI text review. No new1x first-correct-caption/sentence-endP95. No human listening or holdout access."
+}

@@ -10,3 +10,5 @@
 Semantic reviews are AI text reviews. Audio listening is deferred. These offline numbers do not establish first-correct-caption or sentence-end latency at 1x. Ranges retain borderline reference judgements. Supplemental source-text diagnostics are not blind tests.
 
 Raw audio, video, transcripts, model weights, tokens, absolute local paths and per-event traces stay in the ignored local evidence directory. Reproduction requires the licensed source material described in the result report.
+
+This directory preserves the original E0–E5 snapshot. The later v6.2 packet-call supplement is recorded separately in [2026-11-07-vad-packet](../2026-11-07-vad-packet/README.md); its conclusion does not rewrite these historical scores or source hashes.

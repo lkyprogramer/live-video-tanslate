@@ -1,0 +1,15 @@
+report,interval,process_cpu_avg_pct,process_cpu_p95_pct,process_footprint_peak_mib,host_gpu_avg_pct,host_gpu_p95_pct,host_gpu_peak_pct,host_gpu_avg_idle_delta_pct,host_gpu_memory_avg_mib,host_gpu_memory_p95_mib,host_gpu_mem_peak_mib,host_gpu_memory_avg_idle_delta_mib
+resources/v4-asr/resources.json,whole_run,223.31,256.974,557.47,0,0,0,0,97.72,202.078,202.078,-2.55
+resources/v4-asr/resources.json,v4-asr#1,237.79,256.974,557.47,0,0,0,0,104.44,202.078,202.078,4.17
+resources/v4-mt/resources.json,whole_run,58.16,83.005,1464.61,85.05,98,100,85.05,1287.34,1508.062,1580.938,1229.46
+resources/v4-mt/resources.json,v4/mt-reazon-m0-11#1,54.94,67.204,1454.97,92.4,98,100,92.4,1401.75,1510.344,1580.938,1343.87
+resources/v4-mt/resources.json,v4/mt-reazon-m0-29#1,54.76,66.135,1464.61,93.47,98,100,93.47,1392.01,1498.891,1562.875,1334.13
+resources/v4-vad/resources.json,whole_run,99.88,100.611,135.52,0,0,0,0,58.0,67.172,67.172,0.12
+resources/v4-vad/resources.json,v4-vad#1,99.9,100.157,135.52,0,0,0,0,57.73,67.172,67.172,-0.15
+resources/v6-asr/resources.json,whole_run,218.72,245.953,632.13,0,0,0,0,55.66,67.172,67.172,-2.22
+resources/v6-asr/resources.json,v6-asr#1,232.47,245.953,632.13,0,0,0,0,54.79,67.172,67.172,-3.09
+resources/v6-mt/resources.json,whole_run,58.99,96.207,1482.94,85.86,100,100,85.86,1278.42,1507.25,1614.094,1213.58
+resources/v6-mt/resources.json,v6/mt-reazon-m0-11#1,54.65,66.771,1482.94,93.94,100,100,93.94,1390.88,1517.453,1614.094,1326.04
+resources/v6-mt/resources.json,v6/mt-reazon-m0-29#1,55.48,66.155,1477.25,93.7,100,100,93.7,1375.46,1495.422,1520.859,1310.62
+resources/v6-vad/resources.json,whole_run,99.68,102.615,156.8,0,0,0,0,74.3,131.844,131.844,19.51
+resources/v6-vad/resources.json,v6-vad#1,99.67,102.615,156.8,0,0,0,0,76.66,131.844,131.844,21.87
