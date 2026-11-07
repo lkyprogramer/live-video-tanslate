@@ -2,6 +2,8 @@
 
 2026-11-06 至 2026-11-07 在 M1 Pro、10 核 CPU、32 GiB 统一内存和 macOS 26.7.2 上执行。[修订方案](optimization-plan.md)
 
+后续 E0–E5 已执行，最新评分、机制诊断、资源对照及未进入 E6/E7 的原因见 [2026-11-07 探索结果](exploration-results-2026-11-07.md)。
+
 **继续使用 `reazon-hy`。** N0 跑通了音频、识别、翻译、WS 和 Chrome 的诊断关联。后续的切分、识别和翻译对照均未达到各自门槛。Moonshine 原速回放的 5 秒内正确覆盖为 18/34，基线为 19/34；候选的句末 P95 和平均 CPU 占用也更高。`test/` 继续封存，N3 盲测和 60 分钟长稳未运行。
 
 ## N0 原速基线
@@ -264,6 +266,21 @@ WhisperKit 恢复了「名字和一句话」，也在播放 8.177 秒译对越�
 - 14 个漏错单元对应 28 个不同的原始 VAD 切片，去重后约 131 秒音频。切片人工转写尚未完成。已确认的错译、漏字幕和多余输出应分开计数，便于检查候选是否引入新的数字、否定、专名或动作错误。
 - WhisperKit 和 ReazonSpeech 使用同一批 43 个切片，但分别触发了 24 次和 43 次 MT。表中的资源反映各自实际运行成本。若要比较同等工作量下的识别效率，应单独对照识别阶段。
 
+### Hy-MT2 1.8B 贪心解码
+
+从原始 WS 到达事件和已存语义配对重算 D5、N0、Moonshine 和 PengChengStarling 两组对照。只把 `wmf-04/153-155` 的句末从 119.60 秒暂移到 126.04 秒做敏感性计算。原时标下 D5 为 66/121、P95 2.745 秒，N0 为 19/34、P95 1.929 秒。暂移后分别为 67/121、2.314 秒和 20/34、1.805 秒。该时标、原有 14 个漏错单元和 28 个切片的人工复听仍待确认。时标变化不影响本轮离线译文计分。
+
+固定原 ReazonSpeech 输出中的 62 条评分切片、同一 Hy-MT2 1.8B MLX 4-bit 权重和 M0 模板。按种子 11、29 重跑当前采样和贪心两组。贪心只把温度从 0.2 置零，由 MLX 解码器取最高分 token。采样两轮各 62 条与历史译文逐条一致，贪心两轮的 62 条也逐条一致。四轮译文均通过现行简中字符过滤。将不同译文按切片随机分配匿名标签，复核 34 项语义与 23 条发生变化的切片。
+
+| 条件 | 统一复核后的正确覆盖，种子 11／29 | 离线 MT P95，种子 11／29 |
+| --- | ---: | ---: |
+| 当前采样 | 20／18（共 34 项） | 433／438 ms |
+| 贪心解码 | 18／18（共 34 项） | 424／409 ms |
+
+历史判定中，当前采样两轮均为 20/34。本轮以同一标准复核，种子 29 在两项上扣分。`wmf-04/131-132` 把添加附录和给出定义说成一件事，`wmf-04/161-165` 把同意条款改成符合条款。贪心在这两项上也有同类错误。相对采样种子 11，贪心净减 2 项并引入这两处关键误译。相对种子 29，覆盖持平。贪心没有救回任何主评分单元。若把这两项均按历史宽松口径计入，四轮都为 20/34。贪心保住了冻结日文中的「2004」，避免了采样种子 29 生成的「204」。源音实际年份仍待复听，故没有把它计作恢复。
+
+离线连续推理的进程树 CPU 均值为采样 59.54–60.36%、贪心 60.39–61.38%，物理内存峰值分别为约 1,465 和 1,459 MiB。整机 GPU 平均约 91–92%，GPU 共享内存峰值约 3,199 和 3,787 MiB。采样间隔 250 ms。四次任务共用已预热的模型，这些是离线任务阶段的读数。贪心未达到净增 3/34 且无新增关键误译的门槛，本轮停在离线对照。
+
 ## 本机证据与复现
 
 以下路径和命令记录本机实验的证据位置与运行方式。原始数据和新增实验探针保存在实验机器上，公开仓库提供方案与结果摘要。
@@ -286,6 +303,8 @@ uv run --project engine --frozen python p0/next_mt.py "$run/final-references" al
 Kotoba 证据在 `p0/evidence/n2-kotoba/`。用 Kotoba 探针（`p0/next_kotoba.py`）的 `prepare` 生成输入和 `listen.html`，再用 `decode` 指定本机 Metal 版 `whisper-cli` 和 Q5 权重。`kotoba-run.json`、`model-sha256.txt` 和 `command.json` 保存版本及命令。`semantic-verdict.json` 保存两轮逐句判定，`b-triage.jsonl` 保存 14 个单元的原切片范围和多模型日文对照。
 
 翻译对照的证据在 `p0/evidence/n2-mt/`。`1p8b/` 保存 `m2-hit` 两轮输出及判定。`7b/` 保存固定权重信息、四组译文、网关过滤检查和逐句判定。用 MT 探针（`p0/next_mt.py`）的 `--variants m2-hit` 复现词表组。7B 使用 `--sources reazon oracle --model-snapshot <固定本机权重目录>`，默认变体为 M0。
+
+贪心对照保存在 `p0/evidence/n2-mt-greedy/`。复制冻结的 `frozen.json`、`reazon.jsonl` 和最终版 `units.jsonl` 到新的证据目录后，用 MT 探针的 `translate --sources reazon --variants m0 m0-greedy` 复现。`timing-rescore.json` 保存两套时标重算，`pending-listen.json` 保存待复听项，`mt-semantic-result.json`、`blind-verdict.json` 和 `mt-resources/resources.json` 保存判定、晋级结果和离线资源采样。
 
 Moonshine 对照的证据在 `p0/evidence/n2-moonshine/`。`run-settings.json`、`model-sha256.txt` 记录版本和样本。候选与对照分别保留 WS 输出、阶段日志、逐句判定和 250 ms 资源样本。用隔离的 `PYTHONPATH` 加载固定 wheel，用 `P0_MOONSHINE_MODEL` 指定权重目录。Moonshine 探针（`p0/next_moonshine.py`）接收与 `subtitle-replay` 相同的回放参数，另支持 `--smoke <权重目录> --clips <样本 ID...>` 验证原生事件和 EOF。两次完整回放的实参见各自的 `resources.json`。解码上限用 `P0_MOONSHINE_MAX_TOKENS_PER_SECOND` 设置，输出差异见 `token-cap-comparison.json`。
 

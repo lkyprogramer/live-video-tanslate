@@ -1,0 +1,443 @@
+{
+  "date": "2026-11-07",
+  "hardware": "Apple M1 Pro, 32 GiB unified memory",
+  "scope": "Offline development-set screening; no new 1x, Chrome acceptance, blind test or 60-minute soak",
+  "reference_review": "ai_reviewed; human listening deferred",
+  "denominator": 34,
+  "baseline_hits": {
+    "11": 20,
+    "29": 18
+  },
+  "m2_hit": {
+    "11": {
+      "baseline": 20,
+      "m2_hit": 22,
+      "net": 2,
+      "restored": [
+        "csj-reproduction/1",
+        "csj-task/30"
+      ],
+      "lost": []
+    },
+    "29": {
+      "baseline": 18,
+      "m2_hit": 20,
+      "net": 2,
+      "restored": [
+        "csj-reproduction/1",
+        "csj-task/30"
+      ],
+      "lost": []
+    }
+  },
+  "candidates": {
+    "firered-default": {
+      "11": {
+        "hits": 14,
+        "upper_sensitivity": 16,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/133-135",
+          "wmf-04/153-155"
+        ],
+        "restored": [],
+        "lost": [
+          "csj-task/5",
+          "wmf-04/131-132",
+          "wmf-04/153-155",
+          "wmf-04/158-160",
+          "wmf-04/161-165",
+          "wmf-04/169"
+        ],
+        "net": -6,
+        "qualified": false,
+        "translation_sha256": "52ff1c495c7b1f713801d53af6fe958cf0f8ea487e75b5e73ead58e433b7ef4c"
+      },
+      "29": {
+        "hits": 15,
+        "upper_sensitivity": 17,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/133-135",
+          "wmf-04/153-155"
+        ],
+        "restored": [
+          "csj-reproduction/2-3"
+        ],
+        "lost": [
+          "csj-task/5",
+          "wmf-04/153-155",
+          "wmf-04/158-160",
+          "wmf-04/169"
+        ],
+        "net": -3,
+        "qualified": false,
+        "translation_sha256": "321ac04003b31388691233219926928136ff9726862f1545dbde8f60a07a0774"
+      }
+    },
+    "silero-v6": {
+      "11": {
+        "hits": 13,
+        "upper_sensitivity": 15,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/153-155",
+          "wmf-04/156-157"
+        ],
+        "restored": [],
+        "lost": [
+          "csj-task/5",
+          "csj-task/9",
+          "wmf-04/131-132",
+          "wmf-04/153-155",
+          "wmf-04/156-157",
+          "wmf-04/158-160",
+          "wmf-04/161-165"
+        ],
+        "net": -7,
+        "qualified": false,
+        "translation_sha256": "e2bff317c1583ebb8ffeaf06555b4973817eb1dcf6568369f8f8998c9c824ba9"
+      },
+      "29": {
+        "hits": 14,
+        "upper_sensitivity": 16,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/153-155",
+          "wmf-04/156-157"
+        ],
+        "restored": [
+          "wmf-04/131-132"
+        ],
+        "lost": [
+          "csj-task/5",
+          "csj-task/9",
+          "wmf-04/153-155",
+          "wmf-04/156-157",
+          "wmf-04/158-160"
+        ],
+        "net": -4,
+        "qualified": false,
+        "translation_sha256": "405efd5a884e42f55e67f49f5d412b83106ac5c7ad13f556327eeb56f7b06ae4"
+      }
+    },
+    "firered": {
+      "11": {
+        "hits": 7,
+        "upper_sensitivity": 10,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/153-155",
+          "wmf-04/156-157",
+          "wmf-04/169"
+        ],
+        "restored": [],
+        "lost": [
+          "csj-reproduction/5-7",
+          "csj-task/20",
+          "csj-task/5",
+          "csj-task/9",
+          "wmf-04/136",
+          "wmf-04/153-155",
+          "wmf-04/156-157",
+          "wmf-04/158-160",
+          "wmf-04/161-165",
+          "wmf-04/166-167",
+          "wmf-04/169",
+          "wmf-04/170-172",
+          "wmf-04/173"
+        ],
+        "net": -13,
+        "qualified": false,
+        "translation_sha256": "610de45d699fcdf1618d6257cd5bef544713dd2f47e5be57059eb1ad2154d754"
+      },
+      "29": {
+        "hits": 7,
+        "upper_sensitivity": 10,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/153-155",
+          "wmf-04/156-157",
+          "wmf-04/169"
+        ],
+        "restored": [
+          "wmf-04/131-132"
+        ],
+        "lost": [
+          "csj-reproduction/5-7",
+          "csj-task/20",
+          "csj-task/5",
+          "csj-task/9",
+          "wmf-04/136",
+          "wmf-04/153-155",
+          "wmf-04/156-157",
+          "wmf-04/158-160",
+          "wmf-04/166-167",
+          "wmf-04/169",
+          "wmf-04/170-172",
+          "wmf-04/173"
+        ],
+        "net": -11,
+        "qualified": false,
+        "translation_sha256": "3eb6aba0c159c34abb706154d6929407695deb10ef9a59bb1666318519a7d001"
+      }
+    },
+    "window": {
+      "11": {
+        "hits": 15,
+        "upper_sensitivity": 15,
+        "denominator": 34,
+        "uncertain_units": [],
+        "restored": [],
+        "lost": [
+          "csj-task/9",
+          "wmf-04/131-132",
+          "wmf-04/156-157",
+          "wmf-04/158-160",
+          "wmf-04/161-165"
+        ],
+        "net": -5,
+        "qualified": false,
+        "translation_sha256": "175cd51ef5c4b556150f6d557f825b7efba947244e393c4149d76553f490f56f"
+      },
+      "29": {
+        "hits": 16,
+        "upper_sensitivity": 16,
+        "denominator": 34,
+        "uncertain_units": [],
+        "restored": [
+          "wmf-04/131-132"
+        ],
+        "lost": [
+          "csj-task/9",
+          "wmf-04/156-157",
+          "wmf-04/158-160"
+        ],
+        "net": -2,
+        "qualified": false,
+        "translation_sha256": "ad245a050c83c5e81af1d5d6fcf6e919f8de237fa6d21f0b12fcbc4fcba5c7b2"
+      }
+    },
+    "beam-hotwords": {
+      "11": {
+        "hits": 18,
+        "upper_sensitivity": 18,
+        "denominator": 34,
+        "uncertain_units": [],
+        "restored": [],
+        "lost": [
+          "wmf-04/158-160",
+          "wmf-04/169"
+        ],
+        "net": -2,
+        "qualified": false,
+        "translation_sha256": "98643bc56f30ab4e70f71db726759a17d2f3599ae3111ddf6c8210bca07e41bf"
+      },
+      "29": {
+        "hits": 16,
+        "upper_sensitivity": 16,
+        "denominator": 34,
+        "uncertain_units": [],
+        "restored": [],
+        "lost": [
+          "wmf-04/158-160",
+          "wmf-04/169"
+        ],
+        "net": -2,
+        "qualified": false,
+        "translation_sha256": "305c552941006fa938892d0884a67329dc4f96153b04723d1a45b01be74e2395"
+      }
+    },
+    "granite": {
+      "11": {
+        "hits": 16,
+        "upper_sensitivity": 18,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/148-152",
+          "wmf-04/161-165"
+        ],
+        "restored": [],
+        "lost": [
+          "csj-task/20",
+          "wmf-04/161-165",
+          "wmf-04/169",
+          "wmf-04/173"
+        ],
+        "net": -4,
+        "qualified": false,
+        "translation_sha256": "fce327b5b0ba2d83017fb8a6eaaa8b25af7eb129117c7a8d0e2d9ec4920f07fb"
+      },
+      "29": {
+        "hits": 16,
+        "upper_sensitivity": 18,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/148-152",
+          "wmf-04/161-165"
+        ],
+        "restored": [
+          "wmf-04/131-132"
+        ],
+        "lost": [
+          "csj-task/20",
+          "wmf-04/169",
+          "wmf-04/173"
+        ],
+        "net": -2,
+        "qualified": false,
+        "translation_sha256": "1c949ea7a49a12517c9d8695e51eef1ff4383b22b910daca98c1bb2bb5dc2a3c"
+      }
+    },
+    "ja-en": {
+      "11": {
+        "hits": 14,
+        "upper_sensitivity": 16,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/156-157",
+          "wmf-04/176-178"
+        ],
+        "restored": [
+          "csj-task/6"
+        ],
+        "lost": [
+          "csj-reproduction/5-7",
+          "csj-task/20",
+          "wmf-04/156-157",
+          "wmf-04/158-160",
+          "wmf-04/161-165",
+          "wmf-04/173",
+          "wmf-04/179"
+        ],
+        "net": -6,
+        "qualified": false,
+        "translation_sha256": "6f486e12fc46abbc662ca49055966347223fe3ce33877c87d089794db2850c92"
+      },
+      "29": {
+        "hits": 14,
+        "upper_sensitivity": 15,
+        "denominator": 34,
+        "uncertain_units": [
+          "wmf-04/156-157",
+          "wmf-04/176-178"
+        ],
+        "restored": [
+          "csj-task/6"
+        ],
+        "lost": [
+          "csj-reproduction/5-7",
+          "csj-task/20",
+          "wmf-04/158-160",
+          "wmf-04/173",
+          "wmf-04/179"
+        ],
+        "net": -4,
+        "qualified": false,
+        "translation_sha256": "34965187f94be63ed6dc203ca7496227b36407c5126201a9fc7e704f084219c1"
+      }
+    },
+    "index": {
+      "11": {
+        "hits": 13,
+        "upper_sensitivity": 13,
+        "denominator": 34,
+        "uncertain_units": [],
+        "restored": [],
+        "lost": [
+          "csj-reproduction/5-7",
+          "csj-task/12-15",
+          "csj-task/20",
+          "csj-task/9",
+          "wmf-04/158-160",
+          "wmf-04/161-165",
+          "wmf-04/166-167"
+        ],
+        "net": -7,
+        "qualified": false,
+        "translation_sha256": "7c7a9ab0a6b9654afb1e4abaaf37afbbbf02be14b80a25c1a3c1cc0d5a2a285d"
+      },
+      "29": {
+        "hits": 13,
+        "upper_sensitivity": 13,
+        "denominator": 34,
+        "uncertain_units": [],
+        "restored": [
+          "wmf-04/131-132"
+        ],
+        "lost": [
+          "csj-reproduction/5-7",
+          "csj-task/12-15",
+          "csj-task/20",
+          "csj-task/9",
+          "wmf-04/158-160",
+          "wmf-04/166-167"
+        ],
+        "net": -5,
+        "qualified": false,
+        "translation_sha256": "22815f4378cb8b314d0464e64e02142bf0331a85ebbb08e3c437e813aa2670c7"
+      }
+    }
+  },
+  "stages": {
+    "E0": {
+      "status": "passed",
+      "conclusion": "自动冻结和复算完成；m2-hit为22/20，各净增2，仅可作小收益诊断。15项待复听。"
+    },
+    "E1": {
+      "status": "passed",
+      "conclusion": "完成机制与输入核对。窗口候选15/16，对照20/18；未达晋级，尾补齐无文本变化，保留默认。"
+    },
+    "E2": {
+      "status": "passed",
+      "conclusion": "19空段全部定位：4段未解码，15段直接EOT。window0仅增加はい，无语义净收益；停止。"
+    },
+    "E3": {
+      "status": "passed",
+      "conclusion": "v6.2、FireRed官方20秒上限及4秒诊断均完成；特征连续性一致，全部未达语义门槛。"
+    },
+    "E4": {
+      "status": "passed",
+      "conclusion": "四组88切片与两种子MT完成。热词两档与空beam逐条一致；中文18/16，对照20/18，有新增错误，不晋级。"
+    },
+    "E5": {
+      "status": "passed",
+      "conclusion": "两个ASR、Index及小收益诊断全部完成；均未达净增3且无新增关键错误的晋级条件。"
+    },
+    "E6": {
+      "status": "skipped",
+      "conclusion": "正式候选池为空，未运行1×原速组合；离线耗时不充当句末延迟。"
+    },
+    "E7a": {
+      "status": "skipped",
+      "conclusion": "E6没有过线配置，本轮不运行Chrome和60分钟候选验收。"
+    },
+    "E7b": {
+      "status": "skipped",
+      "conclusion": "尚无过线配置；人工参考按用户要求暂缓，test/保持封存。"
+    }
+  },
+  "models": {
+    "granite": {
+      "revision": "1dd23f46f6d4e6eae2531982ba2e33220086dd97",
+      "precision": "original BF16/F32"
+    },
+    "reazon-ja-en": {
+      "revision": "12b44671ff48b9aed622551d64e02fea9a2cf870",
+      "precision": "INT8 encoder/joiner, FP32 decoder"
+    },
+    "index": {
+      "revision": "3a0eca6ce931d88d00614d427ab3ed8ff0743902",
+      "precision": "Q8_0",
+      "llama_cpp_revision": "fd27b2034905f8dadd8bd6d2cc44595f4929d391"
+    }
+  },
+  "decision": "Keep reazon-hy; no candidate qualified for E6",
+  "raw_evidence": "Local only: p0/evidence/exploration-20261107-0312 (ignored)",
+  "remaining": [
+    "E6/E7 conditional acceptance not run",
+    "Human audio verification pending",
+    "Supplementary development set lacks labeled BGM speech",
+    "Optional unrun single experiment: Silero v6.2 with original 200ms packet calls and native EOF"
+  ]
+}

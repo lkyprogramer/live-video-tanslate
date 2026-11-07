@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "checks": {
+    "frozen_input_hashes": 12,
+    "product_and_control_sources_unchanged": 14,
+    "preexisting_unrelated_files_preserved": 34,
+    "baseline_exact_matches": {
+      "11": 62,
+      "29": 62
+    },
+    "aligned_tail_cases": 9,
+    "whisperkit_empty_causes": {
+      "decoder_emits_no_word_tokens": 15,
+      "window_clip_prevents_decoder": 4
+    },
+    "adjudicated_candidate_seed_pairs": 16,
+    "stage_artifacts_exist": true,
+    "resource_runs": 19,
+    "repeated_phase_samples_recovered": true,
+    "python_compile_and_cli_help": 6,
+    "evidence_and_models_ignored": true,
+    "holdout_accessed": false,
+    "owned_index_server_stopped": true
+  },
+  "verification": "No fresh 1x, Chrome, blind or long-soak tests: candidate gate failed",
+  "no_product_changes": true,
+  "no_commit_push_release": true
+}

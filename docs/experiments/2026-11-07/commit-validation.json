@@ -1,0 +1,44 @@
+{
+  "backend": {
+    "command": "uv run --project engine --frozen pytest engine/tests/test_gateway.py engine/tests/test_whisper.py -q",
+    "passed": 17
+  },
+  "extension": {
+    "tests_passed": 5,
+    "typecheck": "passed",
+    "production_build": "passed",
+    "production_diagnostic_payload_absent": true,
+    "diagnostic_packaging_rejected": true
+  },
+  "browser": {
+    "chrome": "Chrome/157.0.8103.38",
+    "diagnostics": {
+      "wsCaptions": 11,
+      "visibleCaptions": 11,
+      "videoFrames": 608
+    },
+    "initial_subtitle_observed": true,
+    "pause_seek_resume_subtitle_observed": true,
+    "fullscreen": {
+      "status": "not_verified_environment_denied",
+      "extension_error": "Error: TypeError: not granted",
+      "same_debug_launch_without_extension": {
+        "chrome": "Chrome/157.0.8103.38",
+        "extensionLoaded": false,
+        "visibility": "visible",
+        "focused": true,
+        "activation": true,
+        "fullscreenEnabled": true,
+        "error": "TypeError: not granted"
+      }
+    },
+    "later_lifecycle_checks": "not reached after fullscreen rejection; not claimed passed"
+  },
+  "experiment_evidence": {
+    "frozen_source_hashes": 13,
+    "baseline_text_exact_matches_per_seed": 62,
+    "historical_artifacts_unchanged": true
+  },
+  "holdout_accessed": false,
+  "model_or_default_profile_changed": false
+}

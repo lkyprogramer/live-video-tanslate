@@ -36,4 +36,4 @@ npm --prefix extension test
 
 目前是试用原型。已在本地 HTML5 视频和 YouTube 验证字幕上屏与后端切换。17 段原速回放的 5 秒语义正确覆盖率为 54.5%，低于 90% 验收门槛。仓库保留验收摘要，原始素材、完整运行日志、模型和本机配置由各自环境生成。[验收与资源数据](docs/v1-acceptance.md) · [开发方案](docs/development-plan.md) · [v1 接口合同](docs/subtitle-backend-contract.md)
 
-日语识别、日中翻译和实时链路的后续对照见[实验方案](docs/optimization-plan.md)与[本机实验结果](docs/optimization-results.md)。
+日语识别、日中翻译和实时链路的后续分阶段探索见[执行方案](docs/exploration-plan.md)，最新验收和资源对照见[E0–E5 探索结果](docs/exploration-results-2026-11-07.md)，既有对照见[本机实验结果](docs/optimization-results.md)。
