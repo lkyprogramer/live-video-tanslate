@@ -30,6 +30,7 @@ Create a new persistent directory under `p0/evidence/` for each experiment. Exis
 | `exploration_resources.py` | Recover every marked resource interval, including repeated phase names |
 | `exploration_score.py` | Recompute this run's written AI semantic verdicts |
 | `exploration_validate.py` | Validate saved evidence and frozen source hashes, reporting later checkout drift separately |
+| `next_vad_packet.py` | Supplemental v4/v6.2 comparison with original 200ms packet calls and native EOF |
 
 Use each program's `--help` for its actual arguments. Qwen/Granite use an isolated MLX environment. The VAD probe additionally needs its recorded Kaldi dependencies. Swift probes require compatible macOS/Xcode and their pinned model/tokenizer assets. Build a Swift package using `xcodebuildmcp swift-package build --package-path <absolute-package-path> --target-name <target> --configuration release`.
 
