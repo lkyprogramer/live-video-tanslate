@@ -8,6 +8,7 @@ class Caption:
     start_sample: int
     end_sample: int
     text_zh: str
+    segment_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,7 @@ class BackendError(Exception):
 
 
 CaptionSink = Callable[[Caption | Warning | BackendError], Awaitable[None]]
+DiagnosticSink = Callable[..., None]
 
 
 class SubtitleSession(Protocol):
@@ -34,5 +36,5 @@ class SubtitleSession(Protocol):
 class SubtitleBackend(Protocol):
     async def warmup(self) -> None: ...
     async def available(self) -> bool: ...
-    async def open(self, emit: CaptionSink) -> SubtitleSession: ...
+    async def open(self, emit: CaptionSink, *, record: DiagnosticSink | None = None) -> SubtitleSession: ...
     async def aclose(self) -> None: ...

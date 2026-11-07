@@ -3,10 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from dataclasses import dataclass, replace
 import hashlib
-import json
-import os
+from itertools import count
 from pathlib import Path
-import time
 
 from .backend import BackendError, Caption
 
@@ -20,9 +18,37 @@ MODEL_FILES = (
 
 @dataclass(frozen=True)
 class RecognizedSegment:
+    segment_id: int
     start_sample: int
     end_sample: int
     text_ja: str
+
+
+def silero_config(vad_path, pause_ms):
+    import sherpa_onnx
+
+    config = sherpa_onnx.VadModelConfig()
+    config.sample_rate = RATE
+    config.silero_vad.model = str(vad_path)
+    config.silero_vad.threshold = .5
+    config.silero_vad.min_speech_duration = .15
+    config.silero_vad.min_silence_duration = pause_ms / 1000
+    config.silero_vad.max_speech_duration = 4
+    return config
+
+
+def vad_segments(vad, frame):
+    import numpy as np
+
+    if frame is None:
+        vad.flush()
+    else:
+        vad.accept_waveform(np.frombuffer(frame, dtype="<i2").astype(np.float32) / 32768)
+    while not vad.empty():
+        segment = vad.front
+        start, samples = segment.start, segment.samples
+        vad.pop()
+        yield start, samples
 
 
 class ReazonRecognizer:
@@ -30,21 +56,13 @@ class ReazonRecognizer:
         import numpy as np
         import sherpa_onnx
 
-        self.np = np
         self.sherpa = sherpa_onnx
         self.model = sherpa_onnx.OfflineRecognizer.from_transducer(
             **{key: str(snapshot / filename) for key, filename in zip(
                 ("encoder", "decoder", "joiner", "tokens"), MODEL_FILES, strict=True)},
             num_threads=config.threads, sample_rate=RATE, provider="cpu",
         )
-        self.vad_config = sherpa_onnx.VadModelConfig()
-        self.vad_config.sample_rate = RATE
-        silero = self.vad_config.silero_vad
-        silero.model = str(vad_path)
-        silero.threshold = .5
-        silero.min_speech_duration = .15
-        silero.min_silence_duration = config.vad_pause_ms / 1000
-        silero.max_speech_duration = 4
+        self.vad_config = silero_config(vad_path, config.vad_pause_ms)
         self.decode(np.zeros(RATE, dtype=np.float32))
         self.new_vad()
 
@@ -57,18 +75,20 @@ class ReazonRecognizer:
         self.model.decode_stream(stream)
         return stream.result.text.strip()
 
-    def segments(self, vad, frame):
-        if frame is None:
-            vad.flush()
-        else:
-            vad.accept_waveform(self.np.frombuffer(frame, dtype="<i2").astype(self.np.float32) / 32768)
+    def segments(self, vad, frame, segment_ids, record):
         out = []
-        while not vad.empty():
-            segment = vad.front
-            start, samples = segment.start, segment.samples
-            vad.pop()
-            if text := self.decode(samples):
-                out.append(RecognizedSegment(start, start + len(samples), text))
+        for start, samples in vad_segments(vad, frame):
+            segment_id = next(segment_ids)
+            end = start + len(samples)
+            if record:
+                span = {"segment_id": segment_id, "start_sample": start, "end_sample": end}
+                record("vad_released", **span)
+                record("asr_start", **span)
+            text = self.decode(samples)
+            if record:
+                record("asr_end", text_ja=text, **span)
+            if text:
+                out.append(RecognizedSegment(segment_id, start, end, text))
         return out
 
 
@@ -124,10 +144,10 @@ class LocalBackend:
                     self.asr_pool, ReazonRecognizer, self.asr_path, self.vad_path, self.profile.asr)
             self.translator = await loop.run_in_executor(self.mt_pool, HyTranslator, self.mt_path)
 
-    async def open(self, emit):
+    async def open(self, emit, *, record=None):
         await self.warmup()
         vad = await asyncio.get_running_loop().run_in_executor(self.asr_pool, self.recognizer.new_vad)
-        return LocalSession(self, vad, self.translator.new_session(), emit)
+        return LocalSession(self, vad, self.translator.new_session(), emit, record)
 
     async def aclose(self):
         await asyncio.to_thread(self.asr_pool.shutdown)
@@ -135,7 +155,7 @@ class LocalBackend:
 
 
 class LocalSession:
-    def __init__(self, backend, vad, translation, emit):
+    def __init__(self, backend, vad, translation, emit, record):
         self.backend = backend
         self.vad = vad
         self.translation = translation
@@ -143,34 +163,37 @@ class LocalSession:
         self.asr_work = self.mt_work = None
         self.closed = False
         self.pending = asyncio.Queue(maxsize=4)
-        self.trace_path = os.environ.get("SUBTITLE_BENCH_TRACE")
+        self.record = record
+        self.segment_ids = count(1)
         self.mt_task = asyncio.create_task(self.run_translation())
 
-    def trace(self, stage, segment, **extra):
-        if self.trace_path:
-            with open(self.trace_path, "a", encoding="utf-8") as log:
-                log.write(json.dumps({"t": time.monotonic(), "stage": stage,
-                                      **vars(segment), **extra}, ensure_ascii=False) + "\n")
+    def translate(self, segment):
+        if self.record:
+            self.record("mt_start", **vars(segment))
+        text = self.backend.translator.translate(self.translation, segment.text_ja)
+        if self.record:
+            self.record("mt_end", text_zh=text, **vars(segment))
+        return text
 
     async def run_translation(self):
         try:
             loop = asyncio.get_running_loop()
             while (segment := await self.pending.get()) is not None:
-                self.mt_work = loop.run_in_executor(
-                    self.backend.mt_pool, self.backend.translator.translate, self.translation, segment.text_ja)
+                self.mt_work = loop.run_in_executor(self.backend.mt_pool, self.translate, segment)
                 translated = await asyncio.shield(self.mt_work)
-                self.trace("translated", segment, text_zh=translated)
-                await self.emit(Caption(segment.start_sample, segment.end_sample, translated))
+                await self.emit(Caption(segment.start_sample, segment.end_sample, translated, segment.segment_id))
         except Exception:
             await self.emit(BackendError())
 
     async def accept_pcm(self, frame):
         self.asr_work = asyncio.get_running_loop().run_in_executor(
-            self.backend.asr_pool, self.backend.recognizer.segments, self.vad, frame)
+            self.backend.asr_pool, self.backend.recognizer.segments, self.vad, frame,
+            self.segment_ids, self.record)
         for segment in await asyncio.shield(self.asr_work):
-            self.trace("recognized", segment)
             try:
                 self.pending.put_nowait(segment)
+                if self.record:
+                    self.record("mt_enqueued", **vars(segment))
             except asyncio.QueueFull:
                 raise BackendError("overloaded") from None
 

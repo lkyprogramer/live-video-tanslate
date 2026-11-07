@@ -3,7 +3,9 @@ from contextlib import asynccontextmanager, suppress
 import hmac
 import json
 import logging
+import os
 import re
+import time
 import unicodedata
 from uuid import uuid4
 
@@ -55,8 +57,9 @@ def chinese(text):
 
 
 class Connection:
-    def __init__(self, ws):
+    def __init__(self, ws, trace_path):
         self.ws = ws
+        self.trace_path = trace_path
         self.session_id = None
         self.accepted = 0
         self.seq = 0
@@ -64,6 +67,11 @@ class Connection:
         self.active = False
         self.write_lock = asyncio.Lock()
         self.failure = asyncio.get_running_loop().create_future()
+
+    def record(self, stage, **fields):
+        with open(self.trace_path, "a", encoding="utf-8") as log_file:
+            log_file.write(json.dumps({"t": time.monotonic(), "stage": stage,
+                                       "session_id": self.session_id, **fields}, ensure_ascii=False) + "\n")
 
     async def send(self, type_, **data):
         if self.session_id is not None:
@@ -82,16 +90,24 @@ class Connection:
                 await self.send("warning", code=item.code)
                 return
             text = chinese(item.text_zh)
+            span = {"segment_id": item.segment_id, "start_sample": item.start_sample,
+                    "end_sample": item.end_sample} if self.trace_path else None
             if text is None:
+                if span is not None:
+                    self.record("gateway_filtered", code="translation_invalid", **span)
                 await self.send("warning", code="translation_invalid")
                 return
             if not (0 <= item.start_sample < item.end_sample <= self.accepted and item.end_sample >= self.last_end):
+                if span is not None:
+                    self.record("gateway_filtered", code="adapter_unaligned", **span)
                 await self.send("warning", code="adapter_unaligned")
                 return
             self.seq += 1
             self.last_end = item.end_sample
             await self.send("caption", seq=self.seq, start_sample=item.start_sample,
                             end_sample=item.end_sample, text_zh=text)
+            if span is not None:
+                self.record("ws_sent", seq=self.seq, **span)
 
     async def stream(self, session):
         queue = asyncio.Queue(maxsize=QUEUE_FRAMES)
@@ -100,6 +116,8 @@ class Connection:
         async def admit(frame):
             await queue.put(frame)
             self.accepted += len(frame) // 2
+            if self.trace_path:
+                self.record("pcm_accepted", end_sample=self.accepted)
 
         async def read():
             short_tail = False
@@ -147,11 +165,15 @@ class Connection:
                     await asyncio.gather(following, return_exceptions=True)
 
         async def process():
+            consumed = 0
             while not (finishing.is_set() and queue.empty()):
                 frame = await queue.get()
                 if frame is None:
                     break
                 await session.accept_pcm(frame)
+                if self.trace_path:
+                    consumed += len(frame) // 2
+                    self.record("pcm_consumed", end_sample=consumed)
             await session.finish()
 
         async def deadline():
@@ -180,6 +202,7 @@ def create_app(config: Settings, token: str, backends: dict[str, SubtitleBackend
     leased = False
     host = f"127.0.0.1:{config.server.port}"
     origin = config.server.allowed_origin
+    trace_path = os.environ.get("SUBTITLE_BENCH_TRACE")
 
     async def warmup():
         nonlocal state
@@ -233,7 +256,7 @@ def create_app(config: Settings, token: str, backends: dict[str, SubtitleBackend
             await ws.close(code=1008)
             return
         await ws.accept()
-        connection = Connection(ws)
+        connection = Connection(ws, trace_path)
         owns_lease = False
         session = None
         try:
@@ -264,9 +287,11 @@ def create_app(config: Settings, token: str, backends: dict[str, SubtitleBackend
                 raise BackendError("busy")
             leased = owns_lease = True
             async with asyncio.timeout(18):
-                session = await backends[key].open(connection.emit)
+                session = await backends[key].open(connection.emit, record=connection.record if trace_path else None)
             connection.session_id = uuid4().hex
             await connection.send("ready", version=1, profile_id=key, language="zh-Hans")
+            if trace_path:
+                connection.record("ready", profile_id=key)
             connection.active = True
             await connection.stream(session)
             if connection.failure.done() and not connection.failure.cancelled():

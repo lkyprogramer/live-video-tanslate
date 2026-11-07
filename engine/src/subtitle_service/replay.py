@@ -29,7 +29,7 @@ def mark(clip, phase):
 
 
 @contextmanager
-def launched(config_path, config, output, diagnostics):
+def launched(config_path, config, output, diagnostics, *, server_command=None):
     with socket.socket() as probe:
         if probe.connect_ex(("127.0.0.1", config.server.port)) == 0:
             raise RuntimeError("service port already in use")
@@ -39,8 +39,9 @@ def launched(config_path, config, output, diagnostics):
         path.touch(mode=0o600, exist_ok=False)
         env["SUBTITLE_BENCH_TRACE"] = str(path)
     with (output / "server.log").open("w") as log:
+        command = server_command or [sys.executable, "-m", "subtitle_service.cli"]
         child = subprocess.Popen(
-            [sys.executable, "-m", "subtitle_service.cli", "--config", str(config_path)],
+            [*command, "--config", str(config_path)],
             stdout=log, stderr=subprocess.STDOUT, env=env,
         )
         try:
@@ -82,6 +83,7 @@ async def replay(config, profile, token, clip, audio, trace):
                 return result | {"error": ready.get("code", "invalid_ready")}
             session_id = ready["session_id"]
             anchor = time.monotonic()
+            trace.write(json.dumps({"t": 0, "event": ready}) + "\n")
             mark(clip, "start")
 
             async def send():
@@ -125,7 +127,7 @@ async def replay(config, profile, token, clip, audio, trace):
     return result
 
 
-def main():
+def main(*, server_command=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--launch-config", type=Path, required=True)
     parser.add_argument("--profile", required=True)
@@ -142,7 +144,7 @@ def main():
             parser.error("unknown or duplicate clip")
     args.output.mkdir(parents=True, exist_ok=False)
     results = []
-    with launched(args.launch_config, config, args.output, args.diagnostics):
+    with launched(args.launch_config, config, args.output, args.diagnostics, server_command=server_command):
         token = load_token(token_path(), create=False)
         for clip in suite:
             audio = (args.suite.parent / clip["file"]).read_bytes()

@@ -16,9 +16,14 @@ node_modules/
 /engine/config/profiles.toml
 /extension/dist/
 /artifacts/
+/test/
 
 /p0/fixtures/source/
 /p0/fixtures/*.pcm
+/p0/parakeet/.build/
+/p0/parakeet/.swiftpm/
+/p0/whisperkit/.build/
+/p0/whisperkit/.swiftpm/
 /p0/evidence/**
 !/p0/evidence/**/
 !/p0/evidence/v1-browser-final/local-caption.png

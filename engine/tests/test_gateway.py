@@ -41,7 +41,7 @@ class Fake:
     async def available(self):
         return True
 
-    async def open(self, emit):
+    async def open(self, emit, *, record=None):
         self.opened += 1
         return FakeSession(self, emit)
 

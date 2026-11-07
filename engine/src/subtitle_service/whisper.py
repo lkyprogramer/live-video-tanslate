@@ -110,7 +110,7 @@ class WhisperBackend:
         if not await self.available():
             raise BackendError("profile_unavailable", "upstream_unreachable")
 
-    async def open(self, emit):
+    async def open(self, emit, *, record=None):
         await self.warmup()
         ws = None
         try:
