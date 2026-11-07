@@ -15,6 +15,7 @@ const switchProfiles = process.argv.includes('--switch');
 const tryYoutube = process.argv.includes('--youtube');
 const lifecycle = process.argv.includes('--lifecycle');
 const tryWikimedia = process.argv.includes('--wikimedia');
+const diagnosticDist = process.env.SUBTITLE_DIAGNOSTIC_DIST;
 await mkdir(evidence, { recursive: false });
 const temporary = await mkdtemp(join(tmpdir(), 'subtitle-chrome-'));
 const clip = join(temporary, 'csj.mp4');
@@ -48,6 +49,7 @@ let next = 0;
 let input = '';
 const calls = new Map();
 const received = [];
+const diagnosticEvents = [];
 chrome.stdio[4].setEncoding('utf8').on('data', chunk => {
   input += chunk;
   for (let i; (i = input.indexOf('\0')) >= 0;) {
@@ -55,6 +57,10 @@ chrome.stdio[4].setEncoding('utf8').on('data', chunk => {
     input = input.slice(i + 1);
     if (message.method === 'Network.webSocketFrameReceived' && message.params.response.opcode === 1) {
       try { received.push(JSON.parse(message.params.response.payloadData)); } catch {}
+    }
+    if (diagnosticDist && message.method === 'Runtime.consoleAPICalled' &&
+        message.params.args[0]?.value === 'subtitle-diagnostic') {
+      diagnosticEvents.push(JSON.parse(message.params.args[1].value));
     }
     const reply = calls.get(message.id);
     if (reply) {
@@ -102,7 +108,7 @@ const results = {};
 try {
   const version = await cdp('Browser.getVersion');
   results.chrome = version.product;
-  const { id } = await cdp('Extensions.loadUnpacked', { path: join(root, 'extension/dist') });
+  const { id } = await cdp('Extensions.loadUnpacked', { path: diagnosticDist || join(root, 'extension/dist') });
   const config = (await readFile(join(root, 'engine/config/profiles.example.toml'), 'utf8'))
     .replace('<extension-id>', id).replace('../../.model-cache', join(root, '.model-cache'))
     .replace('enabled = false', switchProfiles ? 'enabled = true' : 'enabled = false');
@@ -111,7 +117,9 @@ try {
   async function launchService() {
     service = spawn(join(root, 'engine/.venv/bin/subtitle-server'),
       ['--config', join(evidence, 'profiles.toml')],
-      { env: { ...process.env, SUBTITLE_TOKEN_FILE: tokenPath }, stdio: ['ignore', 'pipe', 'pipe'] });
+      { env: { ...process.env, SUBTITLE_TOKEN_FILE: tokenPath,
+        ...(diagnosticDist ? { SUBTITLE_BENCH_TRACE: join(evidence, 'model.jsonl') } : {}) },
+        stdio: ['ignore', 'pipe', 'pipe'] });
     const log = createWriteStream(join(evidence, 'server.log'), { flags: 'a' });
     service.stdout.pipe(log, { end: false });
     service.stderr.pipe(log, { end: false });
@@ -147,6 +155,45 @@ try {
     return until(() => evalIn(t, `(() => { const s=${overlay}; return s && !s.hasAttribute('data-status')
       && /照[片相]|名字|不认识|戴着眼镜/.test(s.textContent) ? s.textContent : null; })()`), 24000, 'visible translated sentence');
   }
+  if (diagnosticDist) {
+    await cdp('Runtime.enable', {}, tab.sessionId);
+    await evalIn(tab, `(() => {
+      const v=${video}, frames=window.subtitleDiagnosticFrames=[];
+      const capture=(now,m) => {
+        frames.push({stage:'video_frame', t:performance.timeOrigin + m.expectedDisplayTime,
+          media_time:m.mediaTime, current_time:v.currentTime, playback_rate:v.playbackRate});
+        v.requestVideoFrameCallback(capture);
+      };
+      v.requestVideoFrameCallback(capture);
+      v.addEventListener('ended', () => frames.push({stage:'video_ended', t:performance.timeOrigin + performance.now(),
+        media_time:v.currentTime, playback_rate:v.playbackRate}), {once:true});
+    })()`);
+    diagnosticEvents.push({ stage: 'start_action', t: performance.timeOrigin + performance.now() });
+    await evalIn(tab, `void ${video}.play()`, true);
+    await trigger(tab);
+    const target = await until(async () => (await cdp('Target.getTargets')).targetInfos
+      .find(t => t.url === `chrome-extension://${id}/offscreen.html`), 10000, 'offscreen diagnostics');
+    const { sessionId: audioSession } = await cdp('Target.attachToTarget', { targetId: target.targetId, flatten: true });
+    await cdp('Runtime.enable', {}, audioSession);
+    await until(() => evalIn(tab, `${video}.ended`), 47000, 'diagnostic video ends');
+    await until(() => diagnosticEvents.some(e => e.stage === 'ws_received' && e.type === 'finished'), 9000, 'WS drain');
+    await until(() => evalIn(tab, `!(${overlay})?.textContent`), 6000, 'tail subtitle disappears');
+    const frames = await evalIn(tab, 'window.subtitleDiagnosticFrames');
+    await writeFile(join(evidence, 'browser.jsonl'), [...diagnosticEvents, ...frames].sort((a, b) => a.t - b.t)
+      .map(e => JSON.stringify(e)).join('\n') + '\n');
+    const visible = diagnosticEvents.filter(e => e.stage === 'dom_visible');
+    const arrivals = diagnosticEvents.filter(e => e.stage === 'ws_received' && e.type === 'caption');
+    assert.ok(visible.length > 0 && frames.length > 0);
+    assert.ok(diagnosticEvents.some(e => e.stage === 'first_pcm_sent'));
+    for (const v of visible) {
+      assert.ok(arrivals.some(a => a.session_id === v.session_id && a.seq === v.seq && a.t <= v.t));
+      assert.ok(diagnosticEvents.some(e => e.stage === 'dom_removed' && e.session_id === v.session_id &&
+        e.seq === v.seq && e.t >= v.t));
+    }
+    results.diagnostics = { wsCaptions: arrivals.length, visibleCaptions: visible.length, videoFrames: frames.length };
+    await trigger(tab);
+    await until(() => evalIn(tab, '!document.querySelector("[data-local-video-subtitle]")'), 5000, 'diagnostic overlay stops');
+  }
   const starting = performance.now();
   results.local = await startAndRead(tab);
   results.firstVisibleMs = Math.round(performance.now() - starting);
@@ -161,18 +208,8 @@ try {
     && /照[片相]|图片|名字|不认识|研究|眼镜/.test(s.textContent) ? s.textContent : null; })()`), 20000, 'caption after seek');
   await cdp('Page.bringToFront', {}, tab.sessionId);
   async function fullscreen(selector) {
-    const position = await evalIn(tab, `(() => {
-    const button=document.createElement('button');
-    button.textContent='全屏';
-    document.querySelector('#player').append(button);
-    button.onclick=() => document.querySelector(${JSON.stringify(selector)}).requestFullscreen()
-      .catch(error => { button.dataset.error = String(error); });
-    const r=button.getBoundingClientRect();
-    return {x:r.x+r.width/2,y:r.y+r.height/2};
-  })()`);
-    for (const type of ['mousePressed', 'mouseReleased']) {
-      await cdp('Input.dispatchMouseEvent', { type, ...position, button: 'left', clickCount: 1 }, tab.sessionId);
-    }
+    // Keep real fullscreen behavior without depending on the test window's button coordinates.
+    await evalIn(tab, `document.querySelector(${JSON.stringify(selector)}).requestFullscreen()`, true);
   }
   await fullscreen('#player');
   await until(() => evalIn(tab, 'document.fullscreenElement?.querySelector("[data-local-video-subtitle]") !== null && document.fullscreenElement !== null'),
@@ -310,7 +347,8 @@ try {
       (tryWikimedia && typeof results.wikimedia !== 'string')) process.exitCode = 1;
 } catch (error) {
   const player = inspected && await evalIn(inspected, `({ url: location.href, paused: ${video}?.paused,
-    ready: ${video}?.readyState, t: ${video}?.currentTime, subtitle: (${overlay})?.textContent })`).catch(() => undefined);
+    ready: ${video}?.readyState, t: ${video}?.currentTime, subtitle: (${overlay})?.textContent,
+    fullscreen: document.fullscreenElement?.tagName ?? null })`).catch(() => undefined);
   const sessionEvents = received.filter(event => ['ready', 'error', 'finished'].includes(event.type));
   const captionsBySession = Object.groupBy(received.filter(event => event.type === 'caption'), event => event.session_id);
   await writeFile(join(evidence, 'result.json'), JSON.stringify({ ...results, player, sessionEvents, captionsBySession,

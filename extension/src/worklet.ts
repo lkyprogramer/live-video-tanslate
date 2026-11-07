@@ -2,11 +2,13 @@ import { pcm, Resampler } from './resample';
 import { SAMPLES_PER_FRAME } from './protocol';
 
 declare const sampleRate: number;
+declare const currentFrame: number;
+declare const SUBTITLE_DIAGNOSTICS: boolean;
 declare class AudioWorkletProcessor { readonly port: MessagePort }
 declare function registerProcessor(name: string, type: typeof AudioWorkletProcessor): void;
 
 class PcmWorklet extends AudioWorkletProcessor {
-  private stream?: { epoch: number; resampler: Resampler; pending: number[] };
+  private stream?: { epoch: number; resampler: Resampler; pending: number[]; firstInputFrame?: number };
 
   constructor() {
     super();
@@ -27,7 +29,10 @@ class PcmWorklet extends AudioWorkletProcessor {
 
   process(inputs: Float32Array[][], outputs: Float32Array[][]): boolean {
     for (const channel of outputs[0] ?? []) channel.fill(0);
-    if (this.stream && inputs[0]?.length) this.add(this.stream.resampler.push(inputs[0]));
+    if (this.stream && inputs[0]?.length) {
+      if (SUBTITLE_DIAGNOSTICS) this.stream.firstInputFrame ??= currentFrame;
+      this.add(this.stream.resampler.push(inputs[0]));
+    }
     return true;
   }
 
@@ -44,7 +49,10 @@ class PcmWorklet extends AudioWorkletProcessor {
 
   private send(epoch: number, samples: number[]) {
     const frame = pcm(samples);
-    this.port.postMessage({ type: 'pcm', epoch, frame }, [frame]);
+    const message = SUBTITLE_DIAGNOSTICS
+      ? { type: 'pcm', epoch, frame, firstContextTime: (this.stream?.firstInputFrame ?? currentFrame) / sampleRate }
+      : { type: 'pcm', epoch, frame };
+    this.port.postMessage(message, [frame]);
   }
 }
 

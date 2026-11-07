@@ -1,6 +1,8 @@
 import type { Owner, Player, View } from './internal';
 import { displayError, loadCatalog, MAX_BUFFERED_BYTES, serverEvent, start, WS, type Settings } from './protocol';
 
+declare const SUBTITLE_DIAGNOSTICS: boolean;
+
 type TabAudio = MediaTrackConstraints & { mandatory: { chromeMediaSource: string; chromeMediaSourceId: string } };
 type Payload<T> = T extends unknown ? Omit<T, keyof Owner | 'epoch'> : never;
 
@@ -16,7 +18,7 @@ class Activation {
   private profile?: Promise<string>;
   private current?: Player;
   private socket?: {
-    ws: WebSocket; epoch: number; sessionId?: string; finishing: boolean; timer: number;
+    ws: WebSocket; epoch: number; sessionId?: string; finishing: boolean; timer: number; diagnosed?: boolean;
   };
 
   constructor(readonly owner: Owner, private readonly settings: Settings) {}
@@ -46,7 +48,20 @@ class Activation {
       if (!connection?.sessionId || connection.epoch !== data.epoch || connection.ws.readyState !== WebSocket.OPEN) return;
       if (data.type === 'pcm' && data.frame instanceof ArrayBuffer) {
         if (connection.ws.bufferedAmount + data.frame.byteLength > MAX_BUFFERED_BYTES) this.stop('overloaded');
-        else connection.ws.send(data.frame);
+        else {
+          connection.ws.send(data.frame);
+          if (SUBTITLE_DIAGNOSTICS && !connection.diagnosed) {
+            connection.diagnosed = true;
+            const output = context.getOutputTimestamp();
+            const firstInputT = output.contextTime !== undefined && output.performanceTime !== undefined
+              ? performance.timeOrigin + output.performanceTime + (data.firstContextTime - output.contextTime) * 1000
+              : undefined;
+            console.debug('subtitle-diagnostic', JSON.stringify({ stage: 'first_pcm_sent',
+              t: performance.timeOrigin + performance.now(), epoch: connection.epoch,
+              session_id: connection.sessionId, sample_count: data.frame.byteLength / 2,
+              estimated_first_input_t: firstInputT }));
+          }
+        }
       } else if (data.type === 'flushed' && connection.finishing) {
         connection.ws.send('{"type":"finish"}');
         clearTimeout(connection.timer);
@@ -110,6 +125,10 @@ class Activation {
         if (!current()) return;
         const event = serverEvent(data);
         if (!event) { this.stop('invalid_message'); return; }
+        if (SUBTITLE_DIAGNOSTICS && (event.type === 'ready' || event.type === 'caption' || event.type === 'finished')) {
+          console.debug('subtitle-diagnostic', JSON.stringify({ stage: 'ws_received',
+            t: performance.timeOrigin + performance.now(), epoch, ...event }));
+        }
         if (event.type === 'error') {
           if (conn.sessionId && event.session_id !== conn.sessionId) return;
           if (event.code === 'busy' && retry && !conn.sessionId) {

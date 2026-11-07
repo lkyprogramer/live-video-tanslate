@@ -5,16 +5,21 @@ import { build } from 'esbuild';
 
 const staticFiles = ['manifest.json', 'options.html', 'options.css', 'offscreen.html'];
 const packageZip = process.argv.includes('--zip');
-await mkdir('dist', { recursive: true });
+const diagnosticDist = process.env.SUBTITLE_DIAGNOSTIC_DIST;
+if (diagnosticDist && packageZip) throw Error('The diagnostic build cannot be packaged');
+const dist = diagnosticDist || 'dist';
+await mkdir(dist, { recursive: true });
 const result = await build({
   entryPoints: ['worker', 'offscreen', 'worklet', 'content', 'options'].map(name => 'src/' + name + '.ts'),
-  outdir: 'dist',
+  outdir: dist,
   bundle: true,
   format: 'iife',
   target: 'chrome116',
+  define: { SUBTITLE_DIAGNOSTICS: JSON.stringify(Boolean(diagnosticDist)) },
+  minifySyntax: true,
   metafile: packageZip,
 });
-await Promise.all(staticFiles.map(name => copyFile(name, join('dist', name))));
+await Promise.all(staticFiles.map(name => copyFile(name, join(dist, name))));
 
 if (packageZip) {
   const { version } = JSON.parse(await readFile('manifest.json', 'utf8'));

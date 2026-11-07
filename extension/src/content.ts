@@ -1,5 +1,7 @@
 import type { Owner, Player, View } from './internal';
 
+declare const SUBTITLE_DIAGNOSTICS: boolean;
+
 const global = globalThis as typeof globalThis & { subtitleContentInstalled?: boolean };
 if (!global.subtitleContentInstalled) {
   global.subtitleContentInstalled = true;
@@ -38,6 +40,27 @@ function install() {
   label.lang = 'zh-Hans';
   shadow.append(style, label);
 
+  let diagnosticCue: { session_id: string; seq: number; epoch: number } | undefined;
+  let displayedCue: typeof diagnosticCue;
+  if (SUBTITLE_DIAGNOSTICS) {
+    const measureVisibility = () => {
+      const rect = label.getBoundingClientRect();
+      const onScreen = label.isConnected && rect.width > 0 && rect.height > 0 &&
+        rect.bottom > 0 && rect.right > 0 && rect.top < innerHeight && rect.left < innerWidth && !document.hidden;
+      const next = onScreen ? diagnosticCue : undefined;
+      if (next !== displayedCue) {
+        const t = performance.timeOrigin + performance.now();
+        for (const [stage, cue] of [['dom_removed', displayedCue], ['dom_visible', next]] as const) {
+          if (cue) console.debug('subtitle-diagnostic', JSON.stringify({ stage, t, ...cue,
+            media_time: video?.currentTime, playback_rate: video?.playbackRate }));
+        }
+        displayedCue = next;
+      }
+      requestAnimationFrame(measureVisibility);
+    };
+    requestAnimationFrame(measureVisibility);
+  }
+
   function position() {
     const fullscreen = document.fullscreenElement;
     if (!owner || !video || fullscreen instanceof HTMLVideoElement || (fullscreen && !fullscreen.contains(video))) {
@@ -53,6 +76,7 @@ function install() {
 
   function show(text = '', status = false) {
     clearTimeout(hide);
+    if (SUBTITLE_DIAGNOSTICS) diagnosticCue = text && !status ? { session_id: sessionId, seq, epoch } : undefined;
     label.textContent = text;
     label.toggleAttribute('data-status', status);
     if (text) hide = window.setTimeout(() => { label.textContent = ''; }, 4000);
