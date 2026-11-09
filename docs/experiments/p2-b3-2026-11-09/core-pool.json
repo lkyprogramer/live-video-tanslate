@@ -1,0 +1,79 @@
+{
+  "core_configurations": [
+    {
+      "experiment": "PAD-900",
+      "hits": [
+        13,
+        12
+      ],
+      "Q": false,
+      "R_offline_eligible": false
+    },
+    {
+      "experiment": "PUNCT-JA",
+      "hits": [
+        18,
+        18
+      ],
+      "Q": false,
+      "R_offline_eligible": false
+    },
+    {
+      "experiment": "MT-PLAMO08-H0",
+      "hits": [
+        17,
+        17
+      ],
+      "Q": false,
+      "R_offline_eligible": false
+    },
+    {
+      "experiment": "MT-PLAMO2-H0",
+      "hits": [
+        17,
+        17
+      ],
+      "Q": false,
+      "R_offline_eligible": false
+    },
+    {
+      "experiment": "ASR-SENSEVOICE-I8",
+      "hits": [
+        8,
+        9
+      ],
+      "Q": false,
+      "R_offline_eligible": false
+    },
+    {
+      "experiment": "ASR-WHISPER-JA760",
+      "hits": [
+        16,
+        15
+      ],
+      "Q": false,
+      "R_offline_eligible": false
+    },
+    {
+      "experiment": "NATIVE-VOX-960",
+      "hits": [
+        17,
+        18
+      ],
+      "Q": false,
+      "R_offline_eligible": false
+    },
+    {
+      "experiment": "AST-G4-OFFICIAL",
+      "hits": [
+        6,
+        8
+      ],
+      "Q": false,
+      "R_offline_eligible": false
+    }
+  ],
+  "tested": 8,
+  "qualified": 0,
+  "conditional_menus_are_not_all_executed": true
+}

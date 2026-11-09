@@ -1,0 +1,101 @@
+{
+  "rows": [
+    {
+      "source_id": "csj-reproduction/1",
+      "kind": "speech",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "valid_chinese": false,
+      "generation_tokens": 14,
+      "generation_end_s": 1.0974797080270946,
+      "raw_internal_first_han_s": 1.0876910000224598,
+      "valid_first_readable_chinese_s": null,
+      "pcm_sha256": "78093d05e9a871d7d011f20e2d1cebc979f5e96664c21ac6dd2f7f65d2756766",
+      "features_sha256": "a21a2a63179722a5ef52e2ff10eab3323d1d8e8c7f60f661500c9a643d30f202",
+      "placeholders": 169,
+      "audio_path_calls": {
+        "tower": 1,
+        "projection": 1
+      },
+      "parent_g0_features_identical": true
+    },
+    {
+      "source_id": "csj-task/7",
+      "kind": "speech",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "valid_chinese": false,
+      "generation_tokens": 37,
+      "generation_end_s": 0.7500043339678086,
+      "raw_internal_first_han_s": 0.7401845419663005,
+      "valid_first_readable_chinese_s": null,
+      "pcm_sha256": "72a66e395bdf6abd72baf591ea84e836a6798d0a1b5721a34dfe917cfbe4f98e",
+      "features_sha256": "885962cda6c1c6147e9631b4e3390f7e7f6c4979a83c04497690546c3eb1ddbb",
+      "placeholders": 179,
+      "audio_path_calls": {
+        "tower": 1,
+        "projection": 1
+      },
+      "parent_g0_features_identical": true
+    },
+    {
+      "source_id": "wmf-04/43",
+      "kind": "speech",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "valid_chinese": false,
+      "generation_tokens": 24,
+      "generation_end_s": 0.5635175830102526,
+      "raw_internal_first_han_s": 0.5536427079932764,
+      "valid_first_readable_chinese_s": null,
+      "pcm_sha256": "84ddc6a35f836483ab1b9785ef47ed623ef656cb56acc5b79c7f497f93c1f7bd",
+      "features_sha256": "7d1ba474fb07262804f0af35310171d24fbb548501a42f64f4cfb04f5ffd0f83",
+      "placeholders": 188,
+      "audio_path_calls": {
+        "tower": 1,
+        "projection": 1
+      },
+      "parent_g0_features_identical": true
+    },
+    {
+      "source_id": "silence",
+      "kind": "nonspeech",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "valid_chinese": false,
+      "generation_tokens": 28,
+      "generation_end_s": 0.6887865840108134,
+      "raw_internal_first_han_s": null,
+      "valid_first_readable_chinese_s": null,
+      "pcm_sha256": "ac2878215ad33205d1732578c89f25ededaad1b676911c540825bcf4baa42d9b",
+      "features_sha256": "dbf8c7d23519c156e244cc78b3af9b48a2e88130ba713c5ba332eb7c040ec17d",
+      "placeholders": 250,
+      "audio_path_calls": {
+        "tower": 1,
+        "projection": 1
+      },
+      "parent_g0_features_identical": true
+    },
+    {
+      "source_id": "synthetic-instrumental",
+      "kind": "nonspeech",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "valid_chinese": false,
+      "generation_tokens": 30,
+      "generation_end_s": 0.6686806249781512,
+      "raw_internal_first_han_s": null,
+      "valid_first_readable_chinese_s": null,
+      "pcm_sha256": "7c3c541983fcf6e2f0669cbb3881046c3a22d229dd4b2241a2edc4ba5a6c271b",
+      "features_sha256": "b1c795601820b4aab0d355a2a265bf0f1a5a2c2aa98e4c35aedb67d6f6b44171",
+      "placeholders": 200,
+      "audio_path_calls": {
+        "tower": 1,
+        "projection": 1
+      },
+      "parent_g0_features_identical": true
+    }
+  ],
+  "full_raw_outputs": "local ignored evidence only",
+  "seed": 11
+}

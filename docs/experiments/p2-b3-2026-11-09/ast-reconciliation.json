@@ -1,0 +1,298 @@
+{
+  "disagreements": [
+    {
+      "seed": "11",
+      "unit": "csj-reproduction/1",
+      "root": {
+        "unit": "csj-reproduction/1",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "副语言变成基因信息，新增错误信息类别；复习动作尚在。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "csj-reproduction/1",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "保留先简单复习，但副语言变成平行基因，核心术语仍错；控制也有该术语缺陷，不因换一种错误译法计恢复。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "11",
+      "unit": "csj-reproduction/2-3",
+      "root": {
+        "unit": "csj-reproduction/2-3",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "语用信息替代副语言信息，已非原基线仅省略副语言。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "csj-reproduction/2-3",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "语言和非语言的信息传递保留，另补出同时传递一层信息，但语用信息不能等同冻结核心的副语言信息；日文正确不能替中文补分。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "11",
+      "unit": "csj-reproduction/4",
+      "root": {
+        "unit": "csj-reproduction/4",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "恢复三分法但副语言被改成旁基因信息。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "csj-reproduction/4",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "藤崎、三部分法及有意识控制已表达，副语言仍被写成旁基因；控制同一术语原已失败，必要核心未完整恢复。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "11",
+      "unit": "wmf-04/133-135",
+      "root": {
+        "unit": "wmf-04/133-135",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "文字以外/enforcing部分在，但行动反映和关注没有有效保留。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/133-135",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "不只停留文字和强制实施的部分含义补出，但控制尚保留的落实到行动被改成报道及心烦意乱，新增错误作用对象与事实内容。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "11",
+      "unit": "wmf-04/139",
+      "root": {
+        "unit": "wmf-04/139",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "第三定义变第几条的疑问，原有确定序号丢失且语气方向变。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/139",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "保留定义，却把第三项改成这是第几条定义，第三这一必要定位缺失；不单以疑问语气计关键错误。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "11",
+      "unit": "wmf-04/142-143",
+      "root": {
+        "unit": "wmf-04/142-143",
+        "status": "incorrect",
+        "new_critical_error": true,
+        "reason": "新增全球书记/证券委员会，设立并负责章程的核心未恢复。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/142-143",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "后句保留设立全球议会的片段，负责章程仍不清楚；同一机构的英文及日文改述被写成全球书记和全球证券委员会等，新增并列对象及错误机构身份。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "11",
+      "unit": "wmf-04/146-147",
+      "root": {
+        "unit": "wmf-04/146-147",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "橙色中间的定位被改成rolls和orangezero之间，并新增联系方式限定；核心不完整。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/146-147",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "角色和责任范围保留，但橙色中间位置变成rolls与orange zero之间；又把刚才提到角色的关系写成刚才说明了联系方式，新增明确的错误说明对象。未把额外英语片段单独判为幻觉。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "29",
+      "unit": "csj-reproduction/1",
+      "root": {
+        "unit": "csj-reproduction/1",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "副语言改为旁基因，复习动作保留。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "csj-reproduction/1",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "保留先简单复习，但副语言变成旁基因；控制已有同一术语缺陷，未恢复必要概念。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "29",
+      "unit": "csj-reproduction/2-3",
+      "root": {
+        "unit": "csj-reproduction/2-3",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "语用信息替代副语言；相对旧省略是新增错误类别。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "csj-reproduction/2-3",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "语言、非语言和同时传递的关系保留，副语言仍误作语用信息；不能用正确日文替有效中文字幕补分。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "29",
+      "unit": "wmf-04/142-143",
+      "root": {
+        "unit": "wmf-04/142-143",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "全球议会部分接近，但新增监督及负责对象仍错；明确语义不足，不将组织译名泛化一律算新关键。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/142-143",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "后句仍能见设立全球议会，但负责章程未恢复；同一机构的英文及日文改述变成包括全球监督、全球议会之类的并列对象，新增非等价的监督事项与机构关系。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "29",
+      "unit": "wmf-04/146-147",
+      "root": {
+        "unit": "wmf-04/146-147",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "位置主语和联系的错误限定使橙色中间/角色责任未完整关联。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/146-147",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "橙色中间、角色和责任范围部分保留，但把刚才提到角色的关系新增成刚才告诉您联系方式；联系方式是控制和冻结核心都没有的明确说明对象。额外英语前缀未单独计幻觉。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "29",
+      "unit": "wmf-04/153-155",
+      "root": {
+        "unit": "wmf-04/153-155",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "三点片段被过滤，工作又变EC倡议，新增不同任务。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/153-155",
+        "status": "incorrect",
+        "new_critical_error": true,
+        "reason": "橙色三点所在片段无有效中文，剩下验证委员会推进EC倡议，未表达冻结重点工作且新增错误机构限定与具体事项；不会看到草稿的旁句未复听，不另判幻觉。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "29",
+      "unit": "wmf-04/170-172",
+      "root": {
+        "unit": "wmf-04/170-172",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "时间和决定保留，委员补充未清楚表达招募；交独立复核补员是否足够。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/170-172",
+        "status": "correct",
+        "new_critical_error": false,
+        "reason": "去年11月至今年1月、委员会成员补充与决定已完成可表达成员招募确定的核心；按语义接受补充成员的同义说法。后接10月会议时段错误独立归173。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "29",
+      "unit": "wmf-04/173",
+      "root": {
+        "unit": "wmf-04/173",
+        "status": "incorrect",
+        "new_critical_error": true,
+        "reason": "2月变10月，新增月份错误。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/173",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "像今天这样的会议和到明年3月保留，但起始月份由控制正确的2月变成10月，新增明确时间数值错误。"
+      },
+      "resolution": "independent accepted"
+    },
+    {
+      "seed": "29",
+      "unit": "wmf-04/174-175",
+      "root": {
+        "unit": "wmf-04/174-175",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "章程展示听意见改施工调整，新增错误工作对象并漏反馈环节。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "wmf-04/174-175",
+        "status": "partial",
+        "new_critical_error": false,
+        "reason": "继续调整修改保留，但展示与听意见被省略，工作又限定为施工；沿用既有领域限定导致partial的窄口径，不单独升级关键错。未出现听意见或修改的选择关系；月份噪声也不重复计新增。"
+      },
+      "resolution": "independent accepted"
+    }
+  ],
+  "final_hits": [
+    6,
+    8
+  ],
+  "root_initial_hits": [
+    6,
+    7
+  ],
+  "human_verified": false
+}

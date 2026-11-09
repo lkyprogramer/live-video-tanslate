@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "measured",
+  "registered_route": "Q",
+  "reference_status": "ai_reviewed",
+  "unit_ids": [
+    "csj-reproduction/1",
+    "csj-reproduction/2-3",
+    "csj-reproduction/4",
+    "csj-reproduction/5-7",
+    "csj-task/1",
+    "csj-task/5",
+    "csj-task/6",
+    "csj-task/9",
+    "csj-task/12-15",
+    "csj-task/20",
+    "csj-task/30",
+    "csj-task/34-35",
+    "wmf-04/131-132",
+    "wmf-04/133-135",
+    "wmf-04/136",
+    "wmf-04/137-138",
+    "wmf-04/139",
+    "wmf-04/140-141",
+    "wmf-04/142-143",
+    "wmf-04/144-145",
+    "wmf-04/146-147",
+    "wmf-04/148-152",
+    "wmf-04/153-155",
+    "wmf-04/156-157",
+    "wmf-04/158-160",
+    "wmf-04/161-165",
+    "wmf-04/166-167",
+    "wmf-04/168",
+    "wmf-04/169",
+    "wmf-04/170-172",
+    "wmf-04/173",
+    "wmf-04/174-175",
+    "wmf-04/176-178",
+    "wmf-04/179"
+  ],
+  "protected_unit_ids": [
+    "csj-reproduction/5-7",
+    "csj-task/12-15",
+    "csj-task/20",
+    "csj-task/5",
+    "csj-task/9",
+    "wmf-04/131-132",
+    "wmf-04/136",
+    "wmf-04/137-138",
+    "wmf-04/139",
+    "wmf-04/146-147",
+    "wmf-04/153-155",
+    "wmf-04/156-157",
+    "wmf-04/158-160",
+    "wmf-04/161-165",
+    "wmf-04/166-167",
+    "wmf-04/169",
+    "wmf-04/170-172",
+    "wmf-04/173",
+    "wmf-04/174-175",
+    "wmf-04/179"
+  ],
+  "registration_ref": {
+    "experiment_id": "AST-G4-OFFICIAL",
+    "registry_sha256": "db77de7b4f66c5de955d4f3f1d11452936f86db00047b4badb464d13c3ab0b22"
+  },
+  "rounds": [
+    {
+      "round_id": "seed11",
+      "baseline_usable": [
+        "csj-reproduction/5-7",
+        "csj-task/12-15",
+        "csj-task/20",
+        "csj-task/5",
+        "csj-task/9",
+        "wmf-04/131-132",
+        "wmf-04/136",
+        "wmf-04/137-138",
+        "wmf-04/139",
+        "wmf-04/146-147",
+        "wmf-04/153-155",
+        "wmf-04/156-157",
+        "wmf-04/158-160",
+        "wmf-04/161-165",
+        "wmf-04/166-167",
+        "wmf-04/169",
+        "wmf-04/170-172",
+        "wmf-04/173",
+        "wmf-04/174-175",
+        "wmf-04/179"
+      ],
+      "candidate_usable": [
+        "csj-task/12-15",
+        "csj-task/5",
+        "csj-task/9",
+        "wmf-04/158-160",
+        "wmf-04/173",
+        "wmf-04/179"
+      ],
+      "protected_losses": [
+        "csj-reproduction/5-7",
+        "csj-task/20",
+        "wmf-04/131-132",
+        "wmf-04/136",
+        "wmf-04/137-138",
+        "wmf-04/139",
+        "wmf-04/146-147",
+        "wmf-04/153-155",
+        "wmf-04/156-157",
+        "wmf-04/161-165",
+        "wmf-04/166-167",
+        "wmf-04/169",
+        "wmf-04/170-172",
+        "wmf-04/174-175"
+      ],
+      "uncertain_units": [
+        "wmf-04/176-178"
+      ],
+      "new_critical_errors": [
+        {
+          "unit_id": "csj-reproduction/5-7",
+          "kind": "reviewed_semantic_error",
+          "evidence": "连续变化、不同于语言信息和难分类保留，但把说话者控制明确改成马车控制。控制只省略主语，未包含马车，属于新增错误主体。"
+        },
+        {
+          "unit_id": "csj-task/6",
+          "kind": "reviewed_semantic_error",
+          "evidence": "名字和一句话得到恢复，但我这边被明确改成双脚方面，新增错误所在对象；控制虽错译一句话，并未把内容归到双脚。"
+        },
+        {
+          "unit_id": "csj-task/30",
+          "kind": "reviewed_semantic_error",
+          "evidence": "片假名书写关系得到部分恢复，但控制仍正确的雷米变成德米，新增姓名错误。前置杀手等问答可能涉及参考未覆盖的姓氏对话，未复听，不另计确认幻觉。"
+        },
+        {
+          "unit_id": "wmf-04/131-132",
+          "kind": "reviewed_semantic_error",
+          "evidence": "正文之外以及定义、是什么仍在，但控制正确的附录被替换为浴缸，新增明确错误对象。"
+        },
+        {
+          "unit_id": "wmf-04/133-135",
+          "kind": "reviewed_semantic_error",
+          "evidence": "不只停留文字和强制实施的部分含义补出，但控制尚保留的落实到行动被改成报道及心烦意乱，新增错误作用对象与事实内容。"
+        },
+        {
+          "unit_id": "wmf-04/136",
+          "kind": "reviewed_semantic_error",
+          "evidence": "连冻结宽口径所需的第一行是序言也没有保留，变为毒验证及一业面被处置；新增处置动作，不能只按原先允许的序言核心接受。"
+        },
+        {
+          "unit_id": "wmf-04/142-143",
+          "kind": "reviewed_semantic_error",
+          "evidence": "后句保留设立全球议会的片段，负责章程仍不清楚；同一机构的英文及日文改述被写成全球书记和全球证券委员会等，新增并列对象及错误机构身份。"
+        },
+        {
+          "unit_id": "wmf-04/146-147",
+          "kind": "reviewed_semantic_error",
+          "evidence": "角色和责任范围保留，但橙色中间位置变成rolls与orange zero之间；又把刚才提到角色的关系写成刚才说明了联系方式，新增明确的错误说明对象。未把额外英语片段单独判为幻觉。"
+        },
+        {
+          "unit_id": "wmf-04/148-152",
+          "kind": "reviewed_semantic_error",
+          "evidence": "否定成为董事或管理者、参与者和贡献者保留，但控制正确的作者被改为起工者；注意事项与编辑者职责所在片段无有效中文，不能从日文补分。新增错误参与角色。"
+        },
+        {
+          "unit_id": "wmf-04/153-155",
+          "kind": "reviewed_semantic_error",
+          "evidence": "橙色三点保留，但原本泛称委员会的正确重点工作被明确改成验证委员会进行证人询问，新增机构限定和工作内容错误。额外不会看到草稿的英语旁句未复听，不另判幻觉。"
+        },
+        {
+          "unit_id": "wmf-04/156-157",
+          "kind": "reviewed_semantic_error",
+          "evidence": "深浅广度和共同决定的部分关系保留，但控制正确的责任变成邻居，新增核心对象替换；相邻决策标签不能恢复本句的责任对象。"
+        },
+        {
+          "unit_id": "wmf-04/161-165",
+          "kind": "reviewed_semantic_error",
+          "evidence": "不同立场采纳与谁决策仍有，但控制正确的宪章变成验证；我是否有发言权又变成我也有发言权的肯定，明文化未正确表达。新增核心对象及疑问事实关系错误。"
+        },
+        {
+          "unit_id": "wmf-04/169",
+          "kind": "reviewed_semantic_error",
+          "evidence": "只保留日程表一词，汇总起草草案的过程变成收集基础的家庭日程表；控制中正确的日程用途被替换为家庭对象。"
+        },
+        {
+          "unit_id": "wmf-04/170-172",
+          "kind": "reviewed_semantic_error",
+          "evidence": "去年11月至今年1月、委员会和决定完成的片段保留，但控制正确的委员招募被写成委员补修，新增错误工作动作；后接会议时段不补足招募。"
+        },
+        {
+          "unit_id": "wmf-04/174-175",
+          "kind": "reviewed_semantic_error",
+          "evidence": "继续修改完善的片段保留，但展示进展并听意见变成店主试味，新增主体及反馈动作错误。月份所在片段被协议拒绝，不从日文补分，也不把控制原有月份噪声重复算新增。"
+        },
+        {
+          "unit_id": "wmf-04/176-178",
+          "kind": "reviewed_semantic_error",
+          "evidence": "2024参考与2004输出的年份冲突仍待复听，不计确认恢复；另有独立新增错误：批准投票变标准投票，最后修改变最后的棋，程序安排变水道。年份本身不计新增关键错。"
+        }
+      ]
+    },
+    {
+      "round_id": "seed29",
+      "baseline_usable": [
+        "csj-reproduction/5-7",
+        "csj-task/12-15",
+        "csj-task/20",
+        "csj-task/5",
+        "csj-task/9",
+        "wmf-04/136",
+        "wmf-04/137-138",
+        "wmf-04/139",
+        "wmf-04/146-147",
+        "wmf-04/153-155",
+        "wmf-04/156-157",
+        "wmf-04/158-160",
+        "wmf-04/166-167",
+        "wmf-04/169",
+        "wmf-04/170-172",
+        "wmf-04/173",
+        "wmf-04/174-175",
+        "wmf-04/179"
+      ],
+      "candidate_usable": [
+        "csj-task/12-15",
+        "csj-task/5",
+        "csj-task/9",
+        "wmf-04/131-132",
+        "wmf-04/139",
+        "wmf-04/158-160",
+        "wmf-04/170-172",
+        "wmf-04/179"
+      ],
+      "protected_losses": [
+        "csj-reproduction/5-7",
+        "csj-task/20",
+        "wmf-04/136",
+        "wmf-04/137-138",
+        "wmf-04/146-147",
+        "wmf-04/153-155",
+        "wmf-04/156-157",
+        "wmf-04/166-167",
+        "wmf-04/169",
+        "wmf-04/173",
+        "wmf-04/174-175"
+      ],
+      "uncertain_units": [
+        "wmf-04/176-178"
+      ],
+      "new_critical_errors": [
+        {
+          "unit_id": "csj-task/6",
+          "kind": "reviewed_semantic_error",
+          "evidence": "名字和一句话补回，但我这边被写成他的脚上，新增所有者和所在对象错误；不能用一句话的修复抵消这项新增错误。"
+        },
+        {
+          "unit_id": "csj-task/30",
+          "kind": "reviewed_semantic_error",
+          "evidence": "片假名关系恢复，但控制尚正确的雷米被写成Demi，新增姓名错误。前置Kira及T-Rex疑问的完整音频语境未核，不另作为确认幻觉。"
+        },
+        {
+          "unit_id": "wmf-04/133-135",
+          "kind": "reviewed_semantic_error",
+          "evidence": "不止文字和enforcing部分补回，但控制保留的反映到实际行动变成报道会违反并感到不舒服，新增动作对象与事实方向错误。"
+        },
+        {
+          "unit_id": "wmf-04/136",
+          "kind": "reviewed_semantic_error",
+          "evidence": "第一行是序言的冻结最低核心也未表达，改成毒剑症、一业面被处理，新增错误对象及处理动作。"
+        },
+        {
+          "unit_id": "wmf-04/142-143",
+          "kind": "reviewed_semantic_error",
+          "evidence": "后句仍能见设立全球议会，但负责章程未恢复；同一机构的英文及日文改述变成包括全球监督、全球议会之类的并列对象，新增非等价的监督事项与机构关系。"
+        },
+        {
+          "unit_id": "wmf-04/146-147",
+          "kind": "reviewed_semantic_error",
+          "evidence": "橙色中间、角色和责任范围部分保留，但把刚才提到角色的关系新增成刚才告诉您联系方式；联系方式是控制和冻结核心都没有的明确说明对象。额外英语前缀未单独计幻觉。"
+        },
+        {
+          "unit_id": "wmf-04/148-152",
+          "kind": "reviewed_semantic_error",
+          "evidence": "并非董事或管理者、贡献者及商议角色的关系保留，但控制正确的撰稿人改成起工者，编辑者又改成演习者，新增错误参与角色。"
+        },
+        {
+          "unit_id": "wmf-04/153-155",
+          "kind": "reviewed_semantic_error",
+          "evidence": "橙色三点所在片段无有效中文，剩下验证委员会推进EC倡议，未表达冻结重点工作且新增错误机构限定与具体事项；不会看到草稿的旁句未复听，不另判幻觉。"
+        },
+        {
+          "unit_id": "wmf-04/156-157",
+          "kind": "reviewed_semantic_error",
+          "evidence": "不同深度广度与互相交流决定如何处理保留，但责任明确替换成邻居，控制原正确的核心对象受损。"
+        },
+        {
+          "unit_id": "wmf-04/161-165",
+          "kind": "reviewed_semantic_error",
+          "evidence": "不同立场采纳、同意及谁决策仍有，但控制正确的宪章改成验证，我是否有发言权变成肯定有发言权，明文化又变成叫做shock；原基线该轮部分失败不能豁免新增对象与关系错误。"
+        },
+        {
+          "unit_id": "wmf-04/169",
+          "kind": "reviewed_semantic_error",
+          "evidence": "汇总起草草案的过程日程被写成基础防患的家庭日程表，控制原正确的工作对象与日程用途发生替换。"
+        },
+        {
+          "unit_id": "wmf-04/173",
+          "kind": "reviewed_semantic_error",
+          "evidence": "像今天这样的会议和到明年3月保留，但起始月份由控制正确的2月变成10月，新增明确时间数值错误。"
+        },
+        {
+          "unit_id": "wmf-04/176-178",
+          "kind": "reviewed_semantic_error",
+          "evidence": "2024参考与2004输出仍待复听，不能将比基线204更合理视为确认恢复；另有新增明确错误：批准投票变基准投票、最后修改变教最后一步、程序安排变冬团路。年份本身不计新增关键错。"
+        }
+      ]
+    }
+  ]
+}

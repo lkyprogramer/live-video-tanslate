@@ -1,0 +1,46 @@
+{
+  "runtime": {
+    "engine": {
+      "numpy": "2.5.4",
+      "mlx": "0.31.2",
+      "mlx-lm": "0.31.3",
+      "transformers": "5.22.1",
+      "huggingface-hub": "2.4.0",
+      "tokenizers": "0.23.3",
+      "sherpa-onnx": "2.0.1",
+      "onnxruntime": "1.31.1",
+      "whisperlivekit": "0.2.26"
+    },
+    "gemma": {
+      "mlx": "0.32.4",
+      "mlx-audio": "0.6.4",
+      "transformers": "5.22.1",
+      "numpy": "2.5.4",
+      "huggingface-hub": "2.4.0",
+      "tokenizers": "0.23.3",
+      "mlx-vlm": "0.7.12"
+    }
+  },
+  "protocols": {
+    "AST-G4-OFFICIAL": {
+      "instruction": "Transcribe the following speech segment in Japanese, then translate it into Chinese.\nWhen formatting the answer, first output the transcription in Japanese, then one newline, then output the string 'Chinese: ', then the translation in Chinese.\nUse Simplified Chinese for the translation.",
+      "rendered": "<bos><|turn>user\nTranscribe the following speech segment in Japanese, then translate it into Chinese.\nWhen formatting the answer, first output the transcription in Japanese, then one newline, then output the string 'Chinese: ', then the translation in Chinese.\nUse Simplified Chinese for the translation.<|audio|><turn|>\n<|turn>model\n",
+      "rendered_sha256": "a86c86c838f14cd9a35beaf2aff4dde69a1e2710e1464a14e1251fd3188769a3",
+      "num_audios": 1,
+      "thinking": false,
+      "output_protocol": "official"
+    },
+    "AST-G4-ZH": {
+      "instruction": "Translate the Japanese speech in the audio into Simplified Chinese. Output only the translation. Do not invent speech that is absent.",
+      "rendered": "<bos><|turn>user\nTranslate the Japanese speech in the audio into Simplified Chinese. Output only the translation. Do not invent speech that is absent.<|audio|><turn|>\n<|turn>model\n",
+      "rendered_sha256": "5e8ef4fa7bc8205d843d4757d0b6696dc3b3554b153d9f689e718aadf048c5aa",
+      "num_audios": 1,
+      "thinking": false,
+      "output_protocol": "zh_only"
+    }
+  },
+  "model_revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+  "runtime_commit": "a54f1a0d86fa45c466c00d819ac6ac5ba9d61ac4",
+  "slot": "B4-1",
+  "slots_remaining": 2
+}

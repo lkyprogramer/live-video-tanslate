@@ -1,0 +1,61 @@
+{
+  "status": "COMPLETE_FAILED_TASK_AT_G0",
+  "phase": "B4",
+  "experiment": "AST-G4-ZH",
+  "slot": "B4-1",
+  "registered_routes": [
+    "Q"
+  ],
+  "stage_outcome": "failed_task",
+  "audio_structure_valid": true,
+  "speech_protocol_valid": 0,
+  "speech_probes": 3,
+  "full_quality": {
+    "status": "NOT_RUN",
+    "planned_rows_per_seed": 88,
+    "planned_seeds": [
+      11,
+      29
+    ],
+    "semantic_denominator": 34,
+    "hits": null,
+    "reason": "frozen speech protocol G0 failed; no prompt/parser rescue, no0/34 score"
+  },
+  "cost_hypothesis": {
+    "status": "NOT_EVALUATED",
+    "reason": "full88x2 paired candidate absent; no performance gain claim"
+  },
+  "Q": false,
+  "Q_assessed": false,
+  "R_registered": false,
+  "engineering_eligible": false,
+  "safety": {
+    "protocol_valid_nonspeech_captions": 0,
+    "diagnostic_nonspeech_probes": 2,
+    "not_general_safety_proof": true,
+    "raw_behavior": "English request-for-audio meta responses; not automatically fabricated speech"
+  },
+  "controls": {
+    "reazon88_exact": true,
+    "m0_two62_exact": true,
+    "official176_exact": {
+      "exact_rows": 176,
+      "raw_tokens_filter_audio_exact": true,
+      "adjudication_reused": [
+        6,
+        8
+      ],
+      "new_semantic_trials": false
+    }
+  },
+  "human_verified": false,
+  "pending_listen": 15,
+  "holdout": "sealed",
+  "production_default": "reazon-hy unchanged",
+  "next_action": "stop_this_frozen_configuration; retain B4-1 reservation and two remaining slots",
+  "provenance": {
+    "manifest_sha256": "f924ab73d37593ca24c652d5d64b6492524a0e917595e208307b60ab1985fc13",
+    "analysis_source_sha256": "7b54efed80b8d0fa6c5e34f5d605a1229a7a7f8d52b9c2ccb4de29f9ba685cae",
+    "capability_sha256": "3ecbaf13ad731bde91875bbf296fcd7005fe24a53629bbfa6cd82575934aa7ec"
+  }
+}

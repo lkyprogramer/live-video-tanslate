@@ -1,0 +1,14 @@
+{
+  "candidate_88x2": "NOT_RUN: speech output G0 failed0/3",
+  "semantic_34x2": "NOT_RUN; never0/34",
+  "token_or_wall_gain": "NOT_EVALUATED: no full candidate pair",
+  "candidate_seed29": "NOT_RUN; G0 fixedseed11 only",
+  "realtime_Chrome_long_stability": "NOT_TRIGGERED",
+  "human_listening": "NOT_RUN per user",
+  "holdout": "sealed",
+  "further_prompt_or_parser_variants": "NOT_RUN; no rescue",
+  "B4_slots_used": [
+    "AST-G4-ZH"
+  ],
+  "B4_slots_remaining": 2
+}

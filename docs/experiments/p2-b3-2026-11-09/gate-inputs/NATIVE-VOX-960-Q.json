@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "measured",
+  "registered_route": "Q",
+  "reference_status": "ai_reviewed",
+  "unit_ids": [
+    "csj-reproduction/1",
+    "csj-reproduction/2-3",
+    "csj-reproduction/4",
+    "csj-reproduction/5-7",
+    "csj-task/1",
+    "csj-task/5",
+    "csj-task/6",
+    "csj-task/9",
+    "csj-task/12-15",
+    "csj-task/20",
+    "csj-task/30",
+    "csj-task/34-35",
+    "wmf-04/131-132",
+    "wmf-04/133-135",
+    "wmf-04/136",
+    "wmf-04/137-138",
+    "wmf-04/139",
+    "wmf-04/140-141",
+    "wmf-04/142-143",
+    "wmf-04/144-145",
+    "wmf-04/146-147",
+    "wmf-04/148-152",
+    "wmf-04/153-155",
+    "wmf-04/156-157",
+    "wmf-04/158-160",
+    "wmf-04/161-165",
+    "wmf-04/166-167",
+    "wmf-04/168",
+    "wmf-04/169",
+    "wmf-04/170-172",
+    "wmf-04/173",
+    "wmf-04/174-175",
+    "wmf-04/176-178",
+    "wmf-04/179"
+  ],
+  "protected_unit_ids": [
+    "csj-reproduction/5-7",
+    "csj-task/12-15",
+    "csj-task/20",
+    "csj-task/5",
+    "csj-task/9",
+    "wmf-04/131-132",
+    "wmf-04/136",
+    "wmf-04/137-138",
+    "wmf-04/139",
+    "wmf-04/146-147",
+    "wmf-04/153-155",
+    "wmf-04/156-157",
+    "wmf-04/158-160",
+    "wmf-04/161-165",
+    "wmf-04/166-167",
+    "wmf-04/169",
+    "wmf-04/170-172",
+    "wmf-04/173",
+    "wmf-04/174-175",
+    "wmf-04/179"
+  ],
+  "registration_ref": {
+    "experiment_id": "NATIVE-VOX-960",
+    "registry_sha256": "db77de7b4f66c5de955d4f3f1d11452936f86db00047b4badb464d13c3ab0b22"
+  },
+  "rounds": [
+    {
+      "round_id": "seed11",
+      "baseline_usable": [
+        "csj-reproduction/5-7",
+        "csj-task/12-15",
+        "csj-task/20",
+        "csj-task/5",
+        "csj-task/9",
+        "wmf-04/131-132",
+        "wmf-04/136",
+        "wmf-04/137-138",
+        "wmf-04/139",
+        "wmf-04/146-147",
+        "wmf-04/153-155",
+        "wmf-04/156-157",
+        "wmf-04/158-160",
+        "wmf-04/161-165",
+        "wmf-04/166-167",
+        "wmf-04/169",
+        "wmf-04/170-172",
+        "wmf-04/173",
+        "wmf-04/174-175",
+        "wmf-04/179"
+      ],
+      "candidate_usable": [
+        "csj-reproduction/5-7",
+        "csj-task/12-15",
+        "csj-task/34-35",
+        "csj-task/5",
+        "csj-task/6",
+        "wmf-04/131-132",
+        "wmf-04/137-138",
+        "wmf-04/139",
+        "wmf-04/146-147",
+        "wmf-04/156-157",
+        "wmf-04/158-160",
+        "wmf-04/166-167",
+        "wmf-04/168",
+        "wmf-04/169",
+        "wmf-04/170-172",
+        "wmf-04/173",
+        "wmf-04/179"
+      ],
+      "protected_losses": [
+        "csj-task/20",
+        "csj-task/9",
+        "wmf-04/136",
+        "wmf-04/153-155",
+        "wmf-04/161-165",
+        "wmf-04/174-175"
+      ],
+      "uncertain_units": [
+        "wmf-04/176-178"
+      ],
+      "new_critical_errors": [
+        {
+          "unit_id": "csj-task/9",
+          "kind": "reviewed_semantic_error",
+          "evidence": "好像有很多人不知道将很多人变成不知道的主语，未表达我不认识很多人；控制有很多不知道的人原按不认识人接受，本轮新增主客关系改变。"
+        },
+        {
+          "unit_id": "wmf-04/148-152",
+          "kind": "reviewed_semantic_error",
+          "evidence": "否定成为高管或管理者、贡献者及职责商议部分保留，但控制尚正确的作者变成机构，编辑者又成练习者；新增错误参与角色，不能用既有监护人错误豁免。"
+        },
+        {
+          "unit_id": "wmf-04/153-155",
+          "kind": "reviewed_semantic_error",
+          "evidence": "三个橙色重点和委员会重点工作保留，但控制只称委员会，候选明确新增验证委员会这一错误机构限定；沿用冻结B2同类关键错判定。"
+        },
+        {
+          "unit_id": "wmf-04/161-165",
+          "kind": "reviewed_semantic_error",
+          "evidence": "不同立场可采用、条款同意、谁决策以及我是否有发言权均在，但控制正确的宪章明确改成验证；新增核心对象替换。后接附录不是本项恢复证据。"
+        },
+        {
+          "unit_id": "wmf-04/176-178",
+          "kind": "reviewed_semantic_error",
+          "evidence": "2004输出与2024参考的年份冲突仍待复听，不计确认恢复且不把年份本身计新增关键错；独立新增错误是控制四月份完成的终稿变成4月时停止的最后一项内容，改变重读对象和完成状态。"
+        }
+      ]
+    },
+    {
+      "round_id": "seed29",
+      "baseline_usable": [
+        "csj-reproduction/5-7",
+        "csj-task/12-15",
+        "csj-task/20",
+        "csj-task/5",
+        "csj-task/9",
+        "wmf-04/136",
+        "wmf-04/137-138",
+        "wmf-04/139",
+        "wmf-04/146-147",
+        "wmf-04/153-155",
+        "wmf-04/156-157",
+        "wmf-04/158-160",
+        "wmf-04/166-167",
+        "wmf-04/169",
+        "wmf-04/170-172",
+        "wmf-04/173",
+        "wmf-04/174-175",
+        "wmf-04/179"
+      ],
+      "candidate_usable": [
+        "csj-reproduction/5-7",
+        "csj-task/12-15",
+        "csj-task/34-35",
+        "csj-task/5",
+        "csj-task/6",
+        "csj-task/9",
+        "wmf-04/131-132",
+        "wmf-04/137-138",
+        "wmf-04/139",
+        "wmf-04/146-147",
+        "wmf-04/156-157",
+        "wmf-04/158-160",
+        "wmf-04/166-167",
+        "wmf-04/168",
+        "wmf-04/169",
+        "wmf-04/170-172",
+        "wmf-04/173",
+        "wmf-04/179"
+      ],
+      "protected_losses": [
+        "csj-task/20",
+        "wmf-04/136",
+        "wmf-04/153-155",
+        "wmf-04/174-175"
+      ],
+      "uncertain_units": [
+        "wmf-04/176-178"
+      ],
+      "new_critical_errors": [
+        {
+          "unit_id": "wmf-04/148-152",
+          "kind": "reviewed_semantic_error",
+          "evidence": "否定成为高管或管理者、贡献者及职责商议部分保留，但控制尚正确的作者变成机构，编辑者又成练习者；新增错误参与角色，不能用既有监护人错误豁免。"
+        },
+        {
+          "unit_id": "wmf-04/153-155",
+          "kind": "reviewed_semantic_error",
+          "evidence": "三个橙色重点和委员会重点工作保留，但控制只称委员会，候选明确新增验证委员会这一错误机构限定；沿用冻结B2同类关键错判定。"
+        },
+        {
+          "unit_id": "wmf-04/161-165",
+          "kind": "reviewed_semantic_error",
+          "evidence": "条款同意修复控制该轮的符合条文错误，谁决策及我是否有发言权也保留，但控制正确的宪章仍被明确改成验证，新增核心对象替换不能被本项其他改善抵消。"
+        },
+        {
+          "unit_id": "wmf-04/176-178",
+          "kind": "reviewed_semantic_error",
+          "evidence": "2004输出与2024参考的年份冲突仍待复听，204变为2004不等于确认恢复，年份本身不计新增关键错；独立新增错误是控制四月份完成的终稿变成4月份暂停的最终项内容，改变重读对象和完成状态。"
+        }
+      ]
+    }
+  ]
+}

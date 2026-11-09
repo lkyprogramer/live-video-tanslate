@@ -1,0 +1,54 @@
+{
+  "ASR-SENSEVOICE-I8": {
+    "unknown_tag_rows": [],
+    "metadata_to_mt": false,
+    "configured_use_itn": true,
+    "provider": "explicit CPU in native sherpa config; low-level session query not exposed"
+  },
+  "ASR-WHISPER-JA760": {
+    "native_calls": 88,
+    "native_caps": [
+      130
+    ],
+    "max_output_tokens": 64,
+    "truncated_calls": 0,
+    "no_speech_filtered_calls": 0,
+    "termination": "selected hypothesis inferred from fixed CT2 source, not runtime stop_reason",
+    "settings": {
+      "device": "cpu",
+      "requested_compute_type": "int8",
+      "actual_compute_type": "int8_float32",
+      "supported_compute_types": [
+        "float32",
+        "int8",
+        "int8_float32"
+      ],
+      "cpu_threads": 2,
+      "num_workers": 1,
+      "vocabulary_size": 10240,
+      "special_ids": {
+        "<|endoftext|>": 8631,
+        "<|startoftranscript|>": 8632,
+        "<|ja|>": 8640,
+        "<|transcribe|>": 8734,
+        "<|notimestamps|>": 8738
+      },
+      "timestamp_begin": 8739,
+      "language": "ja",
+      "task": "transcribe",
+      "beam_size": 5,
+      "temperature": 0,
+      "condition_on_previous_text": false,
+      "vad_filter": false,
+      "without_timestamps": true,
+      "max_new_tokens": 256,
+      "suppress_tokens": [
+        -1
+      ],
+      "suppress_blank": true,
+      "no_speech_threshold": 0.6,
+      "log_prob_threshold": -1.0,
+      "compression_ratio_threshold": 2.4
+    }
+  }
+}

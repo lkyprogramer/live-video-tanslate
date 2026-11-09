@@ -1,0 +1,62 @@
+{
+  "current-mt": {
+    "memory_pressure_levels": [
+      1
+    ],
+    "critical_observed": false,
+    "Swapins_delta_pages": 0,
+    "Swapouts_delta_pages": 0,
+    "scope": "whole host during each command, not process attributed",
+    "raw_sha256": "30c334a8d85dbb875f137cff9dbe351537deeab42b4bd4a02ab93f84729d8235"
+  },
+  "whisper-ja760-mt": {
+    "memory_pressure_levels": [
+      1
+    ],
+    "critical_observed": false,
+    "Swapins_delta_pages": 4,
+    "Swapouts_delta_pages": 0,
+    "scope": "whole host during each command, not process attributed",
+    "raw_sha256": "97b97ba9ab9a46312ee2492021c105b5a652e2efbfb6bde786bad6dd0da010ef"
+  },
+  "sensevoice-asr": {
+    "memory_pressure_levels": [
+      1
+    ],
+    "critical_observed": false,
+    "Swapins_delta_pages": 0,
+    "Swapouts_delta_pages": 0,
+    "scope": "whole host during each command, not process attributed",
+    "raw_sha256": "f29bd3e047ae30afde59ecfab32af3b4c098b106677a5ae9b949c67b9d3c89d6"
+  },
+  "sensevoice-mt": {
+    "memory_pressure_levels": [
+      1
+    ],
+    "critical_observed": false,
+    "Swapins_delta_pages": 0,
+    "Swapouts_delta_pages": 0,
+    "scope": "whole host during each command, not process attributed",
+    "raw_sha256": "1661a6f22efd6e0b8a52e8bfff3e399a8e4e7acd6fc2696d8441bf3fe760870b"
+  },
+  "whisper-ja760-asr": {
+    "memory_pressure_levels": [
+      1
+    ],
+    "critical_observed": false,
+    "Swapins_delta_pages": 68,
+    "Swapouts_delta_pages": 0,
+    "scope": "whole host during each command, not process attributed",
+    "raw_sha256": "5f72c8fca7a0f15c3e9440aa00bc9e2ba98f93d5f1f4987ec2a646a944b94e20"
+  },
+  "current-asr": {
+    "memory_pressure_levels": [
+      1
+    ],
+    "critical_observed": false,
+    "Swapins_delta_pages": 0,
+    "Swapouts_delta_pages": 0,
+    "scope": "whole host during each command, not process attributed",
+    "raw_sha256": "a51c9dee3544f467b21a66090808f0f3493faf105427a7d612277a600fcbdb61"
+  }
+}

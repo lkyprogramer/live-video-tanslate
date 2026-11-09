@@ -1,0 +1,136 @@
+{
+  "status": "PASS_WITH_DOCUMENTED_LIMITS",
+  "blocking": false,
+  "reviewer": "astra_p2_document_review",
+  "lane": "independent Astra",
+  "reviewed_at": "2026-11-09T16:06:30.956295+08:00",
+  "scope": "B4最终主报告、公开summary/validation/诊断/计时/资源CSV及JSON的一致性；复用既有预登记和G0独立审查，不重新评分。",
+  "method": "只读文档及已有数据，以标准库解析、摘要和逐字段算术核对；仅写本review JSON。未运行模型、下载、测试、复听或访问封存test/。",
+  "conclusion": "未发现阻断性不一致。failed_task及停止边界如实呈现，正式质量和完整协议成本均未测；主报告、公开汇总和资源记录一致。",
+  "findings": [],
+  "verified": {
+    "outcome": {
+      "G0_speech_valid": 0,
+      "G0_speech_denominator": 3,
+      "G0_total_requests": 5,
+      "all_finish_stop": true,
+      "structure_valid": true,
+      "stage_outcome": "failed_task",
+      "formal_88x2": "NOT_RUN",
+      "semantic_34x2": "NOT_RUN",
+      "formal_hits": null,
+      "Q_assessed": false,
+      "R_registered": false,
+      "protocol_cost": "NOT_EVALUATED",
+      "engineering_eligible": false
+    },
+    "controls_and_budget": {
+      "Reazon_main_rows": 88,
+      "Reazon_auxiliary_smoke_declared": true,
+      "M0_main_rows": 124,
+      "M0_short_auxiliary_rows": 16,
+      "official_AST_rows": 176,
+      "official_semantic_reused": [
+        6,
+        8
+      ],
+      "official_protocol_valid": [
+        85,
+        82
+      ],
+      "official_generation_tokens": [
+        2708,
+        2702
+      ],
+      "official_generation_call_sum_s": [
+        55.447026874287985,
+        54.087340913305525
+      ],
+      "official_timing_recomputed_from_raw": true,
+      "candidate_formal_quality_directory_absent": true,
+      "B4_slots_consumed": 1,
+      "B4_slots_remaining": 2
+    },
+    "resource_consistency": {
+      "groups": 4,
+      "rows": 16,
+      "CSV_and_public_JSON_equal": true,
+      "all_exported_source_fields_equal_raw_comparison": true,
+      "four_main_table_rows_match_export_rounding": true,
+      "pressure_swap_summaries_recomputed_from_raw_samples": true,
+      "workload_difference_explicit": "官方176请求与ZH候选5个G0并列留档，未计算协议资源/加速收益。",
+      "units_explicit": "CPU100%=一核；footprint/RSS/MLX及全机GPU共享内存有重叠，不能相加；全机GPU/减空闲值不是独占显存。"
+    },
+    "public_content": {
+      "no_full_speech_transcripts_observed": true,
+      "five_G0_full_raw_strings_absent_from_public_files": true,
+      "g0_metadata_equal_timing_G0_rows": true,
+      "raw_internal_Han_times_not_reported_as_valid_Chinese": true,
+      "no_0_of_34_fabricated_score": true,
+      "no_unrun_latency_or_full_candidate_cost_gain_claim": true,
+      "nonspeech_English_meta_responses_not_mislabeled_as_fabricated_speech": true
+    },
+    "provenance": {
+      "public_summary_equal_raw_decision": true,
+      "postanalysis_source_SHA_matches_summary_validation_resource_export": true,
+      "raw_manifest_and_capability_SHAs_match_summary": true,
+      "public_preregistration_and_G0_reviews_equal_raw_copies": true,
+      "G0_review_SHA256": "75de2bef2181d6bf9e246889ba10984e3a98e7c115d1722a63c7e51086feb370",
+      "reused_prior_G0_integrity_evidence": "615完成收据条目及19冻结制品无漂移、Reazon/M0及官方176逐项一致、五条G0音频路径/PCM/WAV与B3修复后G0一致；本次不重复全量审查。"
+    },
+    "test_evidence_boundary": {
+      "reviewer_test_runs": 0,
+      "controller_reported_targeted_passed": 20,
+      "saved_document_test_log_observed": "Ran 44 tests in 0.165s; OK",
+      "saved_BUILD_report_tests": {
+        "run": 44,
+        "passed": 44,
+        "exit_code": 0
+      },
+      "controller_reported_package_refresh_and_check": "PASS; 4 schemas and74 local links",
+      "meaning": "源码、定向/文档测试及报告审查均不替代未执行的正式ZH质量或真实播放验收。"
+    }
+  },
+  "documented_limits": [
+    "结论仅适用于当前冻结模型/运行时/采样/中文提示；0/3不表示模型普遍不能译成中文。",
+    "未执行候选正式88×2、34×2语义、完整协议成本假设、1x/DOM/长稳或封存集；15项待复听保留。",
+    "两个非语音探针无有效中文仅为当前观察，不证明自然音乐或通用非语音安全。",
+    "主报告链接的公共final-review副本及公开manifest由控制者在本记录落盘后同步；本次不声称已完成该后续同步。"
+  ],
+  "review_input_sha256": {
+    "docs/p2-b4-gemma-zh-results-2026-11-09.md": "d644c83b4f0fa087e40fdd0dddcd4f179359d9f138f1dbc21f5abe039dadc577",
+    "p0/p2/b4_outcome.py": "7b54efed80b8d0fa6c5e34f5d605a1229a7a7f8d52b9c2ccb4de29f9ba685cae",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/budget.json": "2d838a40d717fa2b1fa3f7464f6d78b8e53edd88c7aae72ea55aca846a9358d1",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/g0-diagnostic.json": "cb24563f158c9a467ad29e036dfc05fde452a5a350a8c44ff4ac4a7798b2c787",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/g0-outcome-review.json": "75de2bef2181d6bf9e246889ba10984e3a98e7c115d1722a63c7e51086feb370",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/memory-pressure-summary.json": "fe01bb2d8e28d7a655a97d2e3512cde874dfda1c5bf5ac194107a6bc9c6ad451",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/model-runtime-lock.json": "6c6e3c4858f6397023a3142a01135b4d85a0b4b78d85b8c5c49d18e9c3402e36",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/package-validation.json": "9e7ffb3c5e1ce9e9502002cf3eb1b22d4c98883ddf1d80bb5293d12f5dd29970",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/preregistration-review.md": "40842728995ccb26be5cffc0bf275efbfcc7b3d6804b3e098dfc326bec2539cb",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/resource-comparison.csv": "6722accdaf560624ea60f190955d912f2f0b06bd468655d4ca13daa67ea4b2af",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/resource-export.json": "411e40191ddb80e222fc7f0a0d263a14b5fdc3cdfc4812a3e518753601100a7e",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/summary.json": "a87aa34a44390ff37486a3fc3af08bb5cddefe580ae6dd5cdbf15443a6e06c2b",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/timing-offline.json": "ad5d27f211e435117f1e5f208926832770737b857967fec58a12c099bf855f05",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/unrun-routes.json": "26cf7b8dda62e4c808092d3e54dfd83ea4268968b24a0bf287c61505b1e154a8",
+    "docs/experiments/p2-b4-gemma-zh-2026-11-09/validation.json": "86a78eb319a344ae05c23a31f84857ee7c27316acbd3acc33064cd3181fba28f",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/reviews/preregistration-review.md": "40842728995ccb26be5cffc0bf275efbfcc7b3d6804b3e098dfc326bec2539cb",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/reviews/g0-outcome-review.json": "75de2bef2181d6bf9e246889ba10984e3a98e7c115d1722a63c7e51086feb370",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/decision.json": "a87aa34a44390ff37486a3fc3af08bb5cddefe580ae6dd5cdbf15443a6e06c2b",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/run-manifest.json": "f924ab73d37593ca24c652d5d64b6492524a0e917595e208307b60ab1985fc13",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-ZH/g0/capability.json": "3ecbaf13ad731bde91875bbf296fcd7005fe24a53629bbfa6cd82575934aa7ec",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-ZH/g0/rows-seed11.jsonl": "2afd0ee1bef440382b571b7e2c7a6eb22c6e004d36e728d0f6861f9f6b328aa3",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-OFFICIAL/quality/mt-seed11.jsonl": "fdea59d605fe4d20ed6969b3ada36c03c0b6e8866c5a7fe169f8d2bd59766bb5",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-OFFICIAL/quality/mt-seed29.jsonl": "5c62dea76ced30097f909dd16e72b53f23e3b645044be0d714e970c4ff1189ec",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/B0-CURRENT/short-controls.jsonl": "d66d27a2ee19c1ff35829362b8a822470cd2ecdae64da5fad1a17dc5f281f8d3",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/resources/current-asr/comparison.json": "edf02ff9ba0d348b40b0d3652b691dc8cd5d27a4dc9357d3ce9226b62b088adf",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/resources/current-asr/samples.jsonl": "80a740ea5fef6b4273521ccd484f7dce8a0e849a4199d98e5a40cee6115c0b78",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/resources/current-mt/comparison.json": "a72b7db6709b10c353bde62900a621966a090d2b3cd94e289c34995884bc09b4",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/resources/current-mt/samples.jsonl": "1545fb8eef734b17d9f7475616ca5fd8ae605447bafe2a8f7adb5daf6337677a",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/resources/official/comparison.json": "5814b7f3dd0f77e0b01eaa017082cbf0f48d5b3b86e6abb194b2184b2b770093",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/resources/official/samples.jsonl": "0d63dec76a45e25ce2408e5fb49c1828f9939dafb0bdb0bf98f0a1a3983c189a",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/resources/zh-g0/comparison.json": "7ad0c6dfdf01da607f35fc63782e922b1a778887d6a482b921fd9c9fccf1450a",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/resources/zh-g0/samples.jsonl": "b44389a524df1d44a7e769c9d57d94cb122d58e152b5c28d3a5ac97a70bc639a",
+    "docs/live-video-translate-p2-2026-11-07/BUILD-VALIDATION.json": "ca2ff1c1937c152355ba36d6f76d1e97bf332eb2495fd6785d6e1830cce55d37",
+    "docs/live-video-translate-p2-2026-11-07/BUILD-TESTS.log": "6db4687f6bc6a2e5f3d956331c0e35ffacc9aeebbbb1e1ecea20e3e608e43fcb"
+  }
+}

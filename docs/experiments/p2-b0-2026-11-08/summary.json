@@ -1,0 +1,785 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-08",
+  "baseline_commit": "7121c1bb4f869f6968e8b381c45117223c708917",
+  "status": "B0_ENGINEERING_PASS_PROVISIONAL_REFERENCES",
+  "ready_for_B1": true,
+  "scope": "B0 current-baseline engineering verification only",
+  "hardware": {
+    "chip": "Apple M1 Pro",
+    "ram_gib": 32,
+    "gpu_cores": 16,
+    "os": "26.7.2"
+  },
+  "reference_status": "ai_reviewed",
+  "human_verified": false,
+  "holdout_accessed": false,
+  "production_default_changed": false,
+  "release_eligible": false,
+  "assets": {
+    "continuous_pcm": 9,
+    "audio_s": 476.058,
+    "asr_cuts": 88,
+    "mt_inputs_per_seed": 62,
+    "semantic_units": 34,
+    "pending_listen": 15
+  },
+  "offline": {
+    "exact_asr": 88,
+    "exact_mt": {
+      "11": 62,
+      "29": 62
+    },
+    "quality_counts": {
+      "11": 20,
+      "29": 18
+    }
+  },
+  "replays": [
+    {
+      "seed": 11,
+      "asr_exact_matches": 88,
+      "mt_exact_matches": 62,
+      "exact_pcm": true,
+      "historical": {
+        "denominator": 34,
+        "matched": 20,
+        "within_2s": 19,
+        "within_3s": 19,
+        "within_5s": 19,
+        "within_15s": 20,
+        "matched_p50_ms": -307.52941699999974,
+        "matched_p95_ms": 1907.2565829999985,
+        "all_units_p95_ms": null,
+        "all_units_p95_unbounded": true,
+        "early_units": 11,
+        "late_units": [],
+        "match_window_ms": 15000,
+        "tail_sample_count_sufficient": true,
+        "all_references_human_declared": false,
+        "formal_tail_claim_eligible": false,
+        "evidence_status": "measured",
+        "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+        "release_eligible": false,
+        "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+      },
+      "sensitivity_126_04": {
+        "denominator": 34,
+        "matched": 20,
+        "within_2s": 20,
+        "within_3s": 20,
+        "within_5s": 20,
+        "within_15s": 20,
+        "matched_p50_ms": -316.02887499998906,
+        "matched_p95_ms": 1815.4907500000008,
+        "all_units_p95_ms": null,
+        "all_units_p95_unbounded": true,
+        "early_units": 12,
+        "late_units": [],
+        "match_window_ms": 15000,
+        "tail_sample_count_sufficient": true,
+        "all_references_human_declared": false,
+        "formal_tail_claim_eligible": false,
+        "evidence_status": "measured",
+        "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+        "release_eligible": false,
+        "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+      },
+      "stages_ms": {
+        "asr_executor_wait": {
+          "count": 2391,
+          "p50": 0.13616701471619308,
+          "p95": 0.24737499188631773,
+          "maximum": 2.3029579897411168
+        },
+        "vad_asr_job_total": {
+          "count": 2391,
+          "p50": 1.1147080222144723,
+          "p95": 1.9591250165831298,
+          "maximum": 193.72133299475536
+        },
+        "asr_compute": {
+          "count": 88,
+          "p50": 82.44020899292082,
+          "p95": 149.78949999203905,
+          "maximum": 189.4570830045268
+        },
+        "vad_after_audio_end": {
+          "count": 88,
+          "p50": 127.66970900213259,
+          "p95": 627.9074170053942,
+          "maximum": 629.3169999912038
+        },
+        "mt_queue": {
+          "count": 88,
+          "p50": 0.28966699028387666,
+          "p95": 0.5015419737901539,
+          "maximum": 0.6267919961828738
+        },
+        "mt_compute": {
+          "count": 88,
+          "p50": 278.1477920070756,
+          "p95": 449.233124993043,
+          "maximum": 627.5752499932423
+        }
+      },
+      "first_correct_complete_frozen_units": {
+        "csj-reproduction": {
+          "first_any_zh_s": 7.724174542,
+          "first_correct_frozen_unit_s": 40.258260457999995,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "csj-task": {
+          "first_any_zh_s": 2.652994833,
+          "first_correct_frozen_unit_s": 6.472692167,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "offsiderule": {
+          "first_any_zh_s": 12.98148175,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "wmf-04": {
+          "first_any_zh_s": 7.71463075,
+          "first_correct_frozen_unit_s": 11.312470583,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "first-photo": {
+          "first_any_zh_s": 2.662526333,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "first-strangers": {
+          "first_any_zh_s": 7.401074042,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "first-europe": {
+          "first_any_zh_s": 2.472995208,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "first-slides": {
+          "first_any_zh_s": 2.459311458,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "silence": {
+          "first_any_zh_s": null,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        }
+      },
+      "error_counts": {
+        "correct": 20,
+        "incorrect": 13,
+        "missing": 1,
+        "filtered": 0
+      }
+    },
+    {
+      "seed": 29,
+      "asr_exact_matches": 88,
+      "mt_exact_matches": 62,
+      "exact_pcm": true,
+      "historical": {
+        "denominator": 34,
+        "matched": 18,
+        "within_2s": 17,
+        "within_3s": 17,
+        "within_5s": 17,
+        "within_15s": 18,
+        "matched_p50_ms": -7.461084000002302,
+        "matched_p95_ms": 5393.232957999993,
+        "all_units_p95_ms": null,
+        "all_units_p95_unbounded": true,
+        "early_units": 9,
+        "late_units": [],
+        "match_window_ms": 15000,
+        "tail_sample_count_sufficient": false,
+        "all_references_human_declared": false,
+        "formal_tail_claim_eligible": false,
+        "evidence_status": "measured",
+        "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+        "release_eligible": false,
+        "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+      },
+      "sensitivity_126_04": {
+        "denominator": 34,
+        "matched": 18,
+        "within_2s": 18,
+        "within_3s": 18,
+        "within_5s": 18,
+        "within_15s": 18,
+        "matched_p50_ms": -557.7639580000032,
+        "matched_p95_ms": 1904.9166670000013,
+        "all_units_p95_ms": null,
+        "all_units_p95_unbounded": true,
+        "early_units": 10,
+        "late_units": [],
+        "match_window_ms": 15000,
+        "tail_sample_count_sufficient": false,
+        "all_references_human_declared": false,
+        "formal_tail_claim_eligible": false,
+        "evidence_status": "measured",
+        "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+        "release_eligible": false,
+        "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+      },
+      "stages_ms": {
+        "asr_executor_wait": {
+          "count": 2391,
+          "p50": 0.1281249860767275,
+          "p95": 0.2220410096924752,
+          "maximum": 4.10254200687632
+        },
+        "vad_asr_job_total": {
+          "count": 2391,
+          "p50": 1.0887499956879765,
+          "p95": 1.8537909782025963,
+          "maximum": 198.7212499952875
+        },
+        "asr_compute": {
+          "count": 88,
+          "p50": 82.67416700255126,
+          "p95": 147.6179159944877,
+          "maximum": 194.52241601538844
+        },
+        "vad_after_audio_end": {
+          "count": 88,
+          "p50": 127.87120799859952,
+          "p95": 628.0961660270119,
+          "maximum": 629.9074169956147
+        },
+        "mt_queue": {
+          "count": 88,
+          "p50": 0.2888340095523745,
+          "p95": 0.39775000186637044,
+          "maximum": 0.5789999850094318
+        },
+        "mt_compute": {
+          "count": 88,
+          "p50": 281.7427919944748,
+          "p95": 467.38687498145737,
+          "maximum": 640.3324170096312
+        }
+      },
+      "first_correct_complete_frozen_units": {
+        "csj-reproduction": {
+          "first_any_zh_s": 7.7306885,
+          "first_correct_frozen_unit_s": 40.250236042,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "csj-task": {
+          "first_any_zh_s": 2.652110667,
+          "first_correct_frozen_unit_s": 6.472749375,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "offsiderule": {
+          "first_any_zh_s": 13.003406916,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "wmf-04": {
+          "first_any_zh_s": 7.714320708,
+          "first_correct_frozen_unit_s": 36.152538916,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "first-photo": {
+          "first_any_zh_s": 2.68988675,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "first-strangers": {
+          "first_any_zh_s": 7.41877,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "first-europe": {
+          "first_any_zh_s": 2.487282666,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "first-slides": {
+          "first_any_zh_s": 2.473686959,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        },
+        "silence": {
+          "first_any_zh_s": null,
+          "first_correct_frozen_unit_s": null,
+          "dom_stability": "not_measured_in_PCM_WS_replay"
+        }
+      },
+      "error_counts": {
+        "correct": 18,
+        "incorrect": 15,
+        "missing": 1,
+        "filtered": 0
+      }
+    }
+  ],
+  "browser": {
+    "source": "csj-task, H264/AAC tabCapture/worklet; separate from original PCM",
+    "observed_ws": 11,
+    "readable_captions": 10,
+    "semantic_denominator": 8,
+    "correct_ws": 3,
+    "correct_readable_dom": 3,
+    "units": [
+      {
+        "unit_id": "csj-task/1",
+        "label": "incorrect",
+        "required_seqs": [
+          1
+        ],
+        "readable_correct": false,
+        "reason": "opening action absent; first output is only 是",
+        "sentence_end_to_correct_dom_ms": null,
+        "speech_start_to_correct_dom_ms": null,
+        "reference_status": "ai_reviewed"
+      },
+      {
+        "unit_id": "csj-task/5",
+        "label": "correct",
+        "required_seqs": [
+          2
+        ],
+        "readable_correct": true,
+        "reason": "photo fact retained",
+        "sentence_end_to_correct_dom_ms": 1247.400146484375,
+        "speech_start_to_correct_dom_ms": 2712.400146484375,
+        "reference_status": "ai_reviewed"
+      },
+      {
+        "unit_id": "csj-task/6",
+        "label": "incorrect",
+        "required_seqs": [
+          3
+        ],
+        "readable_correct": false,
+        "reason": "名字和毛 does not express 名字和一句话",
+        "sentence_end_to_correct_dom_ms": null,
+        "speech_start_to_correct_dom_ms": null,
+        "reference_status": "ai_reviewed"
+      },
+      {
+        "unit_id": "csj-task/9",
+        "label": "correct",
+        "required_seqs": [
+          5
+        ],
+        "readable_correct": true,
+        "reason": "unknown-people fact retained",
+        "sentence_end_to_correct_dom_ms": 1848.400146484375,
+        "speech_start_to_correct_dom_ms": 4434.400146484375,
+        "reference_status": "ai_reviewed"
+      },
+      {
+        "unit_id": "csj-task/12-15",
+        "label": "correct",
+        "required_seqs": [
+          6
+        ],
+        "readable_correct": true,
+        "reason": "reading names from the top retained",
+        "sentence_end_to_correct_dom_ms": 1906.800048828125,
+        "speech_start_to_correct_dom_ms": 5761.800048828125,
+        "reference_status": "ai_reviewed"
+      },
+      {
+        "unit_id": "csj-task/20",
+        "label": "partial",
+        "required_seqs": [
+          7,
+          8
+        ],
+        "readable_correct": false,
+        "reason": "food-related occupation and glasses present, short hair missing",
+        "sentence_end_to_correct_dom_ms": null,
+        "speech_start_to_correct_dom_ms": null,
+        "reference_status": "ai_reviewed"
+      },
+      {
+        "unit_id": "csj-task/30",
+        "label": "incorrect",
+        "required_seqs": [
+          9
+        ],
+        "readable_correct": false,
+        "reason": "katakana transliteration is not 片假名",
+        "sentence_end_to_correct_dom_ms": null,
+        "speech_start_to_correct_dom_ms": null,
+        "reference_status": "ai_reviewed"
+      },
+      {
+        "unit_id": "csj-task/34-35",
+        "label": "incorrect",
+        "required_seqs": [
+          10,
+          11
+        ],
+        "readable_correct": false,
+        "reason": "Sergio name followed by 11号 question; unknown-person relation not retained",
+        "sentence_end_to_correct_dom_ms": null,
+        "speech_start_to_correct_dom_ms": null,
+        "reference_status": "ai_reviewed"
+      }
+    ],
+    "first_correct_dom_from_play_ms": 6683.400146484375,
+    "click_start_latency": "not directly timestamped, playback-start reported",
+    "ws_to_visible_p95_ms": 8.699951171875,
+    "clock_mapping_uncertainty_ms_max": 0.522812,
+    "clock_offset_drift_ms": -0.032,
+    "capture_origin_media_s": 0.066667,
+    "frame_resolution_s": 0.06666666666666667,
+    "visibility": [
+      {
+        "t": 1794109529249.5999,
+        "hidden": false,
+        "has_focus": true
+      }
+    ],
+    "all_controls_completed": true,
+    "units_lost_vs_original_pcm": [
+      "csj-task/20"
+    ],
+    "loss_attribution": "short-hair fact absent in captured-condition ASR; codec/resampling/VAD cause not isolated"
+  },
+  "short_controls": {
+    "denominator_per_seed": 4,
+    "correct_each_seed": 1,
+    "units": [
+      {
+        "seed": 11,
+        "clip": "first-photo",
+        "label": "correct",
+        "first_correct_ws_s": 2.662526333,
+        "reason": "photo fact retained",
+        "reference_status": "ai_reviewed",
+        "trace_sha256": "79a0dec68c574d15180dd2f286e56cf72885e22ddb671abf95bd16666d0ed287"
+      },
+      {
+        "seed": 11,
+        "clip": "first-strangers",
+        "label": "incorrect",
+        "first_correct_ws_s": null,
+        "reason": "output reads names, unknown-people fact missing",
+        "reference_status": "ai_reviewed",
+        "trace_sha256": "8e227e463d9b47d93d882795259fa50536f67338985ad88d35be0e60b10217fa"
+      },
+      {
+        "seed": 11,
+        "clip": "first-europe",
+        "label": "partial",
+        "first_correct_ws_s": null,
+        "reason": "west retained but Europe missing",
+        "reference_status": "ai_reviewed",
+        "trace_sha256": "d2e45b6ad335336155798ee1a28627f66ba75cc0d7b9e2f6540c8f3d74461eb5"
+      },
+      {
+        "seed": 11,
+        "clip": "first-slides",
+        "label": "incorrect",
+        "first_correct_ws_s": null,
+        "reason": "no slide-change fact",
+        "reference_status": "ai_reviewed",
+        "trace_sha256": "5134be0417538aecc8432cbab57ada1bb6e4879221d059ac821103bdefa94cbb"
+      },
+      {
+        "seed": 29,
+        "clip": "first-photo",
+        "label": "correct",
+        "first_correct_ws_s": 2.68988675,
+        "reason": "photo fact retained",
+        "reference_status": "ai_reviewed",
+        "trace_sha256": "197f7370c8233c79fc0170ad37efc5d017347f9b51e015e9e0e337aab855f121"
+      },
+      {
+        "seed": 29,
+        "clip": "first-strangers",
+        "label": "incorrect",
+        "first_correct_ws_s": null,
+        "reason": "output reads names, unknown-people fact missing",
+        "reference_status": "ai_reviewed",
+        "trace_sha256": "8ca5a2c26063697cd64d83fce5548d8ee12c5fbe518fae299e87320f685729b7"
+      },
+      {
+        "seed": 29,
+        "clip": "first-europe",
+        "label": "partial",
+        "first_correct_ws_s": null,
+        "reason": "west retained but Europe missing",
+        "reference_status": "ai_reviewed",
+        "trace_sha256": "d48799547d2da8068ff682c0cd5a9cb347df4c06163c17c5e466b2250314710b"
+      },
+      {
+        "seed": 29,
+        "clip": "first-slides",
+        "label": "incorrect",
+        "first_correct_ws_s": null,
+        "reason": "no slide-change fact",
+        "reference_status": "ai_reviewed",
+        "trace_sha256": "3322b64373feac77f26eb342ef2995a745aba4b1b80220855ac36fdec33d9f01"
+      }
+    ],
+    "p90_unbounded": true,
+    "formal_tail_eligible": false
+  },
+  "resources": [
+    {
+      "id": "browser-asr",
+      "phase": "playback#1",
+      "scope": "Chrome plus paced original-PCM ASR component; no translation model",
+      "cpu_avg_pct_one_core_100": 14.43,
+      "cpu_p95_pct": 51.742,
+      "cpu_peak_pct": 120.0292329758141,
+      "tree_footprint_peak_mib": 937.32,
+      "tree_footprint_median_mib": 822.566,
+      "rss_sum_peak_mib": 1853.578125,
+      "host_gpu_avg_pct": 3.92,
+      "host_gpu_p95_pct": 15,
+      "host_gpu_shared_memory_peak_mib": 1756.359,
+      "normalization": {
+        "unit": "source_audio_second",
+        "seconds": 40.562
+      },
+      "ane": "N/A",
+      "dedicated_vram": "N/A: Apple unified memory",
+      "monitor_exit_code": 0
+    },
+    {
+      "id": "browser-full",
+      "phase": "playback#1",
+      "scope": "Chrome real tabCapture full chain; authenticated isolated settings and actual tab URL, setup fixes fingerprinted",
+      "cpu_avg_pct_one_core_100": 23.51,
+      "cpu_p95_pct": 105.265,
+      "cpu_peak_pct": 140.39252899810606,
+      "tree_footprint_peak_mib": 2168.38,
+      "tree_footprint_median_mib": 1959.974,
+      "rss_sum_peak_mib": 3268.6875,
+      "host_gpu_avg_pct": 12.8,
+      "host_gpu_p95_pct": 87,
+      "host_gpu_shared_memory_peak_mib": 3563.0,
+      "normalization": {
+        "unit": "source_audio_second",
+        "seconds": 40.562
+      },
+      "ane": "N/A",
+      "dedicated_vram": "N/A: Apple unified memory",
+      "monitor_exit_code": 0
+    },
+    {
+      "id": "browser-mt-003",
+      "phase": "playback#1",
+      "scope": "Chrome plus paced MT, foreground availability confirmed by user; previous hidden-page attempts retained",
+      "cpu_avg_pct_one_core_100": 12.22,
+      "cpu_p95_pct": 51.278,
+      "cpu_peak_pct": 73.80321610094668,
+      "tree_footprint_peak_mib": 1757.49,
+      "tree_footprint_median_mib": 1605.348,
+      "rss_sum_peak_mib": 2706.46875,
+      "host_gpu_avg_pct": 12.79,
+      "host_gpu_p95_pct": 91,
+      "host_gpu_shared_memory_peak_mib": 3025.438,
+      "normalization": {
+        "unit": "source_audio_second",
+        "seconds": 40.562
+      },
+      "ane": "N/A",
+      "dedicated_vram": "N/A: Apple unified memory",
+      "monitor_exit_code": 0
+    },
+    {
+      "id": "browser-play",
+      "phase": "playback#1",
+      "scope": "Chrome playback-only fixed CSJ video; all isolated browser processes and clock bridge",
+      "cpu_avg_pct_one_core_100": 10.01,
+      "cpu_p95_pct": 26.587,
+      "cpu_peak_pct": 82.01103896855079,
+      "tree_footprint_peak_mib": 470.99,
+      "tree_footprint_median_mib": 332.69,
+      "rss_sum_peak_mib": 1332.21875,
+      "host_gpu_avg_pct": 6.61,
+      "host_gpu_p95_pct": 24,
+      "host_gpu_shared_memory_peak_mib": 1924.469,
+      "normalization": {
+        "unit": "source_audio_second",
+        "seconds": 40.562
+      },
+      "ane": "N/A",
+      "dedicated_vram": "N/A: Apple unified memory",
+      "monitor_exit_code": 0
+    },
+    {
+      "id": "offline-asr",
+      "phase": "whole_run",
+      "scope": "offline fixed-cuts B0; process tree is ASR worker only",
+      "cpu_avg_pct_one_core_100": 189.81,
+      "cpu_p95_pct": 222.256,
+      "cpu_peak_pct": 230.3691257531982,
+      "tree_footprint_peak_mib": 587.84,
+      "tree_footprint_median_mib": 547.579,
+      "rss_sum_peak_mib": 615.25,
+      "host_gpu_avg_pct": 14.59,
+      "host_gpu_p95_pct": 26,
+      "host_gpu_shared_memory_peak_mib": 1865.438,
+      "normalization": {
+        "unit": "source_audio_second",
+        "seconds": 476.058
+      },
+      "ane": "N/A",
+      "dedicated_vram": "N/A: Apple unified memory",
+      "monitor_exit_code": 0
+    },
+    {
+      "id": "offline-mt",
+      "phase": "whole_run",
+      "scope": "offline fixed-text B0; process tree is MT worker only; seed11 and seed29",
+      "cpu_avg_pct_one_core_100": 62.49,
+      "cpu_p95_pct": 84.04,
+      "cpu_peak_pct": 154.17621520305914,
+      "tree_footprint_peak_mib": 1459.99,
+      "tree_footprint_median_mib": 1293.033,
+      "rss_sum_peak_mib": 1421.078125,
+      "host_gpu_avg_pct": 82.61,
+      "host_gpu_p95_pct": 98,
+      "host_gpu_shared_memory_peak_mib": 3330.281,
+      "normalization": {
+        "unit": "translation_request",
+        "requests": 124,
+        "requests_by_seed": {
+          "11": 62,
+          "29": 62
+        }
+      },
+      "ane": "N/A",
+      "dedicated_vram": "N/A: Apple unified memory",
+      "monitor_exit_code": 0
+    },
+    {
+      "id": "replay-1",
+      "phase": "whole_run",
+      "scope": "realtime-1x original PCM, gateway process tree and client; no Chrome",
+      "cpu_avg_pct_one_core_100": 9.51,
+      "cpu_p95_pct": 83.186,
+      "cpu_peak_pct": 174.2997171631048,
+      "tree_footprint_peak_mib": 1837.49,
+      "tree_footprint_median_mib": 1679.253,
+      "rss_sum_peak_mib": 1982.796875,
+      "host_gpu_avg_pct": 22.09,
+      "host_gpu_p95_pct": 84,
+      "host_gpu_shared_memory_peak_mib": 3264.125,
+      "normalization": {
+        "unit": "source_audio_second",
+        "seconds": 476.058
+      },
+      "ane": "N/A",
+      "dedicated_vram": "N/A: Apple unified memory",
+      "monitor_exit_code": 0
+    },
+    {
+      "id": "replay-2",
+      "phase": "whole_run",
+      "scope": "realtime-1x original PCM seed29, gateway process tree and client; no Chrome",
+      "cpu_avg_pct_one_core_100": 9.67,
+      "cpu_p95_pct": 79.79,
+      "cpu_peak_pct": 168.32608889690408,
+      "tree_footprint_peak_mib": 1855.32,
+      "tree_footprint_median_mib": 1675.409,
+      "rss_sum_peak_mib": 2011.75,
+      "host_gpu_avg_pct": 27.26,
+      "host_gpu_p95_pct": 82,
+      "host_gpu_shared_memory_peak_mib": 3154.047,
+      "normalization": {
+        "unit": "source_audio_second",
+        "seconds": 476.058
+      },
+      "ane": "N/A",
+      "dedicated_vram": "N/A: Apple unified memory",
+      "monitor_exit_code": 0
+    }
+  ],
+  "mlx_offline": {
+    "active_peak_mib": 961.0273933410645,
+    "allocator_peak_mib": 1142.527847290039,
+    "scope": "offline MT observed runtime allocation, not 1x per-process VRAM"
+  },
+  "failures_retained": [
+    {
+      "run": "p2-b0-20261108-103637",
+      "path": "failed-attempts/browser-mt-001",
+      "reason": "page hidden"
+    },
+    {
+      "run": "p2-b0-20261108-103637",
+      "path": "failed-attempts/browser-mt-002",
+      "reason": "page hidden"
+    },
+    {
+      "run": "p2-b0-20261108-103637",
+      "path": "browser-full",
+      "reason": "target URL lookup, failed before capture"
+    },
+    {
+      "run": "p2-b0-20261108-103637-browser-fix",
+      "path": "browser-full",
+      "reason": "settings initialization race, failed before capture"
+    }
+  ],
+  "lineage": {
+    "final_run": "p2-b0-20261108-103637-browser-fix-settings",
+    "parent_run": {
+      "path": "/Users/luo/Documents/github/jp-live-video-tanslate/p0/evidence/p2-b0-20261108-103637-browser-fix",
+      "fingerprint": "83b1bfe34bf65c398e6bed1f4b42f6996eca9a375b322af7d8ddad4948b6fcc2",
+      "manifest_sha256": "72e2ca961b163d85eb0d636fb09da0a0d264de40468d3341c06ec574e7c443ad",
+      "ancestor": {
+        "path": "/Users/luo/Documents/github/jp-live-video-tanslate/p0/evidence/p2-b0-20261108-103637",
+        "fingerprint": "86249aff7347690e1f52f214ea9338f586fd87786fa6344472cf69eb99eec906",
+        "manifest_sha256": "1da28705ee9322d55e76d6737481cde7ca60c957012b8dc5b2641d32f8acf3d0",
+        "adopted_steps": [
+          "fixed-cuts",
+          "fixed-text",
+          "score",
+          "replay-1",
+          "replay-2"
+        ],
+        "adopted_browser_controls": [
+          "play",
+          "asr",
+          "mt"
+        ],
+        "source_change": "browser target URL lookup only; use actual targetInfo.url including trailing slash; change occurs only in full mode before capture",
+        "old_browser_sha256": "cadf91eb3df1817e52eeb3369d80ea1b04176e6e12201dc970c9fd065a992f17",
+        "new_browser_sha256": "f0a251c02fa928d4a32cb6ef2f18e32b93f0732c26699afa2308a55e53d98ae4",
+        "formal_scores_reused": false,
+        "all_inference_and_scheduler_sources_unchanged": true
+      },
+      "adopted_steps": [
+        "fixed-cuts",
+        "fixed-text",
+        "score",
+        "replay-1",
+        "replay-2"
+      ],
+      "adopted_browser_controls": [
+        "play",
+        "asr",
+        "mt"
+      ],
+      "source_change": "full-mode isolated extension storage initialization/readback, authenticated catalog check; model and audio capture code unchanged",
+      "formal_scores_reused": false,
+      "all_inference_and_scheduler_sources_unchanged": true
+    },
+    "model_results_keep_original_execution_fingerprint": true
+  },
+  "limitations": [
+    "AI text references; no human listening/calibrated gold speech ends",
+    "WS 34-unit scores and Chrome 8-unit DOM scores are different input conditions",
+    "P95 n=18/20 is descriptive; all-unit P95 includes misses as unbounded",
+    "Only four short controls, not the final twenty",
+    "ANE/energy/temperature not measured; host GPU memory overlaps tree footprint",
+    "Click-start latency was not directly recorded",
+    "No new fullscreen, 60min or holdout verification"
+  ]
+}

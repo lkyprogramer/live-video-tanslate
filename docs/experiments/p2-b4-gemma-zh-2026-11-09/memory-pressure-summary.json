@@ -1,0 +1,40 @@
+{
+  "current-asr": {
+    "levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3829.75M  free = 1290.25M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3829.75M  free = 1290.25M  (encrypted)",
+    "swapins_pages_delta": 4,
+    "swapouts_pages_delta": 0
+  },
+  "current-mt": {
+    "levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3829.75M  free = 1290.25M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3829.75M  free = 1290.25M  (encrypted)",
+    "swapins_pages_delta": 28,
+    "swapouts_pages_delta": 0
+  },
+  "official": {
+    "levels": [
+      "1",
+      "2"
+    ],
+    "swap_first": "total = 5120.00M  used = 3829.75M  free = 1290.25M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3797.75M  free = 1322.25M  (encrypted)",
+    "swapins_pages_delta": 1553,
+    "swapouts_pages_delta": 0
+  },
+  "zh-g0": {
+    "levels": [
+      "1",
+      "2"
+    ],
+    "swap_first": "total = 5120.00M  used = 3797.75M  free = 1322.25M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3797.75M  free = 1322.25M  (encrypted)",
+    "swapins_pages_delta": 697,
+    "swapouts_pages_delta": 0
+  }
+}

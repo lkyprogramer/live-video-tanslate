@@ -1,0 +1,51 @@
+{
+  "disagreements": [
+    {
+      "seed": "11",
+      "unit": "csj-task/5",
+      "root": {
+        "unit": "csj-task/5",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "照片存在，但新增邮件容器，原声/对照未说邮件。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "csj-task/5",
+        "status": "correct",
+        "new_critical_error": false,
+        "reason": "我的邮件里包含照片仍保留照片存在的冻结核心；沿用B2这个文件里包含照片已接受的宽口径，不新增我这边必须逐字出现的要求。邮件媒介未获独立音频验证。"
+      },
+      "resolution": "Accept frozen wide photo-presence core as in B2 file-container example; mail medium unverified, not confirmed error. Root initial phrase about original audio referred only to supplied text, not listening."
+    },
+    {
+      "seed": "29",
+      "unit": "csj-task/5",
+      "root": {
+        "unit": "csj-task/5",
+        "status": "partial",
+        "new_critical_error": true,
+        "reason": "照片存在，但新增邮件容器，原声/对照未说邮件。",
+        "human_verified": false,
+        "review": "root_independent_AI_text"
+      },
+      "independent": {
+        "unit": "csj-task/5",
+        "status": "correct",
+        "new_critical_error": false,
+        "reason": "我的邮件里包含照片仍保留照片存在的冻结核心；沿用B2这个文件里包含照片已接受的宽口径，不新增我这边必须逐字出现的要求。邮件媒介未获独立音频验证。"
+      },
+      "resolution": "Accept frozen wide photo-presence core as in B2 file-container example; mail medium unverified, not confirmed error. Root initial phrase about original audio referred only to supplied text, not listening."
+    }
+  ],
+  "root_initial_hits": [
+    16,
+    17
+  ],
+  "final_hits": [
+    17,
+    18
+  ],
+  "human_verified": false
+}

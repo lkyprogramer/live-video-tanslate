@@ -1,0 +1,273 @@
+experiment,seed,unit,status,new_critical_error,reason,critical_detail,reference_status,human_verified,root_status,root_critical,reconciliation
+PAD-900,11,csj-reproduction/1,partial,False,与control同为“平行语言信息”，未恢复副语言术语；简要回顾的动作保留。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,csj-reproduction/2-3,partial,False,ASR补回副语言，但中文仍只说语言与非语言，缺第三类副语言；不能按ASR改善直接计中文正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,csj-reproduction/4,partial,False,与control相同，三分法与副语言术语错误未恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,csj-reproduction/5-7,correct,False,首句保留控制输出、不同于语言信息、连续变化与难分类的冻结核心；收尾“安排”误译不算额外收益，严格整句敏感性应记录这一残余错误。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,csj-task/1,missing,False,没有对应“我打开看看”的有效字幕。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+PAD-900,11,csj-task/5,partial,True,“那边有照片”新增了远指位置，未保留说话者这边；这不是control只省略人称的同类省略。,speaker_deixis: 参考明确为说话者这边有照片，候选变为那边，新增了错误的空间/归属指向。,source_transcript,False,uncertain,False,"Under the provisional text reference, 那边 introduces a conflicting deictic relation rather than merely omitting the speaker. Human source status stays pending."
+PAD-900,11,csj-task/6,partial,False,虽补回我的部分，但名字和一句话仍变成名字与毛两个词，必要的两个信息项不正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,csj-task/9,correct,False,与冻结control同文，按既有口径保留很多不认识的人这一核心。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,csj-task/12-15,partial,False,读名字的动作恢复，但“从最上面开始”完全缺失；相对control丢失必要顺序。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,csj-task/20,partial,True,只剩是否为研究家的问句，眼镜和短发均丢失；职业肯定事实也改成询问。,question_polarity: 参考和control陈述其为烹饪研究者，候选询问“是美食研究家吗”，由肯定信息变成未确认问题。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+PAD-900,11,csj-task/30,incorrect,True,姓名片假名写法完全丢失，变成“基拉的平坦区域吗”；与control仅没译清片假名不同。,entity_relation: 将雷米的姓名写法改成基拉及平坦区域，并新增询问这一无关关系。,source_transcript,False,partial,True,Same core outcome; retain independent status granularity and original root judgment for audit.
+PAD-900,11,csj-task/34-35,partial,True,虽然补出不太清楚，但仍将所问对象改成11号而非塞尔吉奥越后；不能算人物身份恢复。,numeric_identity: control已误指纯一号，候选又明确断言编号11号；参考没有这个编号，新增了具体数值身份。,source_transcript,False,partial,False,"A concrete11 identity is new numeric specificity relative to the previous garbled name; retain as provisional critical, including an already-failed unit."
+PAD-900,11,wmf-04/131-132,correct,False,seed11与control保持正文外附录和定义并列，后句是什么样的完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/133-135,partial,False,验证对象有所恢复，但Enforcing变成错误拼词，“不要只停留文字、如何落实行动”被改成组成/理解与是否体现；只算部分恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/136,partial,False,第一行序言保留，但新增“制度验证中的内容”这一错误领域限定；与control单纯省略章程上下文不同。,,source_transcript,False,partial,True,Keep partial loss from false verification context. Do not additionally classify this as a key error under the narrower critical taxonomy.
+PAD-900,11,wmf-04/137-138,correct,False,第二部分/第二章、价值与原理仍在，未改变序号或主题。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/139,correct,False,“第三种定义”与冻结control相同，沿列表核心口径保留；严格目录语义应是第三项为定义，属于legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/140-141,partial,False,章程定义仍缺失或变成现象，各章仍变成部门；第四项列举保留但不足以恢复本项。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/142-143,partial,False,全球监督与全球表达项目、现象及相关事项未明确恢复全球评议会负责章程，仍不能完成必要关系。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/144-145,partial,False,委员会解散后设新机构的结构保留，但草案委员会与章程事项未正确命名；不能把笼统负责小组/相关事项补读成正确实体。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/146-147,correct,False,橙色中间位置、刚才提到的角色或职责与责任范围完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/148-152,partial,True,否定成为高管仍在，也恢复编辑者，但撰稿人变成非行者，并把待决定的编辑职责说成已经注意/扮演了的行为。,entity_and_action_relation: 相对control的撰稿人，候选新增非行者身份；“编辑们注意了/扮演了”又把待决定职责改为已发生行为。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/153-155,partial,True,橙色三项和重点工作保留，但新增“验证委员会”，错误指定执行主体；control只省略章程限定。,entity_relation: 应为章程委员会，候选明确称验证委员会，增加了错误机构身份。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/156-157,correct,False,与同轮control一致，责任有不同层次/深度和范围，共同讨论处理办法并决定，必要关系保留。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/158-160,correct,False,橙色中央下方和决策核心仍在，沿冻结弱标签口径计正确；“弟子盐”是明显残余错误标签，严格整句不能称准确，属legacy_rubric_weakness。,,source_transcript,False,partial,False,Use the same frozen weak-label decision-core rubric as B0 for the main count. 弟子盐 remains an acknowledged residual error; not fully accurate Chinese and not evidence of new benefit.
+PAD-900,11,wmf-04/161-165,partial,True,宪章变成验证，且“可以同意各条文”加强为“一致同意”；虽然同意相对seed29有局部恢复，必要对象和决策条件仍不正确。,agreement_requirement: control没有一致/全体同意要求，候选增加各条款得到一致同意，把可同意加强为共识条件。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/166-167,correct,False,与control一致，附录汇总正文未涉及的内容。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/168,missing,False,没有幻灯片已切换的信息，只出现草案流程时间表。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+PAD-900,11,wmf-04/169,correct,False,草案整理过程的时间表与control同文。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/170-172,correct,False,去年11月至今年1月、招募与任命已经完成，必要时间和完成状态完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/173,correct,False,今年2月至明年3月和像今天这样的会议均恢复，主分保持，显式限定比control更完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,11,wmf-04/174-175,partial,False,展示、意见、重写与修订仍在，但将章程工作进展明确改成验证过程；新增错误对象不能由control省略对象来豁免。,,source_transcript,False,partial,True,Keep partial loss from false verification-work object. Do not additionally classify as key error under narrower taxonomy.
+PAD-900,11,wmf-04/176-178,uncertain,False,补回最后修改及1月至3月，并输出2024，接近文字参考；但实际ASR是二千四年，年份原有复听缺口未解除，不能把这次数字改写计为已确认新增正确。前段三月重新开始也未清楚交代年后安排。,,source_transcript,False,correct,False,Do not count apparent2024 restoration: actual ASR explicitly says2004 and the source year was already pending listening. Remain uncertain.
+PAD-900,11,wmf-04/179,correct,False,幻灯片切换与请稍等完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-reproduction/1,partial,False,与control同为“平行语言信息”，未恢复副语言术语；简要回顾的动作保留。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-reproduction/2-3,partial,False,ASR补回副语言，但中文仍只说语言与非语言，缺第三类副语言；不能按ASR改善直接计中文正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-reproduction/4,partial,False,与control相同，三分法与副语言术语错误未恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-reproduction/5-7,correct,False,首句保留控制输出、不同于语言信息、连续变化与难分类的冻结核心；收尾“安排”误译不算额外收益，严格整句敏感性应记录这一残余错误。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-task/1,missing,False,没有对应“我打开看看”的有效字幕。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-task/5,partial,True,“那边有照片”新增了远指位置，未保留说话者这边；这不是control只省略人称的同类省略。,speaker_deixis: 参考明确为说话者这边有照片，候选变为那边，新增了错误的空间/归属指向。,source_transcript,False,uncertain,False,"Under the provisional text reference, 那边 introduces a conflicting deictic relation rather than merely omitting the speaker. Human source status stays pending."
+PAD-900,29,csj-task/6,partial,False,虽补回我的部分，但名字和一句话仍变成名字与毛两个词，必要的两个信息项不正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-task/9,correct,False,与冻结control同文，按既有口径保留很多不认识的人这一核心。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-task/12-15,partial,False,读名字的动作恢复，但“从最上面开始”完全缺失；相对control丢失必要顺序。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,csj-task/20,partial,True,只剩是否为研究家的问句，眼镜和短发均丢失；职业肯定事实也改成询问。,question_polarity: 参考和control陈述其为烹饪研究者，候选询问“是美食研究家吗”，由肯定信息变成未确认问题。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+PAD-900,29,csj-task/30,incorrect,True,姓名片假名写法完全丢失，变成“基拉的平坦区域吗”；与control仅没译清片假名不同。,entity_relation: 将雷米的姓名写法改成基拉及平坦区域，并新增询问这一无关关系。,source_transcript,False,partial,True,Same core outcome; retain independent status granularity and original root judgment for audit.
+PAD-900,29,csj-task/34-35,partial,True,虽然补出不太清楚，但仍将所问对象改成11号而非塞尔吉奥越后；不能算人物身份恢复。,numeric_identity: control已误指纯一号，候选又明确断言编号11号；参考没有这个编号，新增了具体数值身份。,source_transcript,False,partial,False,"A concrete11 identity is new numeric specificity relative to the previous garbled name; retain as provisional critical, including an already-failed unit."
+PAD-900,29,wmf-04/131-132,incorrect,False,seed29与control同文，把附录的做法说成定义，将两个并列事项等同；这是既有关系错误，不是新增critical。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+PAD-900,29,wmf-04/133-135,partial,False,验证对象有所恢复，但Enforcing变成错误拼词，“不要只停留文字、如何落实行动”被改成组成/理解与是否体现；只算部分恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/136,partial,False,第一行序言保留，但新增“制度验证中的内容”这一错误领域限定；与control单纯省略章程上下文不同。,,source_transcript,False,partial,True,Keep partial loss from false verification context. Do not additionally classify this as a key error under the narrower critical taxonomy.
+PAD-900,29,wmf-04/137-138,correct,False,第二部分/第二章、价值与原理仍在，未改变序号或主题。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/139,correct,False,“第三种定义”与冻结control相同，沿列表核心口径保留；严格目录语义应是第三项为定义，属于legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/140-141,partial,False,章程定义仍缺失或变成现象，各章仍变成部门；第四项列举保留但不足以恢复本项。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/142-143,partial,False,全球监督与全球表达项目、现象及相关事项未明确恢复全球评议会负责章程，仍不能完成必要关系。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/144-145,partial,False,壮行委员会仍不是草案委员会，相关事项没有明确章程；虽保留解散后另设全球理事会，必要主体和事项不完整。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/146-147,correct,False,橙色中间位置、刚才提到的角色或职责与责任范围完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/148-152,partial,True,否定成为高管仍在，也恢复编辑者，但撰稿人变成非行者，并把待决定的编辑职责说成已经注意/扮演了的行为。,entity_and_action_relation: 相对control的撰稿人，候选新增非行者身份；“编辑们注意了/扮演了”又把待决定职责改为已发生行为。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/153-155,partial,True,橙色三项和重点工作保留，但新增“验证委员会”，错误指定执行主体；control只省略章程限定。,entity_relation: 应为章程委员会，候选明确称验证委员会，增加了错误机构身份。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/156-157,correct,False,与同轮control一致，责任有不同层次/深度和范围，共同讨论处理办法并决定，必要关系保留。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/158-160,correct,False,橙色中央下方和决策核心仍在，沿冻结弱标签口径计正确；“弟子盐”是明显残余错误标签，严格整句不能称准确，属legacy_rubric_weakness。,,source_transcript,False,partial,False,Use the same frozen weak-label decision-core rubric as B0 for the main count. 弟子盐 remains an acknowledged residual error; not fully accurate Chinese and not evidence of new benefit.
+PAD-900,29,wmf-04/161-165,partial,True,宪章变成验证，且“可以同意各条文”加强为“一致同意”；虽然同意相对seed29有局部恢复，必要对象和决策条件仍不正确。,agreement_requirement: control没有一致/全体同意要求，候选增加各条款得到一致同意，把可同意加强为共识条件。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/166-167,correct,False,与control一致，附录汇总正文未涉及的内容。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/168,missing,False,没有幻灯片已切换的信息，只出现草案流程时间表。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+PAD-900,29,wmf-04/169,correct,False,草案整理过程的时间表与control同文。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/170-172,correct,False,去年11月至今年1月、招募与任命已经完成，必要时间和完成状态完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/173,correct,False,今年2月至明年3月和像今天这样的会议均恢复，主分保持，显式限定比control更完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PAD-900,29,wmf-04/174-175,partial,False,展示、意见、重写与修订仍在，但将章程工作进展明确改成验证过程；新增错误对象不能由control省略对象来豁免。,,source_transcript,False,partial,True,Keep partial loss from false verification-work object. Do not additionally classify as key error under narrower taxonomy.
+PAD-900,29,wmf-04/176-178,uncertain,False,补回最后修改及1月至3月，并输出2024，接近文字参考；但实际ASR是二千四年，年份原有复听缺口未解除，不能把这次数字改写计为已确认新增正确。前段三月重新开始也未清楚交代年后安排。,,source_transcript,False,correct,False,Do not count apparent2024 restoration: actual ASR explicitly says2004 and the source year was already pending listening. Remain uncertain.
+PAD-900,29,wmf-04/179,correct,False,幻灯片切换与请稍等完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-reproduction/1,partial,False,仍为平行语言信息，副语言术语未恢复；与control同类问题。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-reproduction/2-3,partial,False,语言与非语言信息保留，副语言仍缺失。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-reproduction/4,partial,False,三文法与旁言语言信息仍未恢复为三分法和副语言，主体藤崎与控制关系虽在仍不完整。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-reproduction/5-7,correct,False,seed11保留控制输出、区别于语言信息、连续变化及难分类，必要核心完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-task/1,missing,False,没有对应打开看看的字幕。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-task/5,correct,False,里面有照片保留冻结控制认可的核心，没有新增相反归属。严格显式完整性仍无我这边，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-task/6,partial,False,仍把一句话误成毛或毛的名字，必要信息未恢复；啊的问句不足以补救内容。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-task/9,incorrect,True,seed11把说话者不认识很多人改成很多人不知道这件事，主客体和未知对象均改变。,subject_object_relation: 原文是我不认识许多人，候选变成许多人不知道某件事，新增了不存在的事件与知情关系。,source_transcript,False,partial,True,Same core outcome; retain independent status granularity and original root judgment for audit.
+PUNCT-JA,11,csj-task/12-15,incorrect,True,从最上面开始读名字丢失，新增“我是平野雷美”，把正在读出的姓名变成说话者身份。,speaker_identity: control在朗读姓名，候选明确自称平野雷美，错误绑定人物与说话者。,source_transcript,False,partial,True,Same core outcome; retain independent status granularity and original root judgment for audit.
+PUNCT-JA,11,csj-task/20,correct,False,料理研究家、眼镜和短发三项完整，人物描述与control一致。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-task/30,partial,False,卡塔卡纳仍不是清楚的片假名写法说明，核心术语未恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,csj-task/34-35,partial,False,仍问纯一号是谁，未正确问塞尔吉奥越后是谁并表达不认识；与control同类失误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/131-132,correct,False,正文之外添加附录及定义保持并列，是什么样的也保留；seed29修复control的等同关系错。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/133-135,partial,False,仍把Enforcing解释为装饰、验证说成竞赛；行动层面虽在，必要对象及要求错误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/136,correct,False,第一行序言保持冻结控制核心。严格显式完整性仍缺运动章程上下文，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/137-138,correct,False,第二章的价值与原理完整，与control同义。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/139,correct,False,第三种定义按冻结列表核心保留；严格目录语义应为第三项为定义，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/140-141,partial,False,各章仍误作部门，章程定义缺失；第四个是什么的提问未恢复前面的内容。,,source_transcript,False,partial,True,Question may be rhetorical with its answer in the next caption; insufficient evidence of a new critical modality error. Unit still fails necessary content.
+PUNCT-JA,11,wmf-04/142-143,partial,False,全球表达会、现象及验证/核查事项仍错误，未恢复评议会负责章程的必要关系。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/144-145,partial,False,草案委员会变成告别委员会，章程事项变验证/核查；与control已有壮行/验证源错误同类，不能计正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/146-147,correct,False,橙色中间位置及角色、责任范围完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/148-152,partial,False,不是成为管理者的否定保持，但贡献者仍错作监护人，编辑者缺失，角色集合不完整。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/153-155,correct,False,橙色三个项目和委员会主要致力于此的核心完整。严格显式完整性未给章程委员会全称，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/156-157,correct,False,责任层次与范围、共同处理和做出决定均在，未新增先分担或转交责任的关系。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/158-160,correct,False,与control同样保留橙色中央下方和决策核心；数据测量是旧残余错误标签，严格整句不能称术语准确，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/161-165,correct,False,易采纳、接受条款、谁决策及发言权核心保留，seed29修复符合/同意错误。严格显式完整性中明确说明不完全等于写入文件，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/166-167,correct,False,附录汇总正文未涉及内容完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/168,missing,False,没有幻灯片已切换的信息，只有草案流程时间表。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+PUNCT-JA,11,wmf-04/169,correct,False,整理草案过程的时间表完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/170-172,correct,False,去年11月至今年1月、已完成招募与人选确定/任命均完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/173,correct,False,2月至明年3月开会的冻结核心仍在；“开个会吧”为提议措辞，且今年、像今天这样的限定缺失，严格整句仍有legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/174-175,correct,False,展示、听取意见、重写与持续修订循环完整，沿冻结主分计正确。seed11四月即新一年开始延续control既有错误，严格完整性不能通过，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,11,wmf-04/176-178,partial,True,重读终稿与投票安排仍在，但最后修改缺失，1月或3月不等于1至3月；seed11又把源ASR二千四年损坏为204。,number_corruption: seed11控制为2004，候选变为204；即使真实年份2024仍待复听，204相对源ASR及同轮control都是新增数字损坏。,source_transcript,False,partial,False,"Confirm new204 corruption in seed11 versus paired2004 control, independent of unresolved true year."
+PUNCT-JA,11,wmf-04/179,correct,False,幻灯片切换及请稍等完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-reproduction/1,partial,False,仍为平行语言信息，副语言术语未恢复；与control同类问题。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-reproduction/2-3,partial,False,语言与非语言信息保留，副语言仍缺失。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-reproduction/4,partial,False,三文法与旁言语言信息仍未恢复为三分法和副语言，主体藤崎与控制关系虽在仍不完整。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-reproduction/5-7,partial,False,seed29保留连续变化与难分类，但删去了与语言信息不同这一必要对比；同轮control仍有该对比，属于新增遗漏。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-task/1,missing,False,没有对应打开看看的字幕。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-task/5,correct,False,里面有照片保留冻结控制认可的核心，没有新增相反归属。严格显式完整性仍无我这边，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-task/6,partial,False,仍把一句话误成毛或毛的名字，必要信息未恢复；啊的问句不足以补救内容。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-task/9,correct,False,seed29恢复为与冻结control相同的有很多不知道的人，按既有口径保留不认识的人核心。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-task/12-15,incorrect,True,从最上面开始读名字丢失，新增“我是平野雷美”，把正在读出的姓名变成说话者身份。,speaker_identity: control在朗读姓名，候选明确自称平野雷美，错误绑定人物与说话者。,source_transcript,False,partial,True,Same core outcome; retain independent status granularity and original root judgment for audit.
+PUNCT-JA,29,csj-task/20,correct,False,料理研究家、眼镜和短发三项完整，人物描述与control一致。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-task/30,partial,False,卡塔卡纳仍不是清楚的片假名写法说明，核心术语未恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,csj-task/34-35,partial,False,仍问纯一号是谁，未正确问塞尔吉奥越后是谁并表达不认识；与control同类失误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/131-132,correct,False,正文之外添加附录及定义保持并列，是什么样的也保留；seed29修复control的等同关系错。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/133-135,partial,False,仍把Enforcing解释为装饰、验证说成竞赛；行动层面虽在，必要对象及要求错误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/136,correct,False,第一行序言保持冻结控制核心。严格显式完整性仍缺运动章程上下文，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/137-138,correct,False,第二章的价值与原理完整，与control同义。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/139,correct,False,第三种定义按冻结列表核心保留；严格目录语义应为第三项为定义，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/140-141,partial,False,各章仍误作部门，章程定义缺失；第四个是什么的提问未恢复前面的内容。,,source_transcript,False,partial,True,Question may be rhetorical with its answer in the next caption; insufficient evidence of a new critical modality error. Unit still fails necessary content.
+PUNCT-JA,29,wmf-04/142-143,partial,False,全球表达会、现象及验证/核查事项仍错误，未恢复评议会负责章程的必要关系。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/144-145,partial,False,草案委员会变成告别委员会，章程事项变验证/核查；与control已有壮行/验证源错误同类，不能计正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/146-147,correct,False,橙色中间位置及角色、责任范围完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/148-152,partial,False,不是成为管理者的否定保持，但贡献者仍错作监护人，编辑者缺失，角色集合不完整。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/153-155,correct,False,橙色三个项目和委员会主要致力于此的核心完整。严格显式完整性未给章程委员会全称，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/156-157,correct,False,责任层次与范围、共同处理和做出决定均在，未新增先分担或转交责任的关系。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/158-160,correct,False,与control同样保留橙色中央下方和决策核心；数据测量是旧残余错误标签，严格整句不能称术语准确，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/161-165,correct,False,易采纳、接受条款、谁决策及发言权核心保留，seed29修复符合/同意错误。严格显式完整性中明确说明不完全等于写入文件，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/166-167,correct,False,附录汇总正文未涉及内容完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/168,missing,False,没有幻灯片已切换的信息，只有草案流程时间表。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+PUNCT-JA,29,wmf-04/169,correct,False,整理草案过程的时间表完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/170-172,correct,False,去年11月至今年1月、已完成招募与人选确定/任命均完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/173,correct,False,2月至明年3月开会的冻结核心仍在；“开个会吧”为提议措辞，且今年、像今天这样的限定缺失，严格整句仍有legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/174-175,correct,False,展示、意见、重写和持续修订循环完整，沿冻结主核心计正确；年后与3/4月安排没有完整表达，仍有legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/176-178,partial,False,seed29输出2024，改善control的204数字损坏，但年份仍待复听，且最后修改缺失、1月或3月不等于1月至3月，所以不构成全项恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+PUNCT-JA,29,wmf-04/179,correct,False,幻灯片切换及请稍等完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-reproduction/1,correct,False,“准语言”可表达副语言，简要复习也保留；相对control平行语言是明确术语改善。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-reproduction/2-3,partial,False,语言与非语言信息保留，副语言仍缺失，未完整表达三类信息。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-reproduction/4,partial,False,副语言与有意识控制修复，但三分法仍说成三种语法；必要分类关系仍错误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-reproduction/5-7,correct,False,控制输出、区别于语言信息、连续变化、难分类均完整，沿冻结口径接受主语省略。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-task/1,missing,False,无对应打开看看的有效字幕。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-task/5,correct,False,与冻结control同样保留照片存在核心，无新增相反归属。严格显式完整性缺我这边，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-task/6,partial,False,名字和一句话的形式有所恢复，但“一句毛的话”含无依据的毛，不能补正为正确话语内容。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-task/9,correct,False,很多陌生人正确表达有许多我不认识的人。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-task/12-15,missing,False,承载朗读和从上面开始的segment6为valid_zh=null；其他有效陌生人字幕不覆盖本项。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-task/20,missing,False,研究者、眼镜与短发所在整条字幕被过滤；raw不能计正确。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-task/30,missing,False,raw虽有片假名，但仍包含日文姓名且valid_zh=null，没有有效中文可计分。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,csj-task/34-35,partial,False,塞尔吉奥越后存在，但仍问纯一号是谁，所问人物错误且不知道未正确关联；与control相同的失误未恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/131-132,correct,False,正文之外附带补充内容与定义并列，是什么样的保留；seed29修复control把两件事等同的关系。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/133-135,partial,False,强制执行、不停留文字和如何行动有所恢复，但验证仍被译为抽奖，整体必要对象错误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/136,correct,False,第一行为序言保持冻结核心。严格显式完整性仍缺运动章程的上下文，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/137-138,correct,False,第二章、价值及原理主题均在；未改变章节或漏掉主题。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/139,correct,False,第三个定义按冻结列表核心与control同级处理；严格目录语义应为第三项是定义，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/140-141,partial,False,各章仍变各省，章程是什么未出现；继续与第四项不足以构成完整正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/142-143,partial,False,全球表达会、现象及验证事项继续误译，不能恢复评议会负责章程的必要关系。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/144-145,partial,False,草案委员会仍误为壮行委员会，章程仍误为验证，全球委员会也没有明确评议性质；未恢复必要主体和对象。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/146-147,correct,False,橙色中间附近和刚才所述角色、责任范围均保留。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/148-152,partial,False,不是成为高管的否定正确，但贡献者仍是监护人并漏编辑者，角色集合不完整；没有新增否定反转。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/153-155,correct,False,橙色三个项目和委员会重点致力于此的核心完整。严格显式完整性没有章程委员会全称，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/156-157,partial,True,深度和范围保留，但共同提出责任讨论变成把责任交给彼此，改变必要的协商关系。,action_relation: control是共同探讨如何处理，候选新增责任互相转交/分配的关系，参考没有这一已定转交行为。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/158-160,correct,False,橙色中间下方和决策核心保留；数字化限定无参考依据，沿冻结弱标签口径计分，严格术语忠实性仍有限，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/161-165,correct,False,宪章不同立场易采纳、认同条文、谁决策、发言权和写入文件均完整，seed29同意/符合之错得到修复。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/166-167,correct,False,附录及汇总正文未涵盖内容完整，否定正确。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/168,missing,False,没有幻灯片已切换字幕，草案时间表不是本项内容。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+MT-PLAMO08-H0,11,wmf-04/169,correct,False,拟定草案过程的时间表表达完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/170-172,partial,True,时间范围正确，但“已决定招募”不表示已经完成招募及确定成员，把已完成事项变成招募决定。,action_completion: 原文和control已完成招募与人选决定，候选仅决定招募，改变事实完成状态。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/173,correct,False,2月至明年3月开会的冻结核心仍在。严格显式完整性漏今年和像今天这样的限定，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/174-175,correct,False,展示、征求意见、修改与持续修订循环完整；年份更替比control清楚，但全部3/4月与章程限定仍不完整，严格整项存在legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/176-178,partial,False,2024虽与文字参考一致，但缺最后修改，且仍说1月或3月而非1月至3月；年份待复听不影响这些确定的完整性缺口。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,11,wmf-04/179,correct,False,幻灯片切换和请稍候完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-reproduction/1,correct,False,“准语言”可表达副语言，简要复习也保留；相对control平行语言是明确术语改善。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-reproduction/2-3,partial,False,语言与非语言信息保留，副语言仍缺失，未完整表达三类信息。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-reproduction/4,partial,False,副语言与有意识控制修复，但三分法仍说成三种语法；必要分类关系仍错误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-reproduction/5-7,correct,False,控制输出、区别于语言信息、连续变化、难分类均完整，沿冻结口径接受主语省略。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-task/1,missing,False,无对应打开看看的有效字幕。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-task/5,correct,False,与冻结control同样保留照片存在核心，无新增相反归属。严格显式完整性缺我这边，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-task/6,partial,False,名字和一句话的形式有所恢复，但“一句毛的话”含无依据的毛，不能补正为正确话语内容。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-task/9,correct,False,很多陌生人正确表达有许多我不认识的人。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-task/12-15,missing,False,承载朗读和从上面开始的segment6为valid_zh=null；其他有效陌生人字幕不覆盖本项。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-task/20,missing,False,研究者、眼镜与短发所在整条字幕被过滤；raw不能计正确。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-task/30,missing,False,raw虽有片假名，但仍包含日文姓名且valid_zh=null，没有有效中文可计分。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,csj-task/34-35,partial,False,塞尔吉奥越后存在，但仍问纯一号是谁，所问人物错误且不知道未正确关联；与control相同的失误未恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/131-132,correct,False,正文之外附带补充内容与定义并列，是什么样的保留；seed29修复control把两件事等同的关系。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/133-135,partial,False,强制执行、不停留文字和如何行动有所恢复，但验证仍被译为抽奖，整体必要对象错误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/136,correct,False,第一行为序言保持冻结核心。严格显式完整性仍缺运动章程的上下文，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/137-138,correct,False,第二章、价值及原理主题均在；未改变章节或漏掉主题。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/139,correct,False,第三个定义按冻结列表核心与control同级处理；严格目录语义应为第三项是定义，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/140-141,partial,False,各章仍变各省，章程是什么未出现；继续与第四项不足以构成完整正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/142-143,partial,False,全球表达会、现象及验证事项继续误译，不能恢复评议会负责章程的必要关系。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/144-145,partial,False,草案委员会仍误为壮行委员会，章程仍误为验证，全球委员会也没有明确评议性质；未恢复必要主体和对象。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/146-147,correct,False,橙色中间附近和刚才所述角色、责任范围均保留。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/148-152,partial,False,不是成为高管的否定正确，但贡献者仍是监护人并漏编辑者，角色集合不完整；没有新增否定反转。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/153-155,correct,False,橙色三个项目和委员会重点致力于此的核心完整。严格显式完整性没有章程委员会全称，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/156-157,partial,True,深度和范围保留，但共同提出责任讨论变成把责任交给彼此，改变必要的协商关系。,action_relation: control是共同探讨如何处理，候选新增责任互相转交/分配的关系，参考没有这一已定转交行为。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/158-160,correct,False,橙色中间下方和决策核心保留；数字化限定无参考依据，沿冻结弱标签口径计分，严格术语忠实性仍有限，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/161-165,correct,False,宪章不同立场易采纳、认同条文、谁决策、发言权和写入文件均完整，seed29同意/符合之错得到修复。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/166-167,correct,False,附录及汇总正文未涵盖内容完整，否定正确。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/168,missing,False,没有幻灯片已切换字幕，草案时间表不是本项内容。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+MT-PLAMO08-H0,29,wmf-04/169,correct,False,拟定草案过程的时间表表达完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/170-172,partial,True,时间范围正确，但“已决定招募”不表示已经完成招募及确定成员，把已完成事项变成招募决定。,action_completion: 原文和control已完成招募与人选决定，候选仅决定招募，改变事实完成状态。,source_transcript,False,partial,True,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/173,correct,False,2月至明年3月开会的冻结核心仍在。严格显式完整性漏今年和像今天这样的限定，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/174-175,correct,False,展示、征求意见、修改与持续修订循环完整；年份更替比control清楚，但全部3/4月与章程限定仍不完整，严格整项存在legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/176-178,partial,False,2024虽与文字参考一致，但缺最后修改，且仍说1月或3月而非1月至3月；年份待复听不影响这些确定的完整性缺口。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO08-H0,29,wmf-04/179,correct,False,幻灯片切换和请稍候完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-reproduction/1,partial,False,先简要复习的信息保留，但把副语言译成不明确的“参语言”；未恢复必要的术语，不能算完整正确。,,source_transcript,False,uncertain,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+MT-PLAMO2-H0,11,csj-reproduction/2-3,partial,False,语言信息和非语言信息均在，副语言信息仍缺失；与control一样没有完整表达三类信息并存。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-reproduction/4,partial,False,保留藤崎和有意识控制，但把三分法说成三种语法，并仍误译副语言；沿袭源ASR错误，不是术语修复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-reproduction/5-7,correct,False,控制输出、区别于语言信息、连续变化导致难分类均保留；沿冻结口径接受省略的说话者主语。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-task/1,missing,False,没有可对应“我打开看看”的有效字幕；不把其他片段补作本项。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-task/5,correct,False,“有照片”保留冻结控制已接受的照片存在核心，未新增相反归属。严格显式完整性仍缺“我这边”，属于legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-task/6,partial,False,“名字和毛”被当成整句内容，未正确表达名字与一句话两个信息项；源ASR的毛错误不能由评委补正。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-task/9,correct,False,“有很多陌生人”正确表达有许多自己不认识的人，且比控制的“不知道的人”更清晰。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-task/12-15,missing,False,承载朗读及从上面开始的segment6被过滤，valid_zh=null；有效的陌生人字幕不覆盖本项，raw不能救分。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-task/20,missing,False,本项字幕valid_zh=null，烹饪研究者、眼镜和短发均无可显示中文；raw保留仅用于定位日文残留。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-task/30,correct,False,“雷米是片假名”恢复姓名写法的关键术语，相对control的“卡塔卡纳”是明确改善。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,csj-task/34-35,partial,False,保留塞尔吉奥越后，但后句仍问“纯一号是谁”，没有正确表达不知道塞尔吉奥越后是谁；该误指与control相同。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/131-132,correct,False,正文外附录与定义保持并列，后句保留“是什么样的”；seed11保持，seed29修复control把附录做法等同定义的关系错。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/133-135,partial,False,恢复不止停留文字及行动层面的部分内容，但仍把验证说成抽奖，“强化”也未准确表达Enforcing；不能算完整正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/136,correct,False,“第一行是序言”保持冻结控制认可的核心，没有新增错误对象。严格完整性缺运动章程上下文，属于legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/137-138,correct,False,第二章涉及价值和原理两个主题均保留；“及其原理”措辞较紧，但没有把章节或主题替换。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/139,incorrect,True,“第三次定义”把目录中的第三项变成反复定义的次数，不同于冻结控制可按列表理解的“第三种定义”。,numeric_relation: 原文是第三项为定义，候选明确变成第三次进行定义；新增了次数关系。,source_transcript,False,partial,True,Same core outcome; retain independent status granularity and original root judgment for audit.
+MT-PLAMO2-H0,11,wmf-04/140-141,partial,False,继续、各省定义和第四项可见，但缺章程是什么，且各章仍被错作各省；未修复control的章节误指。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/142-143,partial,False,全球表达会/现象/验证事项未正确呈现全球评议会负责章程；后段虽有全球评议会，负责对象仍错误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/144-145,partial,False,草案委员会仍变成送别委员会，章程事项仍变成验证事项；这些源ASR对应的既有错误未恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/146-147,correct,False,橙色中间附近的位置及刚才提到的职责、责任范围均在，表达略别扭但必要核心完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/148-152,partial,False,不是成为管理者的否定保留，但参与者仍含监护人并漏编辑者，不能完整表达撰稿人、贡献者、编辑者各自职责；未见新增否定反转。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/153-155,correct,False,橙色标识的三个项目与委员会正致力于此的关联保留，沿用冻结核心口径。严格显式完整性缺章程委员会全称，属于legacy_rubric_weakness。,,source_transcript,False,partial,False,Accept 致力于 as preserving the focus relationship under frozen core rubric; explicit committee full-name omission is retained as legacy limitation.
+MT-PLAMO2-H0,11,wmf-04/156-157,partial,True,责任具有不同程度与范围保留，但把将这些责任提出讨论改成通过共同分担责任来商量，改变了讨论与承担的关系。,action_relation: control只是共同探讨如何处理并决定；候选增加先共同分担责任这一承担关系，参考并未要求先承担。,source_transcript,False,partial,False,Jointly bearing responsibilities is a new relationship beyond discussing them; confirm independent critical classification.
+MT-PLAMO2-H0,11,wmf-04/158-160,correct,False,橙色中央下方及决策核心保留，沿冻结弱标签口径计正确；“数字化”并无参考依据，不代表整句术语完全准确，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/161-165,correct,False,不同立场易采纳、同意条文、谁做决策、是否有发言权及明确写下来均保留；seed29修复control将同意换成符合条文。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/166-167,correct,False,添加附录并汇总正文未涵盖内容的关系及否定均正确。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/168,missing,False,只有草案时间表的字幕，没有幻灯片已经切换的信息；不能借相邻内容推定。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+MT-PLAMO2-H0,11,wmf-04/169,correct,False,汇总起草草案过程的时间表完整表达。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/170-172,correct,False,去年11月至今年1月、已经招募并确定委员会成员均保留，完成状态正确。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/173,correct,False,2月至明年3月召开会议的冻结核心保留。严格显式完整性仍漏今年及像今天这样的限定，属于legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/174-175,correct,False,展示、听取意见、重写和持续修订循环完整，按冻结主核心计正确；“年改”不清且没有完整年后3/4月信息，严格整项仍不足，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/176-178,partial,False,重读4月终稿及批准投票保留，但最后修改缺失，年份仍为二千四年且1月或3月不等于1至3月；即使年份复听后改变，当前仍不完整。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,11,wmf-04/179,correct,False,幻灯片即将切换和请稍候均完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-reproduction/1,partial,False,先简要复习的信息保留，但把副语言译成不明确的“参语言”；未恢复必要的术语，不能算完整正确。,,source_transcript,False,uncertain,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+MT-PLAMO2-H0,29,csj-reproduction/2-3,partial,False,语言信息和非语言信息均在，副语言信息仍缺失；与control一样没有完整表达三类信息并存。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-reproduction/4,partial,False,保留藤崎和有意识控制，但把三分法说成三种语法，并仍误译副语言；沿袭源ASR错误，不是术语修复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-reproduction/5-7,correct,False,控制输出、区别于语言信息、连续变化导致难分类均保留；沿冻结口径接受省略的说话者主语。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-task/1,missing,False,没有可对应“我打开看看”的有效字幕；不把其他片段补作本项。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-task/5,correct,False,“有照片”保留冻结控制已接受的照片存在核心，未新增相反归属。严格显式完整性仍缺“我这边”，属于legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-task/6,partial,False,“名字和毛”被当成整句内容，未正确表达名字与一句话两个信息项；源ASR的毛错误不能由评委补正。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-task/9,correct,False,“有很多陌生人”正确表达有许多自己不认识的人，且比控制的“不知道的人”更清晰。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-task/12-15,missing,False,承载朗读及从上面开始的segment6被过滤，valid_zh=null；有效的陌生人字幕不覆盖本项，raw不能救分。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-task/20,missing,False,本项字幕valid_zh=null，烹饪研究者、眼镜和短发均无可显示中文；raw保留仅用于定位日文残留。,,source_transcript,False,missing,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-task/30,correct,False,“雷米是片假名”恢复姓名写法的关键术语，相对control的“卡塔卡纳”是明确改善。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,csj-task/34-35,partial,False,保留塞尔吉奥越后，但后句仍问“纯一号是谁”，没有正确表达不知道塞尔吉奥越后是谁；该误指与control相同。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/131-132,correct,False,正文外附录与定义保持并列，后句保留“是什么样的”；seed11保持，seed29修复control把附录做法等同定义的关系错。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/133-135,partial,False,恢复不止停留文字及行动层面的部分内容，但仍把验证说成抽奖，“强化”也未准确表达Enforcing；不能算完整正确。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/136,correct,False,“第一行是序言”保持冻结控制认可的核心，没有新增错误对象。严格完整性缺运动章程上下文，属于legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/137-138,correct,False,第二章涉及价值和原理两个主题均保留；“及其原理”措辞较紧，但没有把章节或主题替换。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/139,incorrect,True,“第三次定义”把目录中的第三项变成反复定义的次数，不同于冻结控制可按列表理解的“第三种定义”。,numeric_relation: 原文是第三项为定义，候选明确变成第三次进行定义；新增了次数关系。,source_transcript,False,partial,True,Same core outcome; retain independent status granularity and original root judgment for audit.
+MT-PLAMO2-H0,29,wmf-04/140-141,partial,False,继续、各省定义和第四项可见，但缺章程是什么，且各章仍被错作各省；未修复control的章节误指。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/142-143,partial,False,全球表达会/现象/验证事项未正确呈现全球评议会负责章程；后段虽有全球评议会，负责对象仍错误。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/144-145,partial,False,草案委员会仍变成送别委员会，章程事项仍变成验证事项；这些源ASR对应的既有错误未恢复。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/146-147,correct,False,橙色中间附近的位置及刚才提到的职责、责任范围均在，表达略别扭但必要核心完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/148-152,partial,False,不是成为管理者的否定保留，但参与者仍含监护人并漏编辑者，不能完整表达撰稿人、贡献者、编辑者各自职责；未见新增否定反转。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/153-155,correct,False,橙色标识的三个项目与委员会正致力于此的关联保留，沿用冻结核心口径。严格显式完整性缺章程委员会全称，属于legacy_rubric_weakness。,,source_transcript,False,partial,False,Accept 致力于 as preserving the focus relationship under frozen core rubric; explicit committee full-name omission is retained as legacy limitation.
+MT-PLAMO2-H0,29,wmf-04/156-157,partial,True,责任具有不同程度与范围保留，但把将这些责任提出讨论改成通过共同分担责任来商量，改变了讨论与承担的关系。,action_relation: control只是共同探讨如何处理并决定；候选增加先共同分担责任这一承担关系，参考并未要求先承担。,source_transcript,False,partial,False,Jointly bearing responsibilities is a new relationship beyond discussing them; confirm independent critical classification.
+MT-PLAMO2-H0,29,wmf-04/158-160,correct,False,橙色中央下方及决策核心保留，沿冻结弱标签口径计正确；“数字化”并无参考依据，不代表整句术语完全准确，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/161-165,correct,False,不同立场易采纳、同意条文、谁做决策、是否有发言权及明确写下来均保留；seed29修复control将同意换成符合条文。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/166-167,correct,False,添加附录并汇总正文未涵盖内容的关系及否定均正确。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/168,missing,False,只有草案时间表的字幕，没有幻灯片已经切换的信息；不能借相邻内容推定。,,source_transcript,False,partial,False,Same core outcome; retain independent status granularity and original root judgment for audit.
+MT-PLAMO2-H0,29,wmf-04/169,correct,False,汇总起草草案过程的时间表完整表达。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/170-172,correct,False,去年11月至今年1月、已经招募并确定委员会成员均保留，完成状态正确。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/173,correct,False,2月至明年3月召开会议的冻结核心保留。严格显式完整性仍漏今年及像今天这样的限定，属于legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/174-175,correct,False,展示、听取意见、重写和持续修订循环完整，按冻结主核心计正确；“年改”不清且没有完整年后3/4月信息，严格整项仍不足，属legacy_rubric_weakness。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/176-178,partial,False,重读4月终稿及批准投票保留，但最后修改缺失，年份仍为二千四年且1月或3月不等于1至3月；即使年份复听后改变，当前仍不完整。,,source_transcript,False,partial,False,Agreed core outcome and critical classification.
+MT-PLAMO2-H0,29,wmf-04/179,correct,False,幻灯片即将切换和请稍候均完整。,,source_transcript,False,correct,False,Agreed core outcome and critical classification.

@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "python_tests": {
+    "experiment": 13,
+    "existing_backend": 17,
+    "total": 30,
+    "command": "uv run --project engine --frozen python -m pytest p0/p2/tests engine/tests -q"
+  },
+  "package_helper_tests": 43,
+  "package_check": "passed JSON schema/metaschema, examples, references, generated master and hashes",
+  "integration": {
+    "offline_asr_parity": 88,
+    "offline_mt_parity_per_seed": 62,
+    "pcm_1x_runs": 2,
+    "browser_controls": 4,
+    "resource_runs_successful": 8,
+    "failed_resource_runs_retained": 4
+  },
+  "independent_review": "Astra xhigh read-only, evidence recomputation; no models or tests run by reviewer",
+  "acceptance": {
+    "status": "B0_ENGINEERING_PASS_PROVISIONAL_REFERENCES",
+    "checks": {
+      "offline_exact_parity": true,
+      "two_complete_1x_runs": true,
+      "four_browser_controls": true,
+      "ws_identity_join": true,
+      "dom_observation_complete": true,
+      "readable_dom_signal": true,
+      "browser_ai_review": true,
+      "resource_comparisons": true,
+      "required_steps_passed": true,
+      "seed11_realtime_exact_parity": true,
+      "seed29_realtime_exact_parity": true
+    },
+    "ready_for_B1": true,
+    "human_verified": false,
+    "formal_semantic_acceptance": false,
+    "release_eligible": false
+  },
+  "unrun": [
+    "human listening",
+    "holdout",
+    "new fullscreen",
+    "60min soak",
+    "new candidate models"
+  ],
+  "normalized_events_schema_validated": 10239,
+  "manifest_and_score_schema": "passed",
+  "all_passed_outputs_hashes": "passed"
+}

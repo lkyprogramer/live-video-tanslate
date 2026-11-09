@@ -1,0 +1,242 @@
+{
+  "status": "PASS_FAILED_TASK_STOP_CONFIRMED",
+  "blocking": false,
+  "reviewer": "astra_p2_document_review",
+  "lane": "independent Astra",
+  "reviewed_at": "2026-11-09T15:53:47.296315+08:00",
+  "scope": "AST-G4-ZH五条真实G0输出、协议过滤、实际音频路径与B3修复后G0对照、同轮控制、收据及停止边界；未进行34项语义评分或最终资源报告审查。",
+  "method": "只读原始JSON/JSONL与已审查源码；标准库字节/hash/WAV/逐字段对账。未运行模型、测试、下载、复听或访问封存test/。仅新增本审查记录。",
+  "findings": [],
+  "outcome": {
+    "experiment": "AST-G4-ZH",
+    "formal_slot": "B4-1",
+    "G0": "failed_task",
+    "speech_protocol_valid": 0,
+    "speech_probes": 3,
+    "structure_valid": true,
+    "formal_88x2": "NOT_RUN",
+    "formal_semantic_34x2": "NOT_RUN",
+    "Q": "NOT_EVALUATED_NO_PROMOTION",
+    "R": "NOT_REGISTERED",
+    "protocol_cost_hypothesis": "NOT_RUN_NO_PAIRED_88x2_ZH",
+    "engineering_eligible": false,
+    "conclusion": "固定中文输出指令未通过语音任务方向/语言遵循探针。0/3只表示G0语音协议有效率，不是0/34语义评分；停止正式176请求符合冻结门槛。"
+  },
+  "g0_rows": [
+    {
+      "id": "csj-reproduction/1",
+      "raw_classification": "中日混合，保留日文片假名",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "filtered_zh": null,
+      "input_ja_empty": true
+    },
+    {
+      "id": "csj-task/7",
+      "raw_classification": "日文转写，含大量平假名/片假名",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "filtered_zh": null,
+      "input_ja_empty": true
+    },
+    {
+      "id": "wmf-04/43",
+      "raw_classification": "中日混合，残留日文假名",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "filtered_zh": null,
+      "input_ja_empty": true
+    },
+    {
+      "id": "silence",
+      "raw_classification": "英文请求提供音频的元回应，无汉字",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "filtered_zh": null,
+      "input_ja_empty": true
+    },
+    {
+      "id": "synthetic-instrumental",
+      "raw_classification": "英文请求提供音频的元回应，无汉字",
+      "finish_reason": "stop",
+      "protocol_status": "not_valid_chinese",
+      "filtered_zh": null,
+      "input_ja_empty": true
+    }
+  ],
+  "protocol_independent_checks": {
+    "all_five_events_concatenate_to_raw": true,
+    "all_five_complete_stop": true,
+    "three_speech_outputs_contain_kana_after_NFKC": true,
+    "two_nonspeech_outputs_have_no_Han": true,
+    "all_five_frozen_rejection_reasons_supported": true,
+    "raw_translation_not_salvaged": true,
+    "nonspeech_valid_captions": 0,
+    "nonspeech_scope": "这两个负对照没有形成有效中文字幕；英文元回应不是音频中编造出的事实转写，也不证明通用非语音安全。"
+  },
+  "audio_path": {
+    "requests_checked": 5,
+    "actual_PCM_bytes_match_recorded_SHA256": true,
+    "WAV_frames_match_original_PCM": true,
+    "WAV_format": "mono 16-bit 16000Hz",
+    "all_five_parent_PCM_equal": true,
+    "all_five_features_masks_tower_projection_audits_equal_to_B3_repaired_G0": true,
+    "feature_tower_projection_finite": true,
+    "tower_calls_per_request": 1,
+    "projection_calls_per_request": 1,
+    "placeholders_equal_projected_frames": [
+      169,
+      179,
+      188,
+      250,
+      200
+    ],
+    "distinct_speech_feature_hashes": 3,
+    "input_ids_length_difference_each_request": -30,
+    "input_ids_length_explanation": "ZH指令文本较短，变化在文本token长度；PCM、实际features/mask和音频tower/projector输出不变。",
+    "missing_audio": {
+      "status": "rejected_by_adapter",
+      "saved_executed": true,
+      "source_boundary_checked": true,
+      "reviewer_called_boundary": false
+    },
+    "interpretation": "实际音频已进入特征、塔及投影；不能将模型英文请求音频的文字当作音频未传入的事实。"
+  },
+  "paired_controls": {
+    "Reazon": {
+      "rows": 88,
+      "identity_spans_and_text_exact": true
+    },
+    "M0": {
+      "rows_per_seed": [
+        62,
+        62
+      ],
+      "both_input_ja_and_text_zh_exact": true
+    },
+    "official_AST": {
+      "rows_per_seed": [
+        88,
+        88
+      ],
+      "exact_rows": 176,
+      "independently_compared_fields": [
+        "source_id",
+        "start_sample",
+        "end_sample",
+        "pcm_sha256",
+        "raw_output",
+        "text_zh",
+        "filtered_zh",
+        "input_ja",
+        "finish_reason",
+        "generation_tokens",
+        "token_ids",
+        "prompt_tokens",
+        "audio_audit"
+      ],
+      "all_fields_equal_to_B3": true,
+      "old_semantic_hits_retained": [
+        6,
+        8
+      ],
+      "new_semantic_rescore": false
+    }
+  },
+  "integrity": {
+    "fingerprint": "02c869f530b5f28a66d29649ddfb00dc39b48ffee5b310fc046bda3ae2e22863",
+    "completed_receipt_entries_rehashed": 615,
+    "receipt_mismatches": 0,
+    "frozen_artifacts_rehashed": 19,
+    "frozen_artifact_mismatches": 0,
+    "reviewed_execution_sources": {
+      "p0/p2/b3_worker.py": {
+        "current_sha256": "e2f30195dfda37bfb3bc2f4ca608f27f3a274f4e607db90ddc546fdbd7fc78b3",
+        "snapshot_sha256": "e2f30195dfda37bfb3bc2f4ca608f27f3a274f4e607db90ddc546fdbd7fc78b3",
+        "manifest_sha256": "e2f30195dfda37bfb3bc2f4ca608f27f3a274f4e607db90ddc546fdbd7fc78b3"
+      },
+      "p0/p2/b4.py": {
+        "current_sha256": "765c9f5ae1abf55b1ae524e0a68afb76007fa13580dc74f2fc81773f62c5e98a",
+        "snapshot_sha256": "765c9f5ae1abf55b1ae524e0a68afb76007fa13580dc74f2fc81773f62c5e98a",
+        "manifest_sha256": "765c9f5ae1abf55b1ae524e0a68afb76007fa13580dc74f2fc81773f62c5e98a"
+      },
+      "p0/p2/b4_worker.py": {
+        "current_sha256": "16338d10ab0ef2af650381e95a80b784c0a49886db81b3fa5fedb9e5ddec8a68",
+        "snapshot_sha256": "16338d10ab0ef2af650381e95a80b784c0a49886db81b3fa5fedb9e5ddec8a68",
+        "manifest_sha256": "16338d10ab0ef2af650381e95a80b784c0a49886db81b3fa5fedb9e5ddec8a68"
+      },
+      "p0/p2/b4_protocol.py": {
+        "current_sha256": "1386865d0f885cae2e2c1e7c5bac7f11de9804bf1ed0dfc3bd5d14ee3a064266",
+        "snapshot_sha256": "1386865d0f885cae2e2c1e7c5bac7f11de9804bf1ed0dfc3bd5d14ee3a064266",
+        "manifest_sha256": "1386865d0f885cae2e2c1e7c5bac7f11de9804bf1ed0dfc3bd5d14ee3a064266"
+      }
+    },
+    "reserved_slots": [
+      "AST-G4-ZH",
+      null,
+      null
+    ]
+  },
+  "stop_boundary": {
+    "receipt_status": "passed",
+    "actual_task_outcome": "failed_task",
+    "receipt_semantics": "外层passed表示步骤成功保存了结果，不表示G0能力通过；本次以result.status=failed_task判定。",
+    "speech_structure_ready": false,
+    "formal_candidate_step_absent": true,
+    "formal_quality_directory_absent": true,
+    "frozen_probe_guard_excludes_failed_task": true,
+    "no_prompt_parser_rescue_observed": true,
+    "recorded_elapsed_through_G0_s": 1359.7168371677399,
+    "recorded_last_group": "zh-g0",
+    "within_registered_elapsed_budget_at_G0_stop": true,
+    "resource_groups_saved": [
+      "current-asr",
+      "current-mt",
+      "official",
+      "zh-g0"
+    ],
+    "resource_group_process_exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "resource_limit": "资源组进程完成不等于候选任务通过；最终CPU/GPU/共享内存导出与报告尚待单次一致性审查。"
+  },
+  "declared_limits": [
+    "未执行候选88×2正式推理、34×2语义评分、双轮完整协议成本假设检验。",
+    "没有新增质量分数，不可用G0 0/3替换为0/34，不能用5探针与官方176计算成本改善。",
+    "没有复听或人工真值；原15项pending不变。没有真实1x/DOM/长稳/封存集/产品接入验收。",
+    "本结论仅适用于已冻结模型、运行时、采样及此ZH提示，不推广为模型永远不能输出中文。"
+  ],
+  "review_input_sha256": {
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/WORK-PACKET.md": "43b57cfc409da445d574a88bbdb20a95bc916c6858c2295e8158fbe9126d5824",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/run-manifest.json": "f924ab73d37593ca24c652d5d64b6492524a0e917595e208307b60ab1985fc13",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/state.json": "8a71a448dca518087c5086ebe7b6e56ae22d0663fdd6b870d92b81dabb39b759",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/budget-execution.json": "1179518e12a3bae096a8e3b4be61db01d0524751b1404c2cea04adf57a5ce5b5",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/locks/protocols.json": "440e7ca4d7b76d10085708b9cf4d0af54d99afd278c3eda1744c78d831fcc074",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/locks/registry.json": "0dbe462b57b7200737c60fd7439de745cf336d3130da7ce9db2f604f9d059a9b",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/locks/hypotheses.json": "e4e858e92302d16c0046f5cfdf8e3146fbecea9c9a7243992fe0ad6ca8e7ce14",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/inputs/probes.json": "95112858a045966024ac19b50216a4e1b224c3ed615c0b2c6d883b38285594a9",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/baseline-score.json": "8494a54ec31270f0a47018f1f841bed90130d23c243560d6b4c3375af2e2a201",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/baseline/reazon.jsonl": "44def4f2a52d0f443a2f7bd8a831b8080ad4f508b49ec2d94e883ee1f2f60709",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/B0-CURRENT/reazon.jsonl": "5b30b4e0ff4dc212f675e0f680358144a08a836f1afae8b00cb55e343024ae81",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/B0-CURRENT/mt-seed11.jsonl": "43a8220d565126c0aa235ead41a51e8c23edccb0183db462234545b7250b5f49",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/B0-CURRENT/mt-seed29.jsonl": "46cbc53a190c3930a8ddc7ecba7a1c55c344f582b9e74e71995ba7321421d386",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-OFFICIAL/quality/parity.json": "b3a6d0342c6fe4e097bcad40101f37f045540fd974915c4d8147a88b1a0a5634",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-OFFICIAL/quality/mt-seed11.jsonl": "fdea59d605fe4d20ed6969b3ada36c03c0b6e8866c5a7fe169f8d2bd59766bb5",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-OFFICIAL/quality/mt-seed29.jsonl": "5c62dea76ced30097f909dd16e72b53f23e3b645044be0d714e970c4ff1189ec",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-ZH/g0/rows-seed11.jsonl": "2afd0ee1bef440382b571b7e2c7a6eb22c6e004d36e728d0f6861f9f6b328aa3",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-ZH/g0/capability.json": "3ecbaf13ad731bde91875bbf296fcd7005fe24a53629bbfa6cd82575934aa7ec",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-ZH/g0/prompt.json": "a12027bc123ade5d8e812373e496db058204820476d7eeb396e8e94ca1a2f442",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-ZH/g0/audio-weights.json": "96485931ac5b489a2f7132869fd9d20bfaacbb0610f37bf38e60c7e7a2e3a061",
+    "p0/evidence/p2-b4-gemma-zh-20261109-152419/AST-G4-ZH/g0/runtime-repair.json": "5b714339c8ada43cd9051fdc5abaeb2bd4d71df0dd9d9fcb90c8abd4aa9c9927",
+    "p0/evidence/p2-b3-20261109-102811-audio-pad-fix/AST-G4-OFFICIAL/g0/rows-seed11.jsonl": "67d71ba5dcf085adad959f0595f8e40d38475a04f2ea7710d227edae4447a069",
+    "p0/evidence/p2-b3-20261109-102811-audio-pad-fix/AST-G4-OFFICIAL/quality/mt-seed11.jsonl": "aca8368bbbbf8afc0025f8b12ee1043d8a38959d2cb710079ee342deddcf7591",
+    "p0/evidence/p2-b3-20261109-102811-audio-pad-fix/AST-G4-OFFICIAL/quality/mt-seed29.jsonl": "b9aa65020a17d206f2ff76772ca18e97cff6acf7f85ad457054345ecb0830ac9",
+    "/Users/luo/Documents/github/jp-live-video-tanslate/p0/p2/b3_worker.py": "e2f30195dfda37bfb3bc2f4ca608f27f3a274f4e607db90ddc546fdbd7fc78b3",
+    "/Users/luo/Documents/github/jp-live-video-tanslate/p0/p2/b4.py": "765c9f5ae1abf55b1ae524e0a68afb76007fa13580dc74f2fc81773f62c5e98a",
+    "/Users/luo/Documents/github/jp-live-video-tanslate/p0/p2/b4_worker.py": "16338d10ab0ef2af650381e95a80b784c0a49886db81b3fa5fedb9e5ddec8a68",
+    "/Users/luo/Documents/github/jp-live-video-tanslate/p0/p2/b4_protocol.py": "1386865d0f885cae2e2c1e7c5bac7f11de9804bf1ed0dfc3bd5d14ee3a064266"
+  }
+}

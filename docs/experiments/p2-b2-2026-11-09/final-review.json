@@ -1,0 +1,125 @@
+{
+  "reviewer_agent": "/root/astra_p2_document_review",
+  "reviewed_at_utc": "2026-11-09T02:25:16.764744+00:00",
+  "status": "PASS_NO_BLOCKING_FINDINGS",
+  "scope": "Final B2 report, public quality/timing/resource/native/prompt exports and postprocessing source. Previously completed independent semantic judgments and reconciliation are reused; no semantic re-adjudication, new model run or new test suite.",
+  "run_dir": "/Users/luo/Documents/github/jp-live-video-tanslate/p0/evidence/p2-b2-20261109-093739-tags-fix",
+  "blocking_findings": [],
+  "reviewed_files_sha256": {
+    "docs/p2-b2-results-2026-11-09.md": "20c9868398ff148c25d21e08b26804bd399e19dd767096ca3333658a5248160d",
+    "docs/experiments/p2-b2-2026-11-09/summary.json": "84d9728860ca1fd6e8b04dce73f86e5b13b2f4e9e20706604fce55d487ee0efc",
+    "docs/experiments/p2-b2-2026-11-09/quality-by-unit.csv": "27cb6d7ed54be9085285fb2c3fd0223811bd8980b65e13e43509b931e1d83193",
+    "docs/experiments/p2-b2-2026-11-09/resource-comparison.csv": "a2150aca0359be0fb991cb564975b45abafaa1d7c64fde0937b37ae1633fd532",
+    "docs/experiments/p2-b2-2026-11-09/timing-offline.json": "626a240f82d479111d5ce9f71b87c9a21360c21c2a75da8b14e996fed4f35bca",
+    "docs/experiments/p2-b2-2026-11-09/native-decode-summary.json": "461967953ac441038096c58cbcdf644cdaa30508304a329869ca76919acedee6",
+    "docs/experiments/p2-b2-2026-11-09/arithmetic-crosscheck.json": "ba1be68e35aa2c0e837e9b23e6667a73ec3ba98efc19d62d617faf92ce43e1b6",
+    "docs/experiments/p2-b2-2026-11-09/validation.json": "0ea6ab313b9b241c8778640798e76e19e51eb02e1ea047df329800714ae332be",
+    "docs/experiments/p2-b2-2026-11-09/memory-pressure-summary.json": "876d71aed7c0f9c48418ebdc31617891a6093725645ea46f5fa41687b75cc294",
+    "docs/experiments/p2-b2-2026-11-09/prompt-reconstruction.json": "5308ebf0ed1ec2ea6e0d5619885b1eb483b73b4ddb589c6f851e666d206968bf",
+    "docs/experiments/p2-b2-2026-11-09/short-controls.json": "e21481b624c7ab79707f60dbabfe7eadbc5552d059c93a5bda0e7464cc583518",
+    "docs/experiments/p2-b2-2026-11-09/unrun-routes.json": "84d29f42ef8e1b7bc8216282cd718b202cfd9409ffcae513e108c88d67353805",
+    "p0/p2/b2_postprocess.py": "86030a34e0e6b7d09cf63922bcc6c2b722782fe0fd376116b652e71cb761abd5",
+    "docs/live-video-translate-p2-2026-11-07/BUILD-VALIDATION.json": "769a65f02e4f95384b46cd7f424f33ab6ed65d78edccdff01af3d842a90a74f4"
+  },
+  "checks": {
+    "report_scores_16_15_and8_9_match_reconciled_summary_and136_csv_rows": true,
+    "critical_counts7_8_and16_15_match_summary_and_csv": true,
+    "net_gains_and_same_seed_protected_losses_match_report": true,
+    "four_canonical_Q_R_views_match_summary_counts_restored_lost_and_failed_decisions": true,
+    "denominator34_and_seeds11_29_preserved": true,
+    "A30_csv_preserves_partial_potential_error_and_source_context_pending": true,
+    "saved_state_orders_B0_ASR_then_B0_MT_before_serial_candidates": true,
+    "all_six_ASR_MT_execution_steps_passed_in_saved_state": true,
+    "three_saved_ASR_outputs_have88_rows_and_no_empty_body": true,
+    "current_Reazon88_texts_match_baseline_and_SenseVoice88_changed": true,
+    "three_groups_two62_MT_counts_match_saved_validation_and_timing": true,
+    "375_388_cut_audio_seconds_recomputed_from_saved88_spans": true,
+    "476_058_timeline_seconds_match_saved_asset_manifest": true,
+    "ASR7_208_9_666_409_919_and_MT_totals_quantiles_match_export": true,
+    "resource6_groups27_rows_and_all_exit0_match_csv": true,
+    "whole_run_table_CPU_rounding_and_MiB_to_GiB_conversions_match_csv": true,
+    "whole_run_MT140_and_main_seed62_request_denominators_match_export": true,
+    "native88_calls_cap130_max64_no_cap_no_speech_main_calls_match_saved_trace": true,
+    "three_smoke_groups5_each_and_silence_music_texts_match_saved_results": true,
+    "synthetic_music_VAD_two_cuts_and_silence_zero_cuts_match_saved_control_vad": true,
+    "pressure_summary_level1_and_whisper_swapin68_4_pages_zero_swapout_match_report": true,
+    "Hy_prompt372_posthoc_rows_match_reconstruction_metadata": true,
+    "postprocess_current_source_hash_matches_summary_and_validation_analysis_source": true,
+    "saved_document_validation_reports43_tests_and59_links": true,
+    "tracked_engine_and_extension_have_no_current_diff": true
+  },
+  "numeric_crosschecks": {
+    "ASR_call_total_seconds": {
+      "B0-CURRENT": 7.207555916,
+      "ASR-SENSEVOICE-I8": 9.665857,
+      "ASR-WHISPER-JA760": 409.919419875
+    },
+    "whisper_ASR_total_over_current": 56.873567774205256,
+    "whisper_ASR_total_over_cut_audio375_388": 1.0919886087861095,
+    "whisper_ASR_total_over_original_timeline476_058": 0.8610703315037244,
+    "quality": {
+      "ASR-SENSEVOICE-I8": {
+        "hits": [
+          8,
+          9
+        ],
+        "net": [
+          -12,
+          -9
+        ],
+        "protected_lost": [
+          12,
+          11
+        ],
+        "critical_units": [
+          16,
+          15
+        ]
+      },
+      "ASR-WHISPER-JA760": {
+        "hits": [
+          16,
+          15
+        ],
+        "net": [
+          -4,
+          -3
+        ],
+        "protected_lost": [
+          6,
+          6
+        ],
+        "critical_units": [
+          7,
+          8
+        ]
+      }
+    }
+  },
+  "measurement_boundaries_confirmed": [
+    "ASR and MT values are offline full-call durations. No queue, TTFT, DOM, first-correct-Chinese, sentence-end latency or1x success is inferred.",
+    "The375.388-second cut-audio denominator and476.058-second source-timeline denominator are both disclosed;0.861 of timeline is not realtime acceptance.",
+    "CPU100percent is one core. GPU activity and shared-memory values are whole-host observations, not CPU-ASR GPU usage or model-exclusive VRAM.",
+    "RSS, footprint, MLX allocator data and shared GPU memory overlap; separate ASR and MT peaks are neither added nor represented as a measured full-chain result.",
+    "Whole-run resource phases contain loading and fixed smoke/short controls; Reazon zero-input warmup and Hy Hello warmup remain loading overhead.",
+    "Normal sampled pressure does not imply no swapping: the report discloses whole-host Whisper ASR/MT swap-in68/4 pages without attributing it to the candidate.",
+    "Whisper selected-hypothesis termination is inferred from fixed CT2 source, not an explicit runtime stop_reason; Hy stop reason stays unknown.",
+    "Hy372 prompts are post-hoc reconstruction and are not runtime capture or tokenization timing.",
+    "Synthetic instrumental input triggered two unchanged-VAD cuts. The downstream split ASR-to-MT music-caption chain and natural-music safety were not validated.",
+    "AI judgments remain provisional with15 pending listening items and known model mapping. Critical unit counts are not independent incident counts.",
+    "No candidate is promoted, and no formal full-chain R20percent, candidate1x/Chrome/long-run, B3/B4/B5 or holdout success is claimed."
+  ],
+  "validation_limits": {
+    "reviewer_ran_models": false,
+    "reviewer_ran_new_tests": false,
+    "reviewer_reran_document_validation": false,
+    "reviewer_replayed_inference_or_reconstructed_prompts": false,
+    "reviewer_rehashed_all_model_weights_and_runtime_artifacts": false,
+    "reviewer_recomputed_raw_CPU_GPU_or_swap_time_series": false,
+    "saved_validation_evidence": "Read recorded inference integrity and document validation results. Numeric review inspected exported tables plus selected saved ASR/native/smoke/span/state receipts; it did not rerun b2.verify or rehash all large artifacts.",
+    "root_test_claims": "Report records41 initial tests and20 later focused tests with overlap, including7 B2-focused tests. Reviewer did not rerun those test commands.",
+    "formal_human_semantic_acceptance": false,
+    "formal_full_chain_resource_acceptance": false
+  },
+  "conclusion": "The final report consistently records completed B2 offline execution with no qualifying candidate. No material numeric, denominator, unit, evidence-order or unrun-scope contradiction was found in the reviewed artifacts."
+}

@@ -1,0 +1,42 @@
+{
+  "status": "INFERENCE_INTEGRITY_CHECKED_QUALITY_SEPARATE",
+  "fingerprint": "72ba702daf137ca868802b115ac3df9aa9264094792ed2a8a4513f6c1c1bbf31",
+  "experiments": {
+    "B0-CURRENT": {
+      "asr_rows": 88,
+      "source_spans_unchanged": true,
+      "stable_seed_mapping": true,
+      "empty_source_ids": [],
+      "unusable_source_ids": [],
+      "mt_rows_per_seed": 62
+    },
+    "ASR-SENSEVOICE-I8": {
+      "asr_rows": 88,
+      "source_spans_unchanged": true,
+      "stable_seed_mapping": true,
+      "empty_source_ids": [],
+      "unusable_source_ids": [],
+      "mt_rows_per_seed": 62
+    },
+    "ASR-WHISPER-JA760": {
+      "asr_rows": 88,
+      "source_spans_unchanged": true,
+      "stable_seed_mapping": true,
+      "empty_source_ids": [],
+      "unusable_source_ids": [],
+      "mt_rows_per_seed": 62
+    }
+  },
+  "resource_groups": 6,
+  "resource_rows": 27,
+  "baseline_current_mt_exact": {
+    "11": true,
+    "29": true
+  },
+  "human_verified": false,
+  "pending_listen": 15,
+  "holdout": "sealed",
+  "realtime": "NOT_RUN in B2 offline screening",
+  "analysis_source_sha256": "86030a34e0e6b7d09cf63922bcc6c2b722782fe0fd376116b652e71cb761abd5",
+  "inference_rerun": false
+}

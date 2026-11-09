@@ -37,3 +37,11 @@ npm --prefix extension test
 目前是试用原型。已在本地 HTML5 视频和 YouTube 验证字幕上屏与后端切换。17 段原速回放的 5 秒语义正确覆盖率为 54.5%，低于 90% 验收门槛。仓库保留验收摘要，原始素材、完整运行日志、模型和本机配置由各自环境生成。[验收与资源数据](docs/v1-acceptance.md) · [开发方案](docs/development-plan.md) · [v1 接口合同](docs/subtitle-backend-contract.md)
 
 日语识别、日中翻译和实时链路的后续分阶段探索见[执行方案](docs/exploration-plan.md)，最新验收和资源对照见[E0–E5 探索结果](docs/exploration-results-2026-11-07.md)，既有对照见[本机实验结果](docs/optimization-results.md)。
+
+P2后续测试以[修订执行包](docs/live-video-translate-p2-2026-11-07/README.md)为入口。[B0工程基线报告](docs/p2-b0-results-2026-11-08.md)记录当前模型复现、两轮原速回放、Chrome可读中文和资源对照；质量与人工参考的剩余缺口单列。
+
+[B1首筛报告](docs/p2-b1-results-2026-11-08.md)记录入口补零、日文标点和PLaMo两尺寸的实际评分与CPU/GPU/共享内存；四组均未晋级，当前默认后端保留。
+
+[B2首筛报告](docs/p2-b2-results-2026-11-09.md)记录SenseVoice INT8与whisper-ja760的同轮对照、评分和资源；两组仍未晋级。[B3首筛报告](docs/p2-b3-results-2026-11-09.md)补齐Voxtral连续音频流与Gemma4音频直译；八个核心配置均未通过预登记质量门槛，默认继续使用reazon-hy。[B4只输出中文对照](docs/p2-b4-gemma-zh-results-2026-11-09.md)在G0因中日混合/日文输出退出，正式176次与质量评分未启动。
+
+本轮探索已收尾，未采用的模型和独立运行环境已清理；保留当前reazon-hy、实验源码和原始证据。[清理范围、离线烟测及复现说明](docs/local-runtime-cleanup-2026-11-09.md)。

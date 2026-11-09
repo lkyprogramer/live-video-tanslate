@@ -1,0 +1,15 @@
+ba1be68e35aa2c0e837e9b23e6667a73ec3ba98efc19d62d617faf92ce43e1b6  docs/experiments/p2-b2-2026-11-09/arithmetic-crosscheck.json
+9f52f9c86715adfe171f0a18bb344c13e5ee984d15e9c9a2c280fbd8b3541f52  docs/experiments/p2-b2-2026-11-09/budget.json
+0898a2777b662476323bc1f1c4cd257f35989d02b52153368a658c4ed1ab7595  docs/experiments/p2-b2-2026-11-09/final-review.json
+876d71aed7c0f9c48418ebdc31617891a6093725645ea46f5fa41687b75cc294  docs/experiments/p2-b2-2026-11-09/memory-pressure-summary.json
+44376049dfb6399a9dfdb38625295e3478e2cd2d8b60b38a81efb4aee8ede9c6  docs/experiments/p2-b2-2026-11-09/mlx-memory-summary.json
+461967953ac441038096c58cbcdf644cdaa30508304a329869ca76919acedee6  docs/experiments/p2-b2-2026-11-09/native-decode-summary.json
+5308ebf0ed1ec2ea6e0d5619885b1eb483b73b4ddb589c6f851e666d206968bf  docs/experiments/p2-b2-2026-11-09/prompt-reconstruction.json
+27cb6d7ed54be9085285fb2c3fd0223811bd8980b65e13e43509b931e1d83193  docs/experiments/p2-b2-2026-11-09/quality-by-unit.csv
+a2150aca0359be0fb991cb564975b45abafaa1d7c64fde0937b37ae1633fd532  docs/experiments/p2-b2-2026-11-09/resource-comparison.csv
+e21481b624c7ab79707f60dbabfe7eadbc5552d059c93a5bda0e7464cc583518  docs/experiments/p2-b2-2026-11-09/short-controls.json
+84d9728860ca1fd6e8b04dce73f86e5b13b2f4e9e20706604fce55d487ee0efc  docs/experiments/p2-b2-2026-11-09/summary.json
+626a240f82d479111d5ce9f71b87c9a21360c21c2a75da8b14e996fed4f35bca  docs/experiments/p2-b2-2026-11-09/timing-offline.json
+84d29f42ef8e1b7bc8216282cd718b202cfd9409ffcae513e108c88d67353805  docs/experiments/p2-b2-2026-11-09/unrun-routes.json
+0ea6ab313b9b241c8778640798e76e19e51eb02e1ea047df329800714ae332be  docs/experiments/p2-b2-2026-11-09/validation.json
+20c9868398ff148c25d21e08b26804bd399e19dd767096ca3333658a5248160d  docs/p2-b2-results-2026-11-09.md

@@ -1,0 +1,47 @@
+{
+  "B0-CURRENT": {
+    "mlx_active_peak_mib": 961.0273933410645,
+    "mlx_allocator_peak_mib": 1142.527847290039,
+    "event_files_sha256": {
+      "events-seed11.jsonl": "fa1515a1a3c377d83074d416145c07409dae3122cb4b454260c8d450aeffc385",
+      "events-seed29.jsonl": "bb9771eb09eda0979095f86d1c0e414105539987b8a915041da685e08ec41014"
+    },
+    "scope": "MLX allocator accounting, overlaps process footprint and unified memory; not added"
+  },
+  "PAD-900": {
+    "mlx_active_peak_mib": 961.0273933410645,
+    "mlx_allocator_peak_mib": 1157.6529006958008,
+    "event_files_sha256": {
+      "events-seed11.jsonl": "a4814ed7aada3bff13f46391476c8428565ce6790660b83e5ae92e7012fb22c6",
+      "events-seed29.jsonl": "c72455b4ec8a91238d9f310d28739156f01c293ca0684aa604145d2b046b0cf2"
+    },
+    "scope": "MLX allocator accounting, overlaps process footprint and unified memory; not added"
+  },
+  "PUNCT-JA": {
+    "mlx_active_peak_mib": 961.0273933410645,
+    "mlx_allocator_peak_mib": 1150.9341430664062,
+    "event_files_sha256": {
+      "events-seed11.jsonl": "fbfef90b8058014ac67fe52c0378c6cd1d5d9c3b6367c37ee5082d961dd82859",
+      "events-seed29.jsonl": "786ef45f9455a943c853ef4a58f7eeb1d641fbf4e99c00e581c03059456a3d95"
+    },
+    "scope": "MLX allocator accounting, overlaps process footprint and unified memory; not added"
+  },
+  "MT-PLAMO08-H0": {
+    "mlx_active_peak_mib": 930.9003982543945,
+    "mlx_allocator_peak_mib": 1051.1703453063965,
+    "event_files_sha256": {
+      "events-seed11.jsonl": "6d69cbd52f010e27dd09693fe6ede319927c433ee84f8c66238eae1702c34cbc",
+      "events-seed29.jsonl": "12b689036c4302cf5183c3782a1ddfeb2530ad0f8572c221b816fba10cd1b99d"
+    },
+    "scope": "MLX allocator accounting, overlaps process footprint and unified memory; not added"
+  },
+  "MT-PLAMO2-H0": {
+    "mlx_active_peak_mib": 2299.774055480957,
+    "mlx_allocator_peak_mib": 2515.076835632324,
+    "event_files_sha256": {
+      "events-seed11.jsonl": "1fa104cc0dcb754dca46eab1d20a57bedca5f1efdeacc033eb0665be287d1e18",
+      "events-seed29.jsonl": "a61f5a626bc00cb69969991e48c268946f20f6838b1d93d192cabb908d0c236a"
+    },
+    "scope": "MLX allocator accounting, overlaps process footprint and unified memory; not added"
+  }
+}

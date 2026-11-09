@@ -1,0 +1,255 @@
+{
+  "status": "PASS_4_CANONICAL_GATE_INPUTS",
+  "source_sha256": "1c85b6acfcad303e416f2517f16aa4c280448c5c826425f7ad98f619c4c13ae9",
+  "schema_sha256": "7eb6193722941c31ff5d261c9c15974d2e106473e3de3a2bc025db14c0a2d0e5",
+  "crosscheck_source_sha256": "1f6fe11b846cb8cd2be7e60fcc2cf365d8763139869b015bd18487c566ca2e51",
+  "candidates": {
+    "ASR-SENSEVOICE-I8": {
+      "Q": {
+        "screen_decision": "failed",
+        "registered_route": "Q",
+        "denominator": 34,
+        "net_gains": [
+          -12,
+          -9
+        ],
+        "rounds": [
+          {
+            "round_id": "seed11",
+            "baseline": 20,
+            "candidate": 8,
+            "restored": [],
+            "lost": [
+              "csj-reproduction/5-7",
+              "csj-task/12-15",
+              "csj-task/20",
+              "wmf-04/136",
+              "wmf-04/137-138",
+              "wmf-04/153-155",
+              "wmf-04/158-160",
+              "wmf-04/161-165",
+              "wmf-04/166-167",
+              "wmf-04/173",
+              "wmf-04/174-175",
+              "wmf-04/179"
+            ]
+          },
+          {
+            "round_id": "seed29",
+            "baseline": 18,
+            "candidate": 9,
+            "restored": [
+              "wmf-04/131-132",
+              "wmf-04/148-152"
+            ],
+            "lost": [
+              "csj-reproduction/5-7",
+              "csj-task/12-15",
+              "csj-task/20",
+              "wmf-04/136",
+              "wmf-04/137-138",
+              "wmf-04/153-155",
+              "wmf-04/158-160",
+              "wmf-04/166-167",
+              "wmf-04/173",
+              "wmf-04/174-175",
+              "wmf-04/179"
+            ]
+          }
+        ],
+        "reasons": [
+          "seed11: new critical error",
+          "seed11: protected item lost",
+          "seed29: new critical error",
+          "seed29: protected item lost"
+        ],
+        "arithmetic_eligible": false,
+        "reference_pending": true,
+        "evidence_status": "ai_reviewed",
+        "release_eligible": false,
+        "scope": "offline arithmetic only; no runtime, resource, DOM, holdout or semantic proof"
+      },
+      "R": {
+        "screen_decision": "failed",
+        "registered_route": "R",
+        "denominator": 34,
+        "net_gains": [
+          -12,
+          -9
+        ],
+        "rounds": [
+          {
+            "round_id": "seed11",
+            "baseline": 20,
+            "candidate": 8,
+            "restored": [],
+            "lost": [
+              "csj-reproduction/5-7",
+              "csj-task/12-15",
+              "csj-task/20",
+              "wmf-04/136",
+              "wmf-04/137-138",
+              "wmf-04/153-155",
+              "wmf-04/158-160",
+              "wmf-04/161-165",
+              "wmf-04/166-167",
+              "wmf-04/173",
+              "wmf-04/174-175",
+              "wmf-04/179"
+            ]
+          },
+          {
+            "round_id": "seed29",
+            "baseline": 18,
+            "candidate": 9,
+            "restored": [
+              "wmf-04/131-132",
+              "wmf-04/148-152"
+            ],
+            "lost": [
+              "csj-reproduction/5-7",
+              "csj-task/12-15",
+              "csj-task/20",
+              "wmf-04/136",
+              "wmf-04/137-138",
+              "wmf-04/153-155",
+              "wmf-04/158-160",
+              "wmf-04/166-167",
+              "wmf-04/173",
+              "wmf-04/174-175",
+              "wmf-04/179"
+            ]
+          }
+        ],
+        "reasons": [
+          "seed11: new critical error",
+          "seed11: protected item lost",
+          "seed29: new critical error",
+          "seed29: protected item lost"
+        ],
+        "arithmetic_eligible": false,
+        "reference_pending": true,
+        "evidence_status": "ai_reviewed",
+        "release_eligible": false,
+        "scope": "offline arithmetic only; no runtime, resource, DOM, holdout or semantic proof"
+      }
+    },
+    "ASR-WHISPER-JA760": {
+      "Q": {
+        "screen_decision": "failed",
+        "registered_route": "Q",
+        "denominator": 34,
+        "net_gains": [
+          -4,
+          -3
+        ],
+        "rounds": [
+          {
+            "round_id": "seed11",
+            "baseline": 20,
+            "candidate": 16,
+            "restored": [
+              "csj-task/6",
+              "wmf-04/168"
+            ],
+            "lost": [
+              "csj-task/20",
+              "wmf-04/136",
+              "wmf-04/153-155",
+              "wmf-04/156-157",
+              "wmf-04/161-165",
+              "wmf-04/174-175"
+            ]
+          },
+          {
+            "round_id": "seed29",
+            "baseline": 18,
+            "candidate": 15,
+            "restored": [
+              "csj-task/6",
+              "wmf-04/131-132",
+              "wmf-04/168"
+            ],
+            "lost": [
+              "csj-task/20",
+              "csj-task/9",
+              "wmf-04/136",
+              "wmf-04/153-155",
+              "wmf-04/156-157",
+              "wmf-04/174-175"
+            ]
+          }
+        ],
+        "reasons": [
+          "seed11: new critical error",
+          "seed11: protected item lost",
+          "seed29: new critical error",
+          "seed29: protected item lost"
+        ],
+        "arithmetic_eligible": false,
+        "reference_pending": true,
+        "evidence_status": "ai_reviewed",
+        "release_eligible": false,
+        "scope": "offline arithmetic only; no runtime, resource, DOM, holdout or semantic proof"
+      },
+      "R": {
+        "screen_decision": "failed",
+        "registered_route": "R",
+        "denominator": 34,
+        "net_gains": [
+          -4,
+          -3
+        ],
+        "rounds": [
+          {
+            "round_id": "seed11",
+            "baseline": 20,
+            "candidate": 16,
+            "restored": [
+              "csj-task/6",
+              "wmf-04/168"
+            ],
+            "lost": [
+              "csj-task/20",
+              "wmf-04/136",
+              "wmf-04/153-155",
+              "wmf-04/156-157",
+              "wmf-04/161-165",
+              "wmf-04/174-175"
+            ]
+          },
+          {
+            "round_id": "seed29",
+            "baseline": 18,
+            "candidate": 15,
+            "restored": [
+              "csj-task/6",
+              "wmf-04/131-132",
+              "wmf-04/168"
+            ],
+            "lost": [
+              "csj-task/20",
+              "csj-task/9",
+              "wmf-04/136",
+              "wmf-04/153-155",
+              "wmf-04/156-157",
+              "wmf-04/174-175"
+            ]
+          }
+        ],
+        "reasons": [
+          "seed11: new critical error",
+          "seed11: protected item lost",
+          "seed29: new critical error",
+          "seed29: protected item lost"
+        ],
+        "arithmetic_eligible": false,
+        "reference_pending": true,
+        "evidence_status": "ai_reviewed",
+        "release_eligible": false,
+        "scope": "offline arithmetic only; no runtime, resource, DOM, holdout or semantic proof"
+      }
+    }
+  },
+  "model_rerun": false
+}

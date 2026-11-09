@@ -1,0 +1,14 @@
+{
+  "denominator_per_seed": 4,
+  "scope": "offline fixed-cut diagnostic outside34; not first-correct latency",
+  "control_correct_each_seed": 1,
+  "SenseVoice_correct_each_seed": 1,
+  "Whisper_JA760_correct_each_seed": 1,
+  "outcomes": {
+    "photo": "all retain photo core",
+    "strangers": "SenseVoice many people do not know / Whisper many people do not need it: not unfamiliar-people core",
+    "europe": "Europe not recovered; west/folding/gift phrases",
+    "slides": "generic switch without explicit slide object; other protocol/content sentences lack full trusted reference, do not call them proven hallucinations"
+  },
+  "human_verified": false
+}

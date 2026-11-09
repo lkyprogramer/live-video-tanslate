@@ -1,0 +1,11 @@
+{
+  "candidate_1x_Chrome_long_stability": "NOT_TRIGGERED: no quality-eligible candidate",
+  "B4": {
+    "slots_used": 0,
+    "reason": "No qualified parent; no separately allocated/frozen protocol-cost hypothesis. Menu is not mandatory."
+  },
+  "fallbacks": "NOT_TRIGGERED: both primary runtimes became ready after one targeted deployment repair each, then failed quality",
+  "human_listening": "NOT_RUN per user",
+  "natural_noise_reference": "NOT_AVAILABLE; synthetic music is diagnostic only",
+  "holdout": "sealed"
+}

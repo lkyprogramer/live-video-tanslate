@@ -1,0 +1,85 @@
+{
+  "attempts": {
+    "p2-b3-20261109-102811": {
+      "fingerprint": "adc15b6dc75e04bfa478173a0dd67d46004a3fe325239c570af04330f9e7a38e",
+      "completed_receipts_verified": true,
+      "source_verification": "archived source-snapshot and receipts; export analysis has its own current hash",
+      "pending_or_failed_steps": {},
+      "non_success_results": {
+        "AST-G4-OFFICIAL-capability": {
+          "receipt_status": "passed",
+          "outcome_status": "blocked_runtime",
+          "error": "ValueError: audio placeholder/projected-frame mismatch"
+        }
+      },
+      "baseline_mt_parity": {
+        "11": true,
+        "29": true
+      }
+    },
+    "p2-b3-20261109-102811-audio-pad-fix": {
+      "fingerprint": "70ddf2c414219e4d4ec4c76018ecb0babcd2028750c0767817f2f0ade5fbd422",
+      "completed_receipts_verified": true,
+      "source_verification": "archived source-snapshot and receipts; export analysis has its own current hash",
+      "pending_or_failed_steps": {
+        "NATIVE-VOX-960-capability": "running"
+      },
+      "non_success_results": {},
+      "baseline_mt_parity": {
+        "11": true,
+        "29": true
+      }
+    },
+    "p2-b3-20261109-102811-vox-cache-bound": {
+      "fingerprint": "b611c5c04b6b694e2640aa53e38d4cbd61e2571788702e8103c2111c900d58f1",
+      "completed_receipts_verified": true,
+      "source_verification": "archived source-snapshot and receipts; export analysis has its own current hash",
+      "pending_or_failed_steps": {},
+      "non_success_results": {},
+      "baseline_mt_parity": {
+        "11": true,
+        "29": true
+      }
+    },
+    "p2-b3-20261109-102811-vox-lifecycle-fix": {
+      "fingerprint": "bf3affc3712d97d6805c4b0c63b3dc5c581e8b990a589279854f4636921acaa9",
+      "completed_receipts_verified": true,
+      "source_verification": "archived source-snapshot and receipts; export analysis has its own current hash",
+      "pending_or_failed_steps": {},
+      "non_success_results": {},
+      "baseline_mt_parity": {
+        "11": true,
+        "29": true
+      }
+    }
+  },
+  "AST_2x88_audio_shape_path_checked": true,
+  "Vox9causal_input_sha_checked": true,
+  "native_resource_confirmation": "p2-b3-20261109-102811-vox-lifecycle-fix",
+  "native_source_units": 88,
+  "resource_groups": 14,
+  "resource_rows": 51,
+  "postanalysis_source_sha256": "15a5a88bfb2d22f0e6481f82e2ed07892267fe9e2ea0ff3bf49c987af35cc4e7",
+  "human_verified": false,
+  "pending_listen": 15,
+  "holdout": "sealed",
+  "inference_rerun": false,
+  "targeted_tests": {
+    "command": "engine/.venv/bin/python -m pytest -q p0/p2/tests/test_b3_protocol.py p0/p2/tests/test_b1_evidence.py p0/p2/tests/test_b2_adapters.py",
+    "passed": 17,
+    "b3_tests": 8,
+    "result": "observed after weakref fix, before resource confirmation",
+    "rerun_for_export": false
+  },
+  "canonical_score_checks": {
+    "inputs": 3,
+    "schema": "PASS",
+    "evidence_helper": "PASS",
+    "semantic_auto_grading": false
+  },
+  "public_export_checks": {
+    "no_full_native_transcripts": true,
+    "source_submission_distinct_from_model_calls": true,
+    "blocked_runtime_receipt_status_distinct": true
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "B2_N": "skipped_reference: no trusted Dnoise, natural music or noise benchmark; synthetic instrumental smoke is not Dnoise",
+  "emotion": "NOT_RUN: SenseVoice base quality prerequisite failed",
+  "runtime_threads": "NOT_RUN: no quality-qualified candidate for1/2/4 thread or runtime tuning",
+  "B3": "NOT_RUN: next core stage Voxtral960/Gemma audio AST",
+  "B5": "NOT_RUN: no candidate qualified for full-chain1x/Chrome/long-run",
+  "holdout": "sealed;15pending listening"
+}

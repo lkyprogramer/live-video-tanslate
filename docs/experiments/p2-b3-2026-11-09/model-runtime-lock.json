@@ -1,0 +1,72 @@
+{
+  "models": [
+    {
+      "id": "reazon-b0",
+      "repository": "reazon-research/reazonspeech-k2-v2",
+      "revision": "291488c8151be24d7da4bf7af26e533fad96e407",
+      "source": "hf"
+    },
+    {
+      "id": "hymt-b0",
+      "repository": "mlx-community/Hy-MT2-1.8B-4bit",
+      "revision": "e5c6fe56c7b3bc77fae5ae92db31f2178f1e6912",
+      "source": "hf"
+    },
+    {
+      "id": "silero-v4-b0",
+      "repository": null,
+      "revision": null,
+      "source": "local"
+    },
+    {
+      "id": "voxtral",
+      "repository": "iris-sfg/Voxtral-Mini-4B-Realtime-2602-4bit-fp16",
+      "revision": "29c8d08b2d648d3c0437298a64b2a9adda0c4296",
+      "source": "hf"
+    },
+    {
+      "id": "gemma4",
+      "repository": "mlx-community/gemma-4-e2b-it-4bit",
+      "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+      "source": "hf"
+    }
+  ],
+  "runtime": {
+    "engine": {
+      "numpy": "2.5.4",
+      "mlx": "0.31.2",
+      "mlx-lm": "0.31.3",
+      "transformers": "5.22.1",
+      "huggingface-hub": "2.4.0",
+      "tokenizers": "0.23.3",
+      "sherpa-onnx": "2.0.1",
+      "onnxruntime": "1.31.1",
+      "whisperlivekit": "0.2.26"
+    },
+    "vox": {
+      "mlx": "0.32.4",
+      "mlx-audio": "0.6.4",
+      "transformers": "5.22.1",
+      "numpy": "2.5.4",
+      "huggingface-hub": "2.4.0",
+      "tokenizers": "0.23.3"
+    },
+    "gemma": {
+      "mlx": "0.32.4",
+      "mlx-audio": "0.6.4",
+      "transformers": "5.22.1",
+      "numpy": "2.5.4",
+      "huggingface-hub": "2.4.0",
+      "tokenizers": "0.23.3",
+      "mlx-vlm": "0.7.12"
+    }
+  },
+  "runtime_commits": {
+    "mlx-audio": "d52b8cde2ee28d583f173e1bc0eb424b425c11c4",
+    "mlx-vlm": "a54f1a0d86fa45c466c00d819ac6ac5ba9d61ac4"
+  },
+  "gemma_source_revision": "70af34e20bd4b7a91f0de6b22675850c43922a03",
+  "weights_and_templates_sha_location": "ignored per-attempt locks/models.json and source-snapshot",
+  "vox_cache_bytes": 536870912,
+  "ast_extractor_pad_multiple": 640
+}

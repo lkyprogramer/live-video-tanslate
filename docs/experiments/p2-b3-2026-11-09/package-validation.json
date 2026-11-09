@@ -1,0 +1,25 @@
+{
+  "status": "PASS_PACKAGE_AND_LINK_CHECKS",
+  "commands": [
+    "engine/.venv/bin/python -B docs/live-video-translate-p2-2026-11-07/scripts/validate_package.py --refresh",
+    "engine/.venv/bin/python -B docs/live-video-translate-p2-2026-11-07/scripts/validate_package.py --check"
+  ],
+  "build_report_sha256": "357e6e7a0611c018ed23ef91873e952e203de2a272d82e08babe11c914e289ae",
+  "validation_script_sha256": "88835df817d183a88af2577906d6b76ad614a761b0b409d0416afaefc30795b8",
+  "unit_tests": {
+    "run": 44,
+    "passed": 44,
+    "exit_code": 0,
+    "log": "BUILD-TESTS.log"
+  },
+  "counts": {
+    "experiments": 27,
+    "primary_experiments": 8,
+    "models": 24,
+    "runtimes": 13,
+    "schemas": 4,
+    "local_links": 70
+  },
+  "model_rerun": false,
+  "scope": "44 documentation/helper tests, synthetic fixtures,schemas,links and generated-source hashes; not model or release acceptance"
+}

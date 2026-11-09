@@ -1,0 +1,764 @@
+{
+  "phase": "B1",
+  "status": "COMPLETE_NO_CANDIDATE_PASSED",
+  "run_id": "p2-b1-20261108-202438",
+  "baseline_hits": [
+    20,
+    18
+  ],
+  "denominator": 34,
+  "candidates": {
+    "PAD-900": {
+      "rounds": {
+        "11": {
+          "hits": 13,
+          "denominator": 34,
+          "net": -7,
+          "correct": [
+            "csj-reproduction/5-7",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/137-138",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/156-157",
+            "wmf-04/158-160",
+            "wmf-04/166-167",
+            "wmf-04/169",
+            "wmf-04/170-172",
+            "wmf-04/173",
+            "wmf-04/179"
+          ],
+          "restored": [],
+          "lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "csj-task/5",
+            "wmf-04/136",
+            "wmf-04/153-155",
+            "wmf-04/161-165",
+            "wmf-04/174-175"
+          ],
+          "protected_lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "csj-task/5",
+            "wmf-04/136",
+            "wmf-04/153-155",
+            "wmf-04/161-165",
+            "wmf-04/174-175"
+          ],
+          "uncertain": [
+            "wmf-04/176-178"
+          ],
+          "new_critical_errors": [
+            {
+              "unit": "csj-task/5",
+              "status": "partial",
+              "reason": "“那边有照片”新增了远指位置，未保留说话者这边；这不是control只省略人称的同类省略。",
+              "new_critical_error": true,
+              "critical_detail": "speaker_deixis: 参考明确为说话者这边有照片，候选变为那边，新增了错误的空间/归属指向。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "uncertain",
+              "root_critical": false,
+              "reconciliation": "Under the provisional text reference, 那边 introduces a conflicting deictic relation rather than merely omitting the speaker. Human source status stays pending."
+            },
+            {
+              "unit": "csj-task/20",
+              "status": "partial",
+              "reason": "只剩是否为研究家的问句，眼镜和短发均丢失；职业肯定事实也改成询问。",
+              "new_critical_error": true,
+              "critical_detail": "question_polarity: 参考和control陈述其为烹饪研究者，候选询问“是美食研究家吗”，由肯定信息变成未确认问题。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            },
+            {
+              "unit": "csj-task/30",
+              "status": "incorrect",
+              "reason": "姓名片假名写法完全丢失，变成“基拉的平坦区域吗”；与control仅没译清片假名不同。",
+              "new_critical_error": true,
+              "critical_detail": "entity_relation: 将雷米的姓名写法改成基拉及平坦区域，并新增询问这一无关关系。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Same core outcome; retain independent status granularity and original root judgment for audit."
+            },
+            {
+              "unit": "csj-task/34-35",
+              "status": "partial",
+              "reason": "虽然补出不太清楚，但仍将所问对象改成11号而非塞尔吉奥越后；不能算人物身份恢复。",
+              "new_critical_error": true,
+              "critical_detail": "numeric_identity: control已误指纯一号，候选又明确断言编号11号；参考没有这个编号，新增了具体数值身份。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": false,
+              "reconciliation": "A concrete11 identity is new numeric specificity relative to the previous garbled name; retain as provisional critical, including an already-failed unit."
+            },
+            {
+              "unit": "wmf-04/148-152",
+              "status": "partial",
+              "reason": "否定成为高管仍在，也恢复编辑者，但撰稿人变成非行者，并把待决定的编辑职责说成已经注意/扮演了的行为。",
+              "new_critical_error": true,
+              "critical_detail": "entity_and_action_relation: 相对control的撰稿人，候选新增非行者身份；“编辑们注意了/扮演了”又把待决定职责改为已发生行为。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            },
+            {
+              "unit": "wmf-04/153-155",
+              "status": "partial",
+              "reason": "橙色三项和重点工作保留，但新增“验证委员会”，错误指定执行主体；control只省略章程限定。",
+              "new_critical_error": true,
+              "critical_detail": "entity_relation: 应为章程委员会，候选明确称验证委员会，增加了错误机构身份。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            },
+            {
+              "unit": "wmf-04/161-165",
+              "status": "partial",
+              "reason": "宪章变成验证，且“可以同意各条文”加强为“一致同意”；虽然同意相对seed29有局部恢复，必要对象和决策条件仍不正确。",
+              "new_critical_error": true,
+              "critical_detail": "agreement_requirement: control没有一致/全体同意要求，候选增加各条款得到一致同意，把可同意加强为共识条件。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        },
+        "29": {
+          "hits": 12,
+          "denominator": 34,
+          "net": -6,
+          "correct": [
+            "csj-reproduction/5-7",
+            "csj-task/9",
+            "wmf-04/137-138",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/156-157",
+            "wmf-04/158-160",
+            "wmf-04/166-167",
+            "wmf-04/169",
+            "wmf-04/170-172",
+            "wmf-04/173",
+            "wmf-04/179"
+          ],
+          "restored": [],
+          "lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "csj-task/5",
+            "wmf-04/136",
+            "wmf-04/153-155",
+            "wmf-04/174-175"
+          ],
+          "protected_lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "csj-task/5",
+            "wmf-04/136",
+            "wmf-04/153-155",
+            "wmf-04/174-175"
+          ],
+          "uncertain": [
+            "wmf-04/176-178"
+          ],
+          "new_critical_errors": [
+            {
+              "unit": "csj-task/5",
+              "status": "partial",
+              "reason": "“那边有照片”新增了远指位置，未保留说话者这边；这不是control只省略人称的同类省略。",
+              "new_critical_error": true,
+              "critical_detail": "speaker_deixis: 参考明确为说话者这边有照片，候选变为那边，新增了错误的空间/归属指向。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "uncertain",
+              "root_critical": false,
+              "reconciliation": "Under the provisional text reference, 那边 introduces a conflicting deictic relation rather than merely omitting the speaker. Human source status stays pending."
+            },
+            {
+              "unit": "csj-task/20",
+              "status": "partial",
+              "reason": "只剩是否为研究家的问句，眼镜和短发均丢失；职业肯定事实也改成询问。",
+              "new_critical_error": true,
+              "critical_detail": "question_polarity: 参考和control陈述其为烹饪研究者，候选询问“是美食研究家吗”，由肯定信息变成未确认问题。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            },
+            {
+              "unit": "csj-task/30",
+              "status": "incorrect",
+              "reason": "姓名片假名写法完全丢失，变成“基拉的平坦区域吗”；与control仅没译清片假名不同。",
+              "new_critical_error": true,
+              "critical_detail": "entity_relation: 将雷米的姓名写法改成基拉及平坦区域，并新增询问这一无关关系。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Same core outcome; retain independent status granularity and original root judgment for audit."
+            },
+            {
+              "unit": "csj-task/34-35",
+              "status": "partial",
+              "reason": "虽然补出不太清楚，但仍将所问对象改成11号而非塞尔吉奥越后；不能算人物身份恢复。",
+              "new_critical_error": true,
+              "critical_detail": "numeric_identity: control已误指纯一号，候选又明确断言编号11号；参考没有这个编号，新增了具体数值身份。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": false,
+              "reconciliation": "A concrete11 identity is new numeric specificity relative to the previous garbled name; retain as provisional critical, including an already-failed unit."
+            },
+            {
+              "unit": "wmf-04/148-152",
+              "status": "partial",
+              "reason": "否定成为高管仍在，也恢复编辑者，但撰稿人变成非行者，并把待决定的编辑职责说成已经注意/扮演了的行为。",
+              "new_critical_error": true,
+              "critical_detail": "entity_and_action_relation: 相对control的撰稿人，候选新增非行者身份；“编辑们注意了/扮演了”又把待决定职责改为已发生行为。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            },
+            {
+              "unit": "wmf-04/153-155",
+              "status": "partial",
+              "reason": "橙色三项和重点工作保留，但新增“验证委员会”，错误指定执行主体；control只省略章程限定。",
+              "new_critical_error": true,
+              "critical_detail": "entity_relation: 应为章程委员会，候选明确称验证委员会，增加了错误机构身份。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            },
+            {
+              "unit": "wmf-04/161-165",
+              "status": "partial",
+              "reason": "宪章变成验证，且“可以同意各条文”加强为“一致同意”；虽然同意相对seed29有局部恢复，必要对象和决策条件仍不正确。",
+              "new_critical_error": true,
+              "critical_detail": "agreement_requirement: control没有一致/全体同意要求，候选增加各条款得到一致同意，把可同意加强为共识条件。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        }
+      },
+      "Q": false,
+      "R_offline_eligible": false,
+      "R_full_chain_pass": false,
+      "next_stage": "stop_after_B1_screen"
+    },
+    "PUNCT-JA": {
+      "rounds": {
+        "11": {
+          "hits": 18,
+          "denominator": 34,
+          "net": -2,
+          "correct": [
+            "csj-reproduction/5-7",
+            "csj-task/20",
+            "csj-task/5",
+            "wmf-04/131-132",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/153-155",
+            "wmf-04/156-157",
+            "wmf-04/158-160",
+            "wmf-04/161-165",
+            "wmf-04/166-167",
+            "wmf-04/169",
+            "wmf-04/170-172",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "restored": [],
+          "lost": [
+            "csj-task/12-15",
+            "csj-task/9"
+          ],
+          "protected_lost": [
+            "csj-task/12-15",
+            "csj-task/9"
+          ],
+          "uncertain": [],
+          "new_critical_errors": [
+            {
+              "unit": "csj-task/9",
+              "status": "incorrect",
+              "reason": "seed11把说话者不认识很多人改成很多人不知道这件事，主客体和未知对象均改变。",
+              "new_critical_error": true,
+              "critical_detail": "subject_object_relation: 原文是我不认识许多人，候选变成许多人不知道某件事，新增了不存在的事件与知情关系。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Same core outcome; retain independent status granularity and original root judgment for audit."
+            },
+            {
+              "unit": "csj-task/12-15",
+              "status": "incorrect",
+              "reason": "从最上面开始读名字丢失，新增“我是平野雷美”，把正在读出的姓名变成说话者身份。",
+              "new_critical_error": true,
+              "critical_detail": "speaker_identity: control在朗读姓名，候选明确自称平野雷美，错误绑定人物与说话者。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Same core outcome; retain independent status granularity and original root judgment for audit."
+            },
+            {
+              "unit": "wmf-04/176-178",
+              "status": "partial",
+              "reason": "重读终稿与投票安排仍在，但最后修改缺失，1月或3月不等于1至3月；seed11又把源ASR二千四年损坏为204。",
+              "new_critical_error": true,
+              "critical_detail": "number_corruption: seed11控制为2004，候选变为204；即使真实年份2024仍待复听，204相对源ASR及同轮control都是新增数字损坏。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": false,
+              "reconciliation": "Confirm new204 corruption in seed11 versus paired2004 control, independent of unresolved true year."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        },
+        "29": {
+          "hits": 18,
+          "denominator": 34,
+          "net": 0,
+          "correct": [
+            "csj-task/20",
+            "csj-task/5",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/153-155",
+            "wmf-04/156-157",
+            "wmf-04/158-160",
+            "wmf-04/161-165",
+            "wmf-04/166-167",
+            "wmf-04/169",
+            "wmf-04/170-172",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "restored": [
+            "wmf-04/131-132",
+            "wmf-04/161-165"
+          ],
+          "lost": [
+            "csj-reproduction/5-7",
+            "csj-task/12-15"
+          ],
+          "protected_lost": [
+            "csj-reproduction/5-7",
+            "csj-task/12-15"
+          ],
+          "uncertain": [],
+          "new_critical_errors": [
+            {
+              "unit": "csj-task/12-15",
+              "status": "incorrect",
+              "reason": "从最上面开始读名字丢失，新增“我是平野雷美”，把正在读出的姓名变成说话者身份。",
+              "new_critical_error": true,
+              "critical_detail": "speaker_identity: control在朗读姓名，候选明确自称平野雷美，错误绑定人物与说话者。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Same core outcome; retain independent status granularity and original root judgment for audit."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        }
+      },
+      "Q": false,
+      "R_offline_eligible": false,
+      "R_full_chain_pass": false,
+      "next_stage": "stop_after_B1_screen"
+    },
+    "MT-PLAMO08-H0": {
+      "rounds": {
+        "11": {
+          "hits": 17,
+          "denominator": 34,
+          "net": -3,
+          "correct": [
+            "csj-reproduction/1",
+            "csj-reproduction/5-7",
+            "csj-task/5",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/153-155",
+            "wmf-04/158-160",
+            "wmf-04/161-165",
+            "wmf-04/166-167",
+            "wmf-04/169",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "restored": [
+            "csj-reproduction/1"
+          ],
+          "lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/156-157",
+            "wmf-04/170-172"
+          ],
+          "protected_lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/156-157",
+            "wmf-04/170-172"
+          ],
+          "uncertain": [],
+          "new_critical_errors": [
+            {
+              "unit": "wmf-04/156-157",
+              "status": "partial",
+              "reason": "深度和范围保留，但共同提出责任讨论变成把责任交给彼此，改变必要的协商关系。",
+              "new_critical_error": true,
+              "critical_detail": "action_relation: control是共同探讨如何处理，候选新增责任互相转交/分配的关系，参考没有这一已定转交行为。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            },
+            {
+              "unit": "wmf-04/170-172",
+              "status": "partial",
+              "reason": "时间范围正确，但“已决定招募”不表示已经完成招募及确定成员，把已完成事项变成招募决定。",
+              "new_critical_error": true,
+              "critical_detail": "action_completion: 原文和control已完成招募与人选决定，候选仅决定招募，改变事实完成状态。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        },
+        "29": {
+          "hits": 17,
+          "denominator": 34,
+          "net": -1,
+          "correct": [
+            "csj-reproduction/1",
+            "csj-reproduction/5-7",
+            "csj-task/5",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/153-155",
+            "wmf-04/158-160",
+            "wmf-04/161-165",
+            "wmf-04/166-167",
+            "wmf-04/169",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "restored": [
+            "csj-reproduction/1",
+            "wmf-04/131-132",
+            "wmf-04/161-165"
+          ],
+          "lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/156-157",
+            "wmf-04/170-172"
+          ],
+          "protected_lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/156-157",
+            "wmf-04/170-172"
+          ],
+          "uncertain": [],
+          "new_critical_errors": [
+            {
+              "unit": "wmf-04/156-157",
+              "status": "partial",
+              "reason": "深度和范围保留，但共同提出责任讨论变成把责任交给彼此，改变必要的协商关系。",
+              "new_critical_error": true,
+              "critical_detail": "action_relation: control是共同探讨如何处理，候选新增责任互相转交/分配的关系，参考没有这一已定转交行为。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            },
+            {
+              "unit": "wmf-04/170-172",
+              "status": "partial",
+              "reason": "时间范围正确，但“已决定招募”不表示已经完成招募及确定成员，把已完成事项变成招募决定。",
+              "new_critical_error": true,
+              "critical_detail": "action_completion: 原文和control已完成招募与人选决定，候选仅决定招募，改变事实完成状态。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Agreed core outcome and critical classification."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        }
+      },
+      "Q": false,
+      "R_offline_eligible": false,
+      "R_full_chain_pass": false,
+      "next_stage": "stop_after_B1_screen"
+    },
+    "MT-PLAMO2-H0": {
+      "rounds": {
+        "11": {
+          "hits": 17,
+          "denominator": 34,
+          "net": -3,
+          "correct": [
+            "csj-reproduction/5-7",
+            "csj-task/30",
+            "csj-task/5",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/146-147",
+            "wmf-04/153-155",
+            "wmf-04/158-160",
+            "wmf-04/161-165",
+            "wmf-04/166-167",
+            "wmf-04/169",
+            "wmf-04/170-172",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "restored": [
+            "csj-task/30"
+          ],
+          "lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/139",
+            "wmf-04/156-157"
+          ],
+          "protected_lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/139",
+            "wmf-04/156-157"
+          ],
+          "uncertain": [],
+          "new_critical_errors": [
+            {
+              "unit": "wmf-04/139",
+              "status": "incorrect",
+              "reason": "“第三次定义”把目录中的第三项变成反复定义的次数，不同于冻结控制可按列表理解的“第三种定义”。",
+              "new_critical_error": true,
+              "critical_detail": "numeric_relation: 原文是第三项为定义，候选明确变成第三次进行定义；新增了次数关系。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Same core outcome; retain independent status granularity and original root judgment for audit."
+            },
+            {
+              "unit": "wmf-04/156-157",
+              "status": "partial",
+              "reason": "责任具有不同程度与范围保留，但把将这些责任提出讨论改成通过共同分担责任来商量，改变了讨论与承担的关系。",
+              "new_critical_error": true,
+              "critical_detail": "action_relation: control只是共同探讨如何处理并决定；候选增加先共同分担责任这一承担关系，参考并未要求先承担。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": false,
+              "reconciliation": "Jointly bearing responsibilities is a new relationship beyond discussing them; confirm independent critical classification."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        },
+        "29": {
+          "hits": 17,
+          "denominator": 34,
+          "net": -1,
+          "correct": [
+            "csj-reproduction/5-7",
+            "csj-task/30",
+            "csj-task/5",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/146-147",
+            "wmf-04/153-155",
+            "wmf-04/158-160",
+            "wmf-04/161-165",
+            "wmf-04/166-167",
+            "wmf-04/169",
+            "wmf-04/170-172",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "restored": [
+            "csj-task/30",
+            "wmf-04/131-132",
+            "wmf-04/161-165"
+          ],
+          "lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/139",
+            "wmf-04/156-157"
+          ],
+          "protected_lost": [
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/139",
+            "wmf-04/156-157"
+          ],
+          "uncertain": [],
+          "new_critical_errors": [
+            {
+              "unit": "wmf-04/139",
+              "status": "incorrect",
+              "reason": "“第三次定义”把目录中的第三项变成反复定义的次数，不同于冻结控制可按列表理解的“第三种定义”。",
+              "new_critical_error": true,
+              "critical_detail": "numeric_relation: 原文是第三项为定义，候选明确变成第三次进行定义；新增了次数关系。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": true,
+              "reconciliation": "Same core outcome; retain independent status granularity and original root judgment for audit."
+            },
+            {
+              "unit": "wmf-04/156-157",
+              "status": "partial",
+              "reason": "责任具有不同程度与范围保留，但把将这些责任提出讨论改成通过共同分担责任来商量，改变了讨论与承担的关系。",
+              "new_critical_error": true,
+              "critical_detail": "action_relation: control只是共同探讨如何处理并决定；候选增加先共同分担责任这一承担关系，参考并未要求先承担。",
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "root_reconciled_independent_AI_text_review",
+              "root_status": "partial",
+              "root_critical": false,
+              "reconciliation": "Jointly bearing responsibilities is a new relationship beyond discussing them; confirm independent critical classification."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        }
+      },
+      "Q": false,
+      "R_offline_eligible": false,
+      "R_full_chain_pass": false,
+      "next_stage": "stop_after_B1_screen"
+    }
+  },
+  "Q_threshold_per_seed": [
+    23,
+    21
+  ],
+  "formal_R_pass": false,
+  "production_default": "reazon-hy unchanged",
+  "pending_listen": 15,
+  "human_verified": false,
+  "formal_semantic_acceptance": false,
+  "holdout": "sealed",
+  "realtime": "NOT_RUN: offline quality gates failed",
+  "review_method": "Independent AI text review and root reconciliation; fixed identity mapping known from source review, not fully blinded",
+  "provenance": {
+    "run-manifest.json": "a352f385380931b39fa9fd310f140e005b59c944804fbb3d59019078623cd018",
+    "state.json": "69c198479781643e21168e051ab743e7e16efc1b69aa0cb6b5247865f6b734ab",
+    "decision.json": "17c28b2f9c73d0d96615a6028816d1568236c8e63c6f4d6c932aa9ee2e0bfe81",
+    "reviews/root-verdict.json": "27fbe6005e45ce53dc92d924e457991f7f060cc53cff794e1da074be055f348a",
+    "reviews/independent-verdict.json": "eb778943ccedd76c2171c025dd271573f29ceb5d0e380b7784d237157a8f1cbe",
+    "reviews/reconciliation.json": "19f4a24cc81574b960cc30ed27f3298a504450d6c41e396a6b5f950acfa419c6",
+    "reviews/code-review.json": "3924ea674e5bb82062c1a685093de979e9373c9de83ae72e6a78ad06fe96a054",
+    "reviews/source-audit.md": "0d8a46cb07e9527657047da714962faa1ef59bdbf9bac9dedf389f01ef1f9350",
+    "reviews/semantic-review-summary.json": "e64e0da3126245dfc0c4e2e37e670cedf1a8b815719f0a4eaf16bfe623a8c793"
+  },
+  "analysis_source_sha256": "fc7eb1b802ac56f11b597cec353d0cc4bca4da96daabcb7b3ea27b2f056fe276",
+  "export_script_sha256": "c40926507039b0ffd4f84c30995f93cfff65ebc5651908ccf530aafa4678df25",
+  "supplementary_provenance": {
+    "arithmetic-crosscheck.json": "753b0e48eb7bb2a23e37960c0e9c836adfdc2d7433d195e7c15f7e1ee44b0315",
+    "mlx-memory-summary.json": "7f164a001fd568e2819bf5541a94c58ceea03cbef831314114e68525149ffd0e",
+    "prompt-reconstruction.json": "7df410c5fed8f3d44af3596388090aa755873bdccc307c0f090263f8be83a699",
+    "reconstruct-prompts.py": "4ffa5712fc0a5cfa94ccbe649d80273fde3209d20b326744967602fe89a629be"
+  },
+  "latency_scope": "offline full translation call incl template/tokenization prefill decode; seed/filter outside; queue/TTFT/DOM not separately observed"
+}

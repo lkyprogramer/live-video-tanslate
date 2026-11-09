@@ -1,0 +1,96 @@
+{
+  "B0-CURRENT": {
+    "asr": {
+      "count": 88,
+      "total_s": 7.207555916,
+      "p50_s": 0.08,
+      "p95_s": 0.154,
+      "max_s": 0.19101575,
+      "scope": "offline fixed-cut full ASR call; no VAD wait, queue or1x submission"
+    },
+    "mt": {
+      "11": {
+        "count": 62,
+        "total_s": 16.469790962,
+        "p50_s": 0.244,
+        "p95_s": 0.427,
+        "max_s": 0.600386209,
+        "filtered_source_ids": [],
+        "scope": "offline full MT call incl template/tokenization/prefill/decode; seed/filter outside; not1x or first-Chinese"
+      },
+      "29": {
+        "count": 62,
+        "total_s": 16.124893749,
+        "p50_s": 0.237,
+        "p95_s": 0.468,
+        "max_s": 0.567871584,
+        "filtered_source_ids": [],
+        "scope": "offline full MT call incl template/tokenization/prefill/decode; seed/filter outside; not1x or first-Chinese"
+      }
+    }
+  },
+  "ASR-SENSEVOICE-I8": {
+    "asr": {
+      "count": 88,
+      "total_s": 9.665857,
+      "p50_s": 0.111,
+      "p95_s": 0.201,
+      "max_s": 0.272857416,
+      "scope": "offline fixed-cut full ASR call; no VAD wait, queue or1x submission"
+    },
+    "mt": {
+      "11": {
+        "count": 62,
+        "total_s": 17.797293748,
+        "p50_s": 0.26,
+        "p95_s": 0.446,
+        "max_s": 0.49182675,
+        "filtered_source_ids": [
+          "csj-task/6"
+        ],
+        "scope": "offline full MT call incl template/tokenization/prefill/decode; seed/filter outside; not1x or first-Chinese"
+      },
+      "29": {
+        "count": 62,
+        "total_s": 17.763054292,
+        "p50_s": 0.259,
+        "p95_s": 0.453,
+        "max_s": 0.504341917,
+        "filtered_source_ids": [
+          "csj-task/6"
+        ],
+        "scope": "offline full MT call incl template/tokenization/prefill/decode; seed/filter outside; not1x or first-Chinese"
+      }
+    }
+  },
+  "ASR-WHISPER-JA760": {
+    "asr": {
+      "count": 88,
+      "total_s": 409.919419875,
+      "p50_s": 4.64,
+      "p95_s": 4.945,
+      "max_s": 5.082359334,
+      "scope": "offline fixed-cut full ASR call; no VAD wait, queue or1x submission"
+    },
+    "mt": {
+      "11": {
+        "count": 62,
+        "total_s": 17.958316957,
+        "p50_s": 0.262,
+        "p95_s": 0.408,
+        "max_s": 0.555926333,
+        "filtered_source_ids": [],
+        "scope": "offline full MT call incl template/tokenization/prefill/decode; seed/filter outside; not1x or first-Chinese"
+      },
+      "29": {
+        "count": 62,
+        "total_s": 17.818140624999998,
+        "p50_s": 0.261,
+        "p95_s": 0.42,
+        "max_s": 0.543252167,
+        "filtered_source_ids": [],
+        "scope": "offline full MT call incl template/tokenization/prefill/decode; seed/filter outside; not1x or first-Chinese"
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "scope": "Final local documentation package validation; no inference or product release",
+  "commands": [
+    {
+      "command": "engine/.venv/bin/python -B docs/live-video-translate-p2-2026-11-07/scripts/validate_package.py --refresh",
+      "exit_code": 0
+    },
+    {
+      "command": "engine/.venv/bin/python -B docs/live-video-translate-p2-2026-11-07/scripts/validate_package.py --check",
+      "exit_code": 0
+    }
+  ],
+  "unit_tests": {
+    "run": 44,
+    "passed": 44,
+    "exit_code": 0,
+    "log": "BUILD-TESTS.log"
+  },
+  "counts": {
+    "experiments": 27,
+    "primary_experiments": 8,
+    "models": 24,
+    "runtimes": 13,
+    "schemas": 4,
+    "local_links": 74
+  },
+  "package_build_validation_sha256": "ca2ff1c1937c152355ba36d6f76d1e97bf332eb2495fd6785d6e1830cce55d37",
+  "package_manifest_sha256": "fa0bc86317c2722fc8ee2a3b34cdc99a0c00aeb6dae264a814bca173223d32d3",
+  "final_integrity_observed": {
+    "B4_frozen_verify": "PASS",
+    "candidate_quality_step_and_directory_absent": true,
+    "full_semantic_hits": null,
+    "b4_slots_used": 1,
+    "b4_slots_remaining": 2,
+    "resource_groups": 4,
+    "resource_rows": 16
+  },
+  "git_diff_check_exit_code": 0,
+  "public_transcript_limit": "Full raw model outputs retained only in ignored evidence",
+  "unrun": [
+    "ZH-only88x2",
+    "ZH-only34x2",
+    "full paired cost gain",
+    "1x or Chrome candidate replay",
+    "human listening",
+    "holdout"
+  ]
+}

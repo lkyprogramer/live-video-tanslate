@@ -1,0 +1,129 @@
+{
+  "p2-b3-20261109-102811/AST-G4-g0": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swap_last": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swapins_pages_delta": 0,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811/B0-asr": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swap_last": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swapins_pages_delta": 40,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811/B0-mt": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swap_last": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swapins_pages_delta": 190,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-audio-pad-fix/AST-G4-g0": {
+    "pressure_levels": [
+      "1",
+      "2"
+    ],
+    "swap_first": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swap_last": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swapins_pages_delta": 0,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-audio-pad-fix/AST-G4-quality": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3948.19M  free = 1171.81M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3916.19M  free = 1203.81M  (encrypted)",
+    "swapins_pages_delta": 1348,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-audio-pad-fix/B0-asr": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swap_last": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swapins_pages_delta": 0,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-audio-pad-fix/B0-mt": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swap_last": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swapins_pages_delta": 0,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-audio-pad-fix/Vox-g0": {
+    "pressure_levels": [
+      "2"
+    ],
+    "swap_first": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swap_last": "total = 2048.00M  used = 1049.12M  free = 998.88M  (encrypted)",
+    "swapins_pages_delta": 20,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-vox-cache-bound/B0-asr": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3900.19M  free = 1219.81M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3900.19M  free = 1219.81M  (encrypted)",
+    "swapins_pages_delta": 4,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-vox-cache-bound/B0-mt": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3900.19M  free = 1219.81M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3900.19M  free = 1219.81M  (encrypted)",
+    "swapins_pages_delta": 176,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-vox-cache-bound/Vox-g0": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3780.19M  free = 1339.81M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3740.19M  free = 1379.81M  (encrypted)",
+    "swapins_pages_delta": 1908,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-vox-cache-bound/Vox-mt": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3700.12M  free = 1419.88M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3692.12M  free = 1427.88M  (encrypted)",
+    "swapins_pages_delta": 56,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-vox-cache-bound/Vox-quality": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3732.19M  free = 1387.81M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3700.12M  free = 1419.88M  (encrypted)",
+    "swapins_pages_delta": 2185,
+    "swapouts_pages_delta": 0
+  },
+  "p2-b3-20261109-102811-vox-lifecycle-fix/Vox-resource-confirmation": {
+    "pressure_levels": [
+      "1"
+    ],
+    "swap_first": "total = 5120.00M  used = 3564.12M  free = 1555.88M  (encrypted)",
+    "swap_last": "total = 5120.00M  used = 3532.12M  free = 1587.88M  (encrypted)",
+    "swapins_pages_delta": 1684,
+    "swapouts_pages_delta": 0
+  }
+}

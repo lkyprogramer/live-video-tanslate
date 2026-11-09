@@ -1,0 +1,21 @@
+{
+  "scope": "offline fixed original cuts and same Hy-MT2; outside34 main units; not1x timing",
+  "denominator_per_seed": 4,
+  "control": {
+    "correct_each_seed": 1,
+    "photo": "correct",
+    "strangers": "incorrect: unknown people fact absent",
+    "europe": "partial: west without Europe",
+    "slides": "incorrect: no slide-change fact"
+  },
+  "PAD_900": {
+    "correct_each_seed": 2,
+    "photo": "correct under existing photo-fact rubric",
+    "strangers": "correct: unknown people fact restored",
+    "europe": "incorrect relative to provisional Europe reference: now US west",
+    "slides": "partial: generic switch and extra nonsense; no explicit slide-change fact"
+  },
+  "human_verified": false,
+  "source_references": "existing B0 short controls, still AI reviewed",
+  "first_correct_subtitle_latency": "NOT_RUN"
+}

@@ -1,0 +1,38 @@
+{
+  "status": "POST_HOC_RECONSTRUCTION_PASS",
+  "models": {
+    "B0-CURRENT": {
+      "rows": 124,
+      "prompt_records_sha256": "5d82efe7c900c7f37ccdba607beb5cf78d72377e4376f5591bab9a632892241e",
+      "runtime_length_verified": false,
+      "post_hoc": true
+    },
+    "PAD-900": {
+      "rows": 124,
+      "prompt_records_sha256": "f0a191b30fbfa370a6eba62dc3b906cf70b33e4efaba5f51a98f7b4fee6f9413",
+      "runtime_length_verified": false,
+      "post_hoc": true
+    },
+    "PUNCT-JA": {
+      "rows": 124,
+      "prompt_records_sha256": "da509874990676021758dd9c2026354a9bacd5f0f79d0536f6f089675dcb43b5",
+      "runtime_length_verified": false,
+      "post_hoc": true
+    },
+    "MT-PLAMO08-H0": {
+      "rows": 124,
+      "prompt_records_sha256": "0e0368db12f44dc74efbe5eda67901c2d5349e9e9c3eb7ac475728dfc8d4d61e",
+      "runtime_length_verified": true,
+      "post_hoc": true
+    },
+    "MT-PLAMO2-H0": {
+      "rows": 124,
+      "prompt_records_sha256": "933d9223b549c4bbd2ae943e339351ef06e408896a7ce76f47b1832b77d9b01c",
+      "runtime_length_verified": true,
+      "post_hoc": true
+    }
+  },
+  "source_sha256": "4ffa5712fc0a5cfa94ccbe649d80273fde3209d20b326744967602fe89a629be",
+  "model_inference_rerun": false,
+  "note": "Frozen actual source text/template/tokenizer; not runtime prompt capture, not tokenization timing. Hy has no runtime prompt-token count comparison; Plamo all248 counts match."
+}

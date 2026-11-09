@@ -1,0 +1,889 @@
+{
+  "phase": "B2",
+  "status": "COMPLETE_NO_CANDIDATE_PASSED",
+  "run_id": "p2-b2-20261109-093739-tags-fix",
+  "denominator": 34,
+  "baseline_hits": [
+    20,
+    18
+  ],
+  "Q_thresholds": [
+    23,
+    21
+  ],
+  "candidates": {
+    "ASR-SENSEVOICE-I8": {
+      "rounds": {
+        "11": {
+          "hits": 8,
+          "denominator": 34,
+          "net": -12,
+          "correct": [
+            "csj-task/5",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/156-157",
+            "wmf-04/169",
+            "wmf-04/170-172"
+          ],
+          "restored": [],
+          "lost": [
+            "csj-reproduction/5-7",
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/153-155",
+            "wmf-04/158-160",
+            "wmf-04/161-165",
+            "wmf-04/166-167",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "protected_lost": [
+            "csj-reproduction/5-7",
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/153-155",
+            "wmf-04/158-160",
+            "wmf-04/161-165",
+            "wmf-04/166-167",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "uncertain": [
+            "wmf-04/176-178"
+          ],
+          "new_critical_errors": [
+            {
+              "unit": "csj-reproduction/5-7",
+              "status": "partial",
+              "reason": "保留连续变化和难分类，但明确将说话者的控制改成系统控制；不能沿用控制省略主语的宽口径接受新增错误主语。",
+              "new_critical_error": true,
+              "critical_detail": "控制只省略说话者，B新增“由系统正确控制并输出”，把人类说话者改为系统。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/20",
+              "status": "incorrect",
+              "reason": "没有恢复料理研究者、戴眼镜、短发，且新增眼睛与镜子的错误关系。",
+              "new_critical_error": true,
+              "critical_detail": "控制正确描述人物戴眼镜/短发；B变为“眼睛能看清镜子之类的东西”，人物特征关系被改写。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/30",
+              "status": "incorrect",
+              "reason": "仍未说明片假名书写，并把控制尚正确的雷米改成Demi；另加不相关平坦面疑问。",
+              "new_critical_error": true,
+              "critical_detail": "Remi in the frozen target clause becomes Demi; new wrong name. Prefix question not independently called hallucination without full reference.",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/34-35",
+              "status": "partial",
+              "reason": "保留塞尔吉奥音译，但没有“不知道这个人是谁”的关系；后句变成含否定的无关问句。",
+              "new_critical_error": true,
+              "critical_detail": "控制虽问错人物仍是“谁”；B新增“谁不是那个内里”的否定问句，改变原辨认人物的提问关系。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/133-135",
+              "status": "incorrect",
+              "reason": "Enforcing仍未正确表达；控制尚保留的落实到行动被改为反映到道路，核心实施关系失真。",
+              "new_critical_error": true,
+              "critical_detail": "“实际行动中”变为“是否会反映在道路上”，新增错误作用对象；不因控制此前竞赛/装饰已错而忽略该损失。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/136",
+              "status": "incorrect",
+              "reason": "按冻结口径只需第一行是序言，但“第一行是序分”仍未表达序言，并新增度验证这一错误对象。",
+              "new_critical_error": true,
+              "critical_detail": "控制是清楚的“第一行是序言”；B新增“度验证中的内容”，且将序言改为序分，不是原有省略。",
+              "root_status": "partial",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/142-143",
+              "status": "partial",
+              "reason": "保留设立全球理事会负责的片段，但章程对象仍错；所连带的委员会交接内容新增审议替代解散。",
+              "new_critical_error": true,
+              "critical_detail": "同一segment14在控制明确“委员会将会解散”，B改为“总委员会将会进行相关审议”，改变机构交接的前提动作。",
+              "root_status": "partial",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/144-145",
+              "status": "incorrect",
+              "reason": "草案委员会解散、后续章程机构的关系未恢复；解散直接被改为审议，不能仅凭全球理事会词汇判正确。",
+              "new_critical_error": true,
+              "critical_detail": "控制尚正确的“委员会将会解散”变成“将会进行相关审议”；此处与142–143共享segment14，属于单元计数，非两个独立事故。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/148-152",
+              "status": "partial",
+              "reason": "否定成为高管/管理者、贡献者与编辑者职责已恢复，但撰稿人变为传播者，新增错误参与角色。",
+              "new_critical_error": true,
+              "critical_detail": "控制中的作者/撰稿人本正确；B seed11改为传播者。贡献者修复不抵消这一新增角色替换。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Accept same semantic-core width as control: contributor/author alternative, collective deliberation, or draft-process timetable; do not require stricter full wording only for candidate."
+            },
+            {
+              "unit": "wmf-04/153-155",
+              "status": "partial",
+              "reason": "保留三个橙色重点和委员会核心任务，但明确改为验证委员会；不沿用基线省略章程限定的弱口径掩盖新增对象错误。英语旁句无复听依据，不另判幻觉。",
+              "new_critical_error": true,
+              "critical_detail": "控制只写委员会，B明确写“验证委员会”，与章程委员会对象不同；英语“不会看到草稿”未用于本次critical判定。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/158-160",
+              "status": "partial",
+              "reason": "位置与决策词仍有，但“德子乔梅基的决策行为”新增具体所有者；冻结宽口径允许噪声标签，不能据此接受新增人物归属。",
+              "new_critical_error": true,
+              "critical_detail": "控制为数据测量/决策的弱标签，没有某人所有关系；B用“德子乔梅基的”明确把决策归给无依据实体。",
+              "root_status": "correct",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Decision keyword alone does not excuse explicit new X的 ownership relation. Unknown entity remains provisional; not counted as correct under the weak-label rubric."
+            },
+            {
+              "unit": "wmf-04/161-165",
+              "status": "partial",
+              "reason": "保留不同立场、条文认同、谁决策和我是否有发言权，但宪章变为验证，核心对象受损。",
+              "new_critical_error": true,
+              "critical_detail": "两轮控制的“这个宪章”均正确，B明确改成“这种验证”；seed29条文认同有所改善也不能抵消该新增对象替换。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/166-167",
+              "status": "incorrect",
+              "reason": "附录及汇总仍在，但“正文未涉及”变成“正文涉及”，必要否定反转。",
+              "new_critical_error": true,
+              "critical_detail": "控制“本篇中未涉及的内容”变为“本篇中涉及的内容”，直接反转附录收录范围。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/173",
+              "status": "partial",
+              "reason": "保留今年2月至明年3月和会议，但“像今天这样的会”改为“今天就召开这样的会议吧”，由计划中的例示改为当日提议。",
+              "new_critical_error": true,
+              "critical_detail": "控制是时间段内召开会议；B新增“今天就…吧”的时点与提议语气，未表达今天会议作为例子的关系。",
+              "root_status": "partial",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/176-178",
+              "status": "uncertain",
+              "reason": "补回最后修改及1月至3月区间，但真实年份仍有2024参考/2004 ASR冲突、无人复听，不计确认恢复；末句又由安排变成温暖通道。",
+              "new_critical_error": true,
+              "critical_detail": "年份疑点不作为新增critical：seed11原已2004、seed29原更差为204。新增明确错误在segment44：控制“已经安排好了”变成“温暖通道”，把程序安排改为具体通道。",
+              "root_status": "uncertain",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/179",
+              "status": "partial",
+              "reason": "保留请稍等，但幻灯片切换变为滑块发生变化，动作对象错误。",
+              "new_critical_error": true,
+              "critical_detail": "控制的幻灯片正确；B改成滑块，无法作为同一UI对象理解。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        },
+        "29": {
+          "hits": 9,
+          "denominator": 34,
+          "net": -9,
+          "correct": [
+            "csj-task/5",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/148-152",
+            "wmf-04/156-157",
+            "wmf-04/169",
+            "wmf-04/170-172"
+          ],
+          "restored": [
+            "wmf-04/131-132",
+            "wmf-04/148-152"
+          ],
+          "lost": [
+            "csj-reproduction/5-7",
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/153-155",
+            "wmf-04/158-160",
+            "wmf-04/166-167",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "protected_lost": [
+            "csj-reproduction/5-7",
+            "csj-task/12-15",
+            "csj-task/20",
+            "wmf-04/136",
+            "wmf-04/137-138",
+            "wmf-04/153-155",
+            "wmf-04/158-160",
+            "wmf-04/166-167",
+            "wmf-04/173",
+            "wmf-04/174-175",
+            "wmf-04/179"
+          ],
+          "uncertain": [
+            "wmf-04/176-178"
+          ],
+          "new_critical_errors": [
+            {
+              "unit": "csj-reproduction/5-7",
+              "status": "partial",
+              "reason": "保留连续变化和难分类，但明确将说话者的控制改成系统控制；不能沿用控制省略主语的宽口径接受新增错误主语。",
+              "new_critical_error": true,
+              "critical_detail": "控制省略说话者；B新增“通过系统来控制其变化”，把原说话者控制转成系统机制。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/20",
+              "status": "incorrect",
+              "reason": "没有恢复料理研究者、戴眼镜、短发，且新增眼睛与镜子的错误关系。",
+              "new_critical_error": true,
+              "critical_detail": "控制正确描述人物戴眼镜/短发；B变为“眼睛看起来好像和镜子一样”，新增错误身体/镜子关系。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/30",
+              "status": "incorrect",
+              "reason": "仍未说明片假名书写，并把控制尚正确的雷米改成Demi；另加不相关平坦面疑问。",
+              "new_critical_error": true,
+              "critical_detail": "Remi in the frozen target clause becomes Demi; new wrong name. Prefix question not independently called hallucination without full reference.",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/34-35",
+              "status": "partial",
+              "reason": "保留塞尔吉奥音译，但没有“不知道这个人是谁”的关系；后句变成含否定的无关问句。",
+              "new_critical_error": true,
+              "critical_detail": "控制虽问错人物仍是“谁”；B新增“谁不是那个内里”的否定问句，改变原辨认人物的提问关系。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/133-135",
+              "status": "incorrect",
+              "reason": "Enforcing仍未正确表达；控制尚保留的落实到行动被改为反映到道路，核心实施关系失真。",
+              "new_critical_error": true,
+              "critical_detail": "“实际行动中”变为“是否会反映在道路上”，新增错误作用对象；不因控制此前竞赛/装饰已错而忽略该损失。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/136",
+              "status": "incorrect",
+              "reason": "按冻结口径只需第一行是序言，但“第一行是序分”仍未表达序言，并新增度验证这一错误对象。",
+              "new_critical_error": true,
+              "critical_detail": "控制是清楚的“第一行是序言”；B新增“度验证中的内容”，且将序言改为序分，不是原有省略。",
+              "root_status": "partial",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/142-143",
+              "status": "partial",
+              "reason": "保留设立全球理事会负责的片段，但章程对象仍错；所连带的委员会交接内容新增审议替代解散。",
+              "new_critical_error": true,
+              "critical_detail": "同一segment14在控制明确“委员会将会解散”，B改为“总委员会将会进行相关审议”，改变机构交接的前提动作。",
+              "root_status": "partial",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/144-145",
+              "status": "incorrect",
+              "reason": "草案委员会解散、后续章程机构的关系未恢复；解散直接被改为审议，不能仅凭全球理事会词汇判正确。",
+              "new_critical_error": true,
+              "critical_detail": "控制尚正确的“委员会将会解散”变成“将会进行相关审议”；此处与142–143共享segment14，属于单元计数，非两个独立事故。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/153-155",
+              "status": "partial",
+              "reason": "保留三个橙色重点和委员会核心任务，但明确改为验证委员会；不沿用基线省略章程限定的弱口径掩盖新增对象错误。英语旁句无复听依据，不另判幻觉。",
+              "new_critical_error": true,
+              "critical_detail": "控制只写委员会，B明确写“验证委员会”，与章程委员会对象不同；英语“不会看到草稿”未用于本次critical判定。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/158-160",
+              "status": "partial",
+              "reason": "位置与决策词仍有，但“德子乔梅基的决策行为”新增具体所有者；冻结宽口径允许噪声标签，不能据此接受新增人物归属。",
+              "new_critical_error": true,
+              "critical_detail": "控制为数据测量/决策的弱标签，没有某人所有关系；B用“德子乔梅基的”明确把决策归给无依据实体。",
+              "root_status": "correct",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Decision keyword alone does not excuse explicit new X的 ownership relation. Unknown entity remains provisional; not counted as correct under the weak-label rubric."
+            },
+            {
+              "unit": "wmf-04/161-165",
+              "status": "partial",
+              "reason": "保留不同立场、条文认同、谁决策和我是否有发言权，但宪章变为验证，核心对象受损。",
+              "new_critical_error": true,
+              "critical_detail": "两轮控制的“这个宪章”均正确，B明确改成“这种验证”；seed29条文认同有所改善也不能抵消该新增对象替换。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/166-167",
+              "status": "incorrect",
+              "reason": "附录及汇总仍在，但“正文未涉及”变成“正文涉及”，必要否定反转。",
+              "new_critical_error": true,
+              "critical_detail": "控制“本篇中未涉及的内容”变为“本篇中涉及的内容”，直接反转附录收录范围。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/173",
+              "status": "partial",
+              "reason": "保留今年2月至明年3月和会议，但“像今天这样的会”改为“今天就召开这样的会议吧”，由计划中的例示改为当日提议。",
+              "new_critical_error": true,
+              "critical_detail": "控制是时间段内召开会议；B新增“今天就…吧”的时点与提议语气，未表达今天会议作为例子的关系。",
+              "root_status": "partial",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/176-178",
+              "status": "uncertain",
+              "reason": "补回最后修改及1月至3月区间，但真实年份仍有2024参考/2004 ASR冲突、无人复听，不计确认恢复；末句又由安排变成温暖通道。",
+              "new_critical_error": true,
+              "critical_detail": "年份疑点不作为新增critical：seed11原已2004、seed29原更差为204。新增明确错误在segment44：控制“已经安排好了”变成“温暖通道”，把程序安排改为具体通道。",
+              "root_status": "uncertain",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/179",
+              "status": "partial",
+              "reason": "保留请稍等，但幻灯片切换变为滑块发生变化，动作对象错误。",
+              "new_critical_error": true,
+              "critical_detail": "控制的幻灯片正确；B改成滑块，无法作为同一UI对象理解。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        }
+      },
+      "Q": false,
+      "R_offline_eligible": false,
+      "R_full_chain_pass": false,
+      "next_stage": "stop_after_B2_screen"
+    },
+    "ASR-WHISPER-JA760": {
+      "rounds": {
+        "11": {
+          "hits": 16,
+          "denominator": 34,
+          "net": -4,
+          "correct": [
+            "csj-reproduction/5-7",
+            "csj-task/12-15",
+            "csj-task/5",
+            "csj-task/6",
+            "csj-task/9",
+            "wmf-04/131-132",
+            "wmf-04/137-138",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/158-160",
+            "wmf-04/166-167",
+            "wmf-04/168",
+            "wmf-04/169",
+            "wmf-04/170-172",
+            "wmf-04/173",
+            "wmf-04/179"
+          ],
+          "restored": [
+            "csj-task/6",
+            "wmf-04/168"
+          ],
+          "lost": [
+            "csj-task/20",
+            "wmf-04/136",
+            "wmf-04/153-155",
+            "wmf-04/156-157",
+            "wmf-04/161-165",
+            "wmf-04/174-175"
+          ],
+          "protected_lost": [
+            "csj-task/20",
+            "wmf-04/136",
+            "wmf-04/153-155",
+            "wmf-04/156-157",
+            "wmf-04/161-165",
+            "wmf-04/174-175"
+          ],
+          "uncertain": [
+            "wmf-04/176-178"
+          ],
+          "new_critical_errors": [
+            {
+              "unit": "csj-task/20",
+              "status": "partial",
+              "reason": "料理研究家和戴眼镜保留，但短发被替换为穿西装。",
+              "new_critical_error": true,
+              "critical_detail": "控制中的短发本正确；A新增穿西装这一错误人物外观属性。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/34-35",
+              "status": "partial",
+              "reason": "保留塞尔吉奥音译，但后句仍问错人，且新增11号这一数值身份。",
+              "new_critical_error": true,
+              "critical_detail": "控制虽已误认人物为纯一号，A进一步明确成“那个11号是谁”；新数字身份无来源支持，不因本项原已失败而免检。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/142-143",
+              "status": "partial",
+              "reason": "出现全球评议会，但将其同义英文名与中文名并列成两个机构；其负责章程的对象仍不清楚。",
+              "new_critical_error": true,
+              "critical_detail": "原文グローバルカンシル、グローバル評議委員会是同一机构的改述；A用“全球委员会和全球评议委员会/全球理事会”新增两个并列机构的结构。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/148-152",
+              "status": "partial",
+              "reason": "否定成为高管或管理者、贡献者及决定事项保留，但作者变飞行员/飞行者，编辑者变研修者。",
+              "new_critical_error": true,
+              "critical_detail": "控制原有作者/撰稿人正确，A改成飞行员/飞行者；另把编辑者写成研修者，新增错误参与角色。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/153-155",
+              "status": "partial",
+              "reason": "三个橙色重点和委员会工作保留，但新增验证委员会这一错误机构限定。英语旁句没有复听证据，不另判幻觉。",
+              "new_critical_error": true,
+              "critical_detail": "控制只称委员会，A明确称验证委员会，与参考章程委员会不同；未用英语旁句增加critical。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/161-165",
+              "status": "partial",
+              "reason": "条款认同、谁决策和我是否有发言权保留，但控制正确的宪章改成验证。",
+              "new_critical_error": true,
+              "critical_detail": "两轮控制均明确这个宪章，A改成这种验证；seed29条文认同改善不能抵消该新增核心对象替换。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/174-175",
+              "status": "partial",
+              "reason": "保留展示、意见、修改、循环的词语，但对象仍误为验证且“或”将听意见后再修订的关系改为可替代项。",
+              "new_critical_error": true,
+              "critical_detail": "不因验证对象错误本身另计critical；本次新增的“听取意见，或重新撰写”来自または，把原来展示反馈后修订的连续关系改为选择关系。",
+              "root_status": "partial",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Unlike earlier false context alone, sourceまたは and Chinese或 explicitly replace feedback-then-rewrite with a choice; confirm new action relation."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        },
+        "29": {
+          "hits": 15,
+          "denominator": 34,
+          "net": -3,
+          "correct": [
+            "csj-reproduction/5-7",
+            "csj-task/12-15",
+            "csj-task/5",
+            "csj-task/6",
+            "wmf-04/131-132",
+            "wmf-04/137-138",
+            "wmf-04/139",
+            "wmf-04/146-147",
+            "wmf-04/158-160",
+            "wmf-04/166-167",
+            "wmf-04/168",
+            "wmf-04/169",
+            "wmf-04/170-172",
+            "wmf-04/173",
+            "wmf-04/179"
+          ],
+          "restored": [
+            "csj-task/6",
+            "wmf-04/131-132",
+            "wmf-04/168"
+          ],
+          "lost": [
+            "csj-task/20",
+            "csj-task/9",
+            "wmf-04/136",
+            "wmf-04/153-155",
+            "wmf-04/156-157",
+            "wmf-04/174-175"
+          ],
+          "protected_lost": [
+            "csj-task/20",
+            "csj-task/9",
+            "wmf-04/136",
+            "wmf-04/153-155",
+            "wmf-04/156-157",
+            "wmf-04/174-175"
+          ],
+          "uncertain": [
+            "wmf-04/176-178"
+          ],
+          "new_critical_errors": [
+            {
+              "unit": "csj-task/9",
+              "status": "incorrect",
+              "reason": "有很多人我不认识被改成很多人不知道这件事；主体和不知道的对象都改变。",
+              "new_critical_error": true,
+              "critical_detail": "控制“有很多不知道的人”按冻结口径代表我不认识的人；A seed29明确改为“有很多人不知道这件事”，由我不认识人变为他人不知事情。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/20",
+              "status": "partial",
+              "reason": "料理研究家和戴眼镜保留，但短发被替换为穿西装。",
+              "new_critical_error": true,
+              "critical_detail": "控制中的短发本正确；A新增穿西装这一错误人物外观属性。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "csj-task/34-35",
+              "status": "partial",
+              "reason": "保留塞尔吉奥音译，但后句仍问错人，且新增11号这一数值身份。",
+              "new_critical_error": true,
+              "critical_detail": "控制虽已误认人物为纯一号，A进一步明确成“那个11号是谁”；新数字身份无来源支持，不因本项原已失败而免检。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/142-143",
+              "status": "partial",
+              "reason": "出现全球评议会，但将其同义英文名与中文名并列成两个机构；其负责章程的对象仍不清楚。",
+              "new_critical_error": true,
+              "critical_detail": "同一机构的英文/中文改述被译成“全球委员会和全球理事会这样的机构”，新增两个并列机构，而非一个机构的别称。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/148-152",
+              "status": "partial",
+              "reason": "否定成为高管或管理者、贡献者及决定事项保留，但作者变飞行员/飞行者，编辑者变研修者。",
+              "new_critical_error": true,
+              "critical_detail": "控制的撰稿人被A替换成飞行者；编辑者又被写成研修者，新增错误角色。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/153-155",
+              "status": "partial",
+              "reason": "三个橙色重点和委员会工作保留，但新增验证委员会这一错误机构限定。英语旁句没有复听证据，不另判幻觉。",
+              "new_critical_error": true,
+              "critical_detail": "控制只称委员会，A明确称验证委员会，与参考章程委员会不同；未用英语旁句增加critical。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/161-165",
+              "status": "partial",
+              "reason": "条款认同、谁决策和我是否有发言权保留，但控制正确的宪章改成验证。",
+              "new_critical_error": true,
+              "critical_detail": "两轮控制均明确这个宪章，A改成这种验证；seed29条文认同改善不能抵消该新增核心对象替换。",
+              "root_status": "partial",
+              "root_critical": true,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Independent outcome accepted after checking literal paired output and frozen B0/B1 rubric."
+            },
+            {
+              "unit": "wmf-04/174-175",
+              "status": "partial",
+              "reason": "保留展示、意见、修改、循环的词语，但对象仍误为验证且“或”将听意见后再修订的关系改为可替代项。",
+              "new_critical_error": true,
+              "critical_detail": "不因验证对象错误本身另计critical；本次新增的“听取意见，或重新撰写”来自または，把原来展示反馈后修订的连续关系改为选择关系。",
+              "root_status": "partial",
+              "root_critical": false,
+              "human_verified": false,
+              "reference_status": "source_transcript",
+              "review": "independent_AI_text_review_root_reconciled",
+              "reconciliation": "Unlike earlier false context alone, sourceまたは and Chinese或 explicitly replace feedback-then-rewrite with a choice; confirm new action relation."
+            }
+          ],
+          "Q": false,
+          "R_offline_eligible": false
+        }
+      },
+      "Q": false,
+      "R_offline_eligible": false,
+      "R_full_chain_pass": false,
+      "next_stage": "stop_after_B2_screen"
+    }
+  },
+  "human_verified": false,
+  "pending_listen": 15,
+  "holdout": "sealed",
+  "default_profile": "reazon-hy unchanged",
+  "full_chain_R20_proof": false,
+  "realtime_latency": "NOT_RUN: offline gates failed",
+  "review_method": "Independent AI text review, root reconciliation, fixed mapping known from source review: not fully blinded",
+  "status_counts": {
+    "ASR-SENSEVOICE-I8": {
+      "11": {
+        "partial": 15,
+        "missing": 3,
+        "correct": 8,
+        "incorrect": 7,
+        "uncertain": 1
+      },
+      "29": {
+        "partial": 14,
+        "missing": 3,
+        "correct": 9,
+        "incorrect": 7,
+        "uncertain": 1
+      }
+    },
+    "ASR-WHISPER-JA760": {
+      "11": {
+        "partial": 16,
+        "correct": 16,
+        "missing": 1,
+        "uncertain": 1
+      },
+      "29": {
+        "partial": 16,
+        "correct": 15,
+        "missing": 1,
+        "incorrect": 1,
+        "uncertain": 1
+      }
+    }
+  },
+  "provenance": {
+    "run-manifest.json": "059960e021459072feb2b79ae1de8bddb96f7c3dafa00492e4b90c2e6584f3ee",
+    "state.json": "ed9c29fbe1d7f9ec508ec0dbc032a892e95972d26929c6539db572a4a9506073",
+    "decision.json": "6e4ff0af64e53871c4594f2b464752a6a7c45768c8888b4bc907614dfe91dc03",
+    "ATTEMPT-LINEAGE.json": "2428c38a1cc0ae22512d0091fa7bdd558d42506d4a8cb42598a43fa6983cb7c9",
+    "reviews/root-A-verdict.json": "ccf8fbeeade3f1e85abfc5ef3e12a28bfe9ca17e06cac451f34b1294f8289df9",
+    "reviews/root-B-verdict.json": "e4d9630cdd9c0977c7dbf6fe24a8b7956da1c742bc49a23c2a35b40462e2d07c",
+    "reviews/independent-A-verdict.json": "7f34db71ad9d5077833a51138cb8d6f5d8d59b77914bcb5982206f0fd4e2f5f3",
+    "reviews/independent-B-verdict.json": "23b71339ab826d610395ee040430579614626b8b8989379639fd5f4f6c0ed063",
+    "reviews/reconciliation.json": "62cf20d67065fa127304556b2907025182998beab25c4afff1fa2dd8d0ca1c6e",
+    "reviews/semantic-review-summary.json": "b865fff24d8259ba425e41a522336c4832e0638ed43fef95b7ac94286c4a0bb2",
+    "reviews/code-review.json": "6a9e64b06b2b5883ebf24d0c8ea05dcc06d5a9139351abcaa9fd3f397cc91a52"
+  },
+  "analysis_source_sha256": "86030a34e0e6b7d09cf63922bcc6c2b722782fe0fd376116b652e71cb761abd5",
+  "export_source_sha256": "a1a66c84b0722df37d58ab024ff0393c3030fe100ee8538b342486eacc5e51e1"
+}

@@ -1,0 +1,24 @@
+{
+  "fingerprint": "02c869f530b5f28a66d29649ddfb00dc39b48ffee5b310fc046bda3ae2e22863",
+  "frozen_current_source_models_inputs_receipts": true,
+  "G0_five_PCM_feature_masks_tower_projection_match_parent": true,
+  "protocol_filter_recomputed": true,
+  "official176_parity": {
+    "exact_rows": 176,
+    "raw_tokens_filter_audio_exact": true,
+    "adjudication_reused": [
+      6,
+      8
+    ],
+    "new_semantic_trials": false
+  },
+  "candidate_full_quality_absent": true,
+  "tests": {
+    "targeted_passed": 20,
+    "includes_B4_protocol": 3
+  },
+  "resource_groups": 4,
+  "resource_rows": 16,
+  "postanalysis_source_sha256": "7b54efed80b8d0fa6c5e34f5d605a1229a7a7f8d52b9c2ccb4de29f9ba685cae",
+  "human_verified": false
+}

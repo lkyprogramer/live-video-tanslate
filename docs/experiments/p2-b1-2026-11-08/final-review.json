@@ -1,0 +1,73 @@
+{
+  "reviewer_agent": "/root/astra_p2_document_review",
+  "reviewed_at_utc": "2026-11-08T13:23:26.293991+00:00",
+  "status": "PASS_NO_BLOCKING_FINDINGS",
+  "scope": "Final B1 report, exported arithmetic/timing/resource metadata, postprocessing source and disclosed validation boundaries. Prior independent semantic judgments are reused without re-adjudication.",
+  "blocking_findings": [],
+  "reviewed_files_sha256": {
+    "docs/p2-b1-results-2026-11-08.md": "70b120d4931a22eef0af7a997d95f60287207822366d83fd959017e9b22de220",
+    "docs/experiments/p2-b1-2026-11-08/summary.json": "9da921c2e4a2fdacc602558b45a85da35e09498aff572fc8f4f853647f3a6952",
+    "docs/experiments/p2-b1-2026-11-08/arithmetic-crosscheck.json": "753b0e48eb7bb2a23e37960c0e9c836adfdc2d7433d195e7c15f7e1ee44b0315",
+    "docs/experiments/p2-b1-2026-11-08/resource-comparison.csv": "593036f2b8d5756805aa1f3347c7eafe1e58079bf31e1456b4b1b4bee48d8770",
+    "docs/experiments/p2-b1-2026-11-08/validation.json": "894c04bbe8d96642598deac6ed110c7b388de4f609c5d61892a0ed7651925d75",
+    "docs/experiments/p2-b1-2026-11-08/timing-offline.json": "76766c147dd255d6ca451d897ad488bd830f5d73b02aaab1b313a8be8f3f758e",
+    "docs/experiments/p2-b1-2026-11-08/mlx-memory-summary.json": "7f164a001fd568e2819bf5541a94c58ceea03cbef831314114e68525149ffd0e",
+    "docs/experiments/p2-b1-2026-11-08/prompt-reconstruction.json": "7df410c5fed8f3d44af3596388090aa755873bdccc307c0f090263f8be83a699",
+    "p0/p2/b1_postprocess.py": "fc7eb1b802ac56f11b597cec353d0cc4bca4da96daabcb7b3ea27b2f056fe276"
+  },
+  "checks": {
+    "quality_tables_match_summary_and_prior_independent_review": true,
+    "eight_Q_R_views_match_summary_counts_gains_losses_and_failed_decisions": true,
+    "fixed_denominator34_and_seeds11_29_preserved": true,
+    "ten_timing_rounds_match_reported_total_median_p95": true,
+    "plamo_filtered_counts4_and3_per62_match_export": true,
+    "plamo_repeat62_and_official_EOS_labels_match_saved_validation": true,
+    "six_resource_groups_and30_csv_rows_reviewed": true,
+    "cpu_requests_and_sampled_cpu_normalization_consistent": true,
+    "gpu_activity_and_memory_deltas_arithmetically_consistent": true,
+    "mib_to_gib_resource_table_conversion_consistent": true,
+    "mlx_active_and_allocator_peak_values_match_summary": true,
+    "postprocess_source_hash_matches_exported_validation": true,
+    "local_report_links_resolve": true,
+    "prompt_reconstruction620_total248_plamo_counts_and_post_hoc_limits_consistent": true
+  },
+  "numeric_crosschecks": {
+    "plamo08_cumulative_MT_reduction_percent_from_displayed_totals": 38.303008358226954,
+    "plamo2_cumulative_MT_increase_percent_from_displayed_totals": 53.284451283908155,
+    "plamo08_process_tree_peak_footprint_reduction_percent": 9.648591335958812,
+    "whole_run_request_denominators": {
+      "current-mt": 140,
+      "pad-mt": 140,
+      "punct-mt": 124,
+      "plamo08-mt": 129,
+      "plamo2-mt": 129
+    },
+    "main_phase_request_denominator": 62
+  },
+  "measurement_boundaries_confirmed": [
+    "MT times cover the direct translation call including template/tokenization, prefill and decode; seed setup precedes timing and Chinese filtering follows it.",
+    "Queueing, TTFT, DOM, first correct Chinese and sentence-end realtime latency are not independently measured by these offline times.",
+    "Whole-run CPU/request amortizes loading and auxiliary work; Hy Hello warmup is loading overhead, not an extra quality sample. Main62-request phases are separate.",
+    "GPU activity and GPU shared-memory readings are whole-host values; idle subtraction does not establish model-exclusive VRAM.",
+    "RSS, footprint, MLX allocator accounting and GPU shared memory overlap on unified memory and are not added.",
+    "Separate ASR/MT peak values are not added or described as a measured full-chain peak; no formal R20percent result is claimed.",
+    "Prompt records are post-hoc reconstruction from frozen inputs/templates/tokenizers, not runtime capture or tokenization timing; Hy lacks runtime length comparison.",
+    "The report does not promote any candidate or claim production-default replacement, candidate1x/Chrome/long-run/holdout acceptance."
+  ],
+  "validation_limits": {
+    "reviewer_ran_tests": false,
+    "reviewer_ran_models": false,
+    "reviewer_downloaded_or_rebuilt_models": false,
+    "raw_inference_replayed": false,
+    "raw_resource_samples_recomputed_in_this_pass": false,
+    "saved_integrity_validation": "Inspected the recorded passing execution/integrity checks; this final pass did not independently rehash every raw model and event artifact.",
+    "test_results": "Root-reported36 backend/P2 tests,2 focused boundary tests and43 document-package tests/checks were not rerun by this reviewer.",
+    "human_verified": false,
+    "pending_listen_count": 15,
+    "fully_identity_blind_review": false,
+    "strict_sensitivity": "Different rubric from the frozen20/18; no direct mixed-rubric comparison or threshold change.",
+    "formal_semantic_acceptance": false,
+    "formal_full_chain_R_pass": false
+  },
+  "conclusion": "The final report consistently records completed offline B1 experiments with no qualifying candidate. No material numeric, unit, denominator, scope or unrun-work contradiction was found in the reviewed artifacts."
+}

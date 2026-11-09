@@ -1,0 +1,26 @@
+{
+  "status": "B1_INFERENCE_AND_INTEGRITY_PASS_QUALITY_SEPARATE",
+  "fingerprint": "b7cc882638686f43f93c9047014564443dce418d04c25045bc34afe6052d2b3e",
+  "checks": {
+    "parent_receipts_adopted": true,
+    "frozen_sources_inputs_models_verified": true,
+    "engine_and_isolated_runtime_verified": true,
+    "all_steps_passed": true,
+    "paired_control_exact": {
+      "11": true,
+      "29": true
+    },
+    "original88_spans_preserved": true,
+    "actual62_punctuation_reversible": true,
+    "all_two_round62_outputs_present": true,
+    "plamo_greedy_repeat62": true,
+    "plamo_no_length_termination": true,
+    "all_six_resource_runs_exit0": true
+  },
+  "postanalysis_source_sha256": "fc7eb1b802ac56f11b597cec353d0cc4bca4da96daabcb7b3ea27b2f056fe276",
+  "inference_not_rerun": true,
+  "human_verified": false,
+  "holdout": "sealed",
+  "realtime": "NOT_RUN: B1 offline screening",
+  "full_chain_resources": "NOT_RUN: not R20% proof"
+}

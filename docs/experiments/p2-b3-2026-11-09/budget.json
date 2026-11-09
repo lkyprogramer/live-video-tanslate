@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-11-09T11:51:09.367271+08:00",
+  "shared_setup_and_review_wall_upper_bound_s": 4978.364720106125,
+  "deployment_limit_s_per_candidate": 14400,
+  "candidate_quality_wall_upper_bound_including_serial_gaps_s": {
+    "NATIVE-VOX-960": 3124.402412958,
+    "AST-G4-OFFICIAL": 3149.111977125
+  },
+  "quality_limit_s_per_candidate": 7200,
+  "within_both_budgets": true,
+  "targeted_deployment_changes": [
+    "AST actual extractor invalid-right-padding128->640",
+    "Vox free allocator cache512MiB"
+  ],
+  "model_or_precision_sweeps": 0,
+  "measurement_correction": "Observer lifecycle only; RED/PASS plus full9token and88source equality; no repeated MT or semantic trials",
+  "bounded_failures_preserved": true,
+  "benchmark_concurrency": 1,
+  "finalize_source_sha256": "c710cf9bc104439e9c7b4824217e709c4da4083444df12f668db30c13b3620b7"
+}

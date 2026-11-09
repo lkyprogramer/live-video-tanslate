@@ -1,0 +1,9 @@
+{
+  "shared_preparation_s": 1079.5887537002563,
+  "spent_by_experiment": {
+    "B0-CURRENT": 1140.312429076177,
+    "ASR-SENSEVOICE-I8": 1145.2104919923004,
+    "ASR-WHISPER-JA760": 1570.576574199309
+  },
+  "limit_s": 10800
+}

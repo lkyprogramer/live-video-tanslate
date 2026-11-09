@@ -1,0 +1,23 @@
+{
+  "status": "POST_HOC_ONLY",
+  "models": {
+    "B0-CURRENT": {
+      "rows": 124,
+      "sha256": "5d82efe7c900c7f37ccdba607beb5cf78d72377e4376f5591bab9a632892241e",
+      "captured_at_runtime": false
+    },
+    "ASR-SENSEVOICE-I8": {
+      "rows": 124,
+      "sha256": "6114361331c95a7bac38a75bb3c7fec6974a3ce3e996796f34b29c8e83a5b5a5",
+      "captured_at_runtime": false
+    },
+    "ASR-WHISPER-JA760": {
+      "rows": 124,
+      "sha256": "d5c0b95070969ef773cb8aacdd8d8ae068a0280895289e477207205ccd762c3c",
+      "captured_at_runtime": false
+    }
+  },
+  "source_sha256": "a1533301e43577335de04f1f29a09398aa21edfcf88777911ad16772cd36879a",
+  "inference_rerun": false,
+  "note": "Deterministic reconstruction through frozen actual MLX tokenizer wrapper; no observed Hy runtime token count/TTFT/EOS claim"
+}

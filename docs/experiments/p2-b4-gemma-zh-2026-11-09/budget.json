@@ -1,0 +1,13 @@
+{
+  "start": 1794209059.0,
+  "recorded": 1794210418.7168372,
+  "whole_elapsed_s": 1359.7168371677399,
+  "quality_deadline": 1794213875.060477,
+  "total_deadline": 1794216259.0,
+  "last_group": "zh-g0",
+  "returncode": 0,
+  "model_rerun": false,
+  "stopped_by": "failed_task G0, not timeout; orchestrator exit1 retains outcome",
+  "whole_limit_s": 7200,
+  "quality_limit_s": 3600
+}

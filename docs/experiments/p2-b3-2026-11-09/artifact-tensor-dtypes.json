@@ -1,0 +1,54 @@
+{
+  "voxtral": {
+    "decoder/F16": {
+      "tensors": 471,
+      "elements": 112425984
+    },
+    "decoder/U32": {
+      "tensors": 183,
+      "elements": 428605440
+    },
+    "encoder/F16": {
+      "tensors": 649,
+      "elements": 36638464
+    },
+    "encoder/U32": {
+      "tensors": 226,
+      "elements": 123731968
+    }
+  },
+  "gemma4": {
+    "audio_tower/BF16": {
+      "tensors": 751,
+      "elements": 304825088
+    },
+    "embed_audio/BF16": {
+      "tensors": 2,
+      "elements": 73728
+    },
+    "embed_audio/U32": {
+      "tensors": 1,
+      "elements": 294912
+    },
+    "embed_vision/BF16": {
+      "tensors": 2,
+      "elements": 36864
+    },
+    "embed_vision/U32": {
+      "tensors": 1,
+      "elements": 147456
+    },
+    "language_model/BF16": {
+      "tensors": 818,
+      "elements": 144919843
+    },
+    "language_model/U32": {
+      "tensors": 278,
+      "elements": 578535424
+    },
+    "vision_tower/BF16": {
+      "tensors": 658,
+      "elements": 167365056
+    }
+  }
+}

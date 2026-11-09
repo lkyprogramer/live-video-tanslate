@@ -1,0 +1,32 @@
+{
+  "B0-CURRENT": {
+    "11": {
+      "mlx_active_peak_mib": 961.0273933410645,
+      "mlx_allocator_peak_mib": 1142.527847290039
+    },
+    "29": {
+      "mlx_active_peak_mib": 961.0273933410645,
+      "mlx_allocator_peak_mib": 1142.527847290039
+    }
+  },
+  "ASR-SENSEVOICE-I8": {
+    "11": {
+      "mlx_active_peak_mib": 961.0273933410645,
+      "mlx_allocator_peak_mib": 1150.9341430664062
+    },
+    "29": {
+      "mlx_active_peak_mib": 961.0273933410645,
+      "mlx_allocator_peak_mib": 1150.9341430664062
+    }
+  },
+  "ASR-WHISPER-JA760": {
+    "11": {
+      "mlx_active_peak_mib": 961.0273933410645,
+      "mlx_allocator_peak_mib": 1148.746639251709
+    },
+    "29": {
+      "mlx_active_peak_mib": 961.0273933410645,
+      "mlx_allocator_peak_mib": 1148.746639251709
+    }
+  }
+}

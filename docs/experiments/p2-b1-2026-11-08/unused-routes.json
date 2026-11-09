@@ -1,0 +1,7 @@
+{
+  "winning_experiment_id": null,
+  "status": "unused_no_eligible_H0",
+  "history_glossary_cache": "NOT_RUN: H0 quality prerequisites failed",
+  "GGUF": "NOT_RUN: MLX loaded successfully, no permitted runtime fallback trigger",
+  "PAD_HEAD300": "NOT_RUN: optional mechanism diagnostic, not a registered fifth primary or failed-quality rescue sweep"
+}

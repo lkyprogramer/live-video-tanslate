@@ -1,0 +1,160 @@
+{
+  "B0-CURRENT": {
+    "rounds": {
+      "11": {
+        "requests": 62,
+        "filtered": [],
+        "all_output_generation_s": {
+          "total": 16.575278001,
+          "median": 0.247,
+          "p95": 0.444,
+          "maximum": 0.573467834
+        },
+        "termination": "not exposed by unchanged Hy wrapper"
+      },
+      "29": {
+        "requests": 62,
+        "filtered": [],
+        "all_output_generation_s": {
+          "total": 16.565649251,
+          "median": 0.241,
+          "p95": 0.458,
+          "maximum": 0.611110208
+        },
+        "termination": "not exposed by unchanged Hy wrapper"
+      }
+    },
+    "identical_across_rounds": 43,
+    "latency_scope": "offline generation; not sentence-end/first-Chinese latency"
+  },
+  "PAD-900": {
+    "rounds": {
+      "11": {
+        "requests": 62,
+        "filtered": [],
+        "all_output_generation_s": {
+          "total": 17.04719,
+          "median": 0.253,
+          "p95": 0.459,
+          "maximum": 0.462868208
+        },
+        "termination": "not exposed by unchanged Hy wrapper"
+      },
+      "29": {
+        "requests": 62,
+        "filtered": [],
+        "all_output_generation_s": {
+          "total": 17.042705836,
+          "median": 0.264,
+          "p95": 0.451,
+          "maximum": 0.476744167
+        },
+        "termination": "not exposed by unchanged Hy wrapper"
+      }
+    },
+    "identical_across_rounds": 41,
+    "latency_scope": "offline generation; not sentence-end/first-Chinese latency"
+  },
+  "PUNCT-JA": {
+    "rounds": {
+      "11": {
+        "requests": 62,
+        "filtered": [],
+        "all_output_generation_s": {
+          "total": 16.772063333,
+          "median": 0.244,
+          "p95": 0.42,
+          "maximum": 0.587881667
+        },
+        "termination": "not exposed by unchanged Hy wrapper"
+      },
+      "29": {
+        "requests": 62,
+        "filtered": [],
+        "all_output_generation_s": {
+          "total": 16.974186795,
+          "median": 0.248,
+          "p95": 0.449,
+          "maximum": 0.590562375
+        },
+        "termination": "not exposed by unchanged Hy wrapper"
+      }
+    },
+    "identical_across_rounds": 42,
+    "latency_scope": "offline generation; not sentence-end/first-Chinese latency"
+  },
+  "MT-PLAMO08-H0": {
+    "rounds": {
+      "11": {
+        "requests": 62,
+        "filtered": [
+          "csj-task/6",
+          "csj-task/7",
+          "csj-task/8",
+          "wmf-04/21"
+        ],
+        "all_output_generation_s": {
+          "total": 10.355139914,
+          "median": 0.148,
+          "p95": 0.371,
+          "maximum": 0.402136917
+        },
+        "termination": "all stop at official EOS"
+      },
+      "29": {
+        "requests": 62,
+        "filtered": [
+          "csj-task/6",
+          "csj-task/7",
+          "csj-task/8",
+          "wmf-04/21"
+        ],
+        "all_output_generation_s": {
+          "total": 10.092355501,
+          "median": 0.148,
+          "p95": 0.353,
+          "maximum": 0.400540208
+        },
+        "termination": "all stop at official EOS"
+      }
+    },
+    "identical_across_rounds": 62,
+    "latency_scope": "offline generation; not sentence-end/first-Chinese latency"
+  },
+  "MT-PLAMO2-H0": {
+    "rounds": {
+      "11": {
+        "requests": 62,
+        "filtered": [
+          "csj-task/6",
+          "csj-task/7",
+          "wmf-04/21"
+        ],
+        "all_output_generation_s": {
+          "total": 25.271187128,
+          "median": 0.359,
+          "p95": 0.888,
+          "maximum": 0.970279166
+        },
+        "termination": "all stop at official EOS"
+      },
+      "29": {
+        "requests": 62,
+        "filtered": [
+          "csj-task/6",
+          "csj-task/7",
+          "wmf-04/21"
+        ],
+        "all_output_generation_s": {
+          "total": 25.528963621,
+          "median": 0.367,
+          "p95": 0.908,
+          "maximum": 0.992875208
+        },
+        "termination": "all stop at official EOS"
+      }
+    },
+    "identical_across_rounds": 62,
+    "latency_scope": "offline generation; not sentence-end/first-Chinese latency"
+  }
+}
