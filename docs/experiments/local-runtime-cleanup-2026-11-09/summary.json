@@ -1,0 +1,158 @@
+{
+  "status": "COMPLETE",
+  "active_profile": "reazon-hy",
+  "du_kib_before": {
+    ".model-cache": 33243592,
+    ".venv": 1413316,
+    "engine/.venv": 1431896,
+    "p0/whisperkit/.build": 287228,
+    "/Users/luo/Documents/github/whisper.cpp": 55308,
+    "/Users/luo/Documents/github/jp-live-subtitle-cn": 864
+  },
+  "du_kib_after": {
+    ".model-cache": 1163428,
+    "engine/.venv": 1431896
+  },
+  "removed_directory_occupancy_GiB": 32.26936340332031,
+  "accounting": "du path occupancy; not a claim of APFS physical free-space gain",
+  "removed_planned_entries": 91,
+  "deleted_model_and_environment_paths": [
+    ".venv",
+    "p0/whisperkit/.build",
+    ".model-cache/fluidaudio-ee78635",
+    ".model-cache/nemotron-venv",
+    ".model-cache/moonshine-models",
+    ".model-cache/kotoba-whisper-build",
+    ".model-cache/whisper-pt",
+    ".model-cache/mlx-audio",
+    ".model-cache/p2-b3-gemma-env",
+    ".model-cache/moonshine-016",
+    ".model-cache/p2-b2-hub",
+    ".model-cache/p2-b1-venv",
+    ".model-cache/whisperkit",
+    ".model-cache/p2-b2-wheels",
+    ".model-cache/reazonspeech-venv",
+    ".model-cache/qwen3-n2-venv",
+    ".model-cache/p2-b3-hub",
+    ".model-cache/p2-b1-hub",
+    ".model-cache/p2-b3-src",
+    ".model-cache/p2-b2-release",
+    ".model-cache/p2-b3-vox-env",
+    ".model-cache/exploration-vad-deps",
+    ".model-cache/exploration-llama",
+    ".model-cache/parakeet-probe-build",
+    ".model-cache/hy-mt2-7b-transfer",
+    ".model-cache/exploration-sources",
+    ".model-cache/apple-replay",
+    ".model-cache/apple-replay-sentences",
+    ".model-cache/hub/models--oboroge0--Haas-ja-v1.0-onnx-quantized",
+    ".model-cache/hub/models--argmaxinc--whisperkit-coreml",
+    ".model-cache/hub/models--kotoba-tech--kotoba-whisper-v2.0-ggml",
+    ".model-cache/hub/models--ibm-granite--granite-speech-5.0-470m-turboctc",
+    ".model-cache/hub/models--IndexTeam--Index-Translate-2B-GGUF",
+    ".model-cache/hub/models--mlx-community--nemotron-3.5-asr-streaming-0.6b",
+    ".model-cache/hub/models--csukuangfj--sherpa-onnx-streaming-zipformer-ar_en_id_ja_ru_th_vi_zh-2025-02-10",
+    ".model-cache/hub/models--mlx-community--Qwen3-ASR-0.6B-8bit",
+    ".model-cache/hub/models--mlx-community--Hy-MT2-7B-4bit",
+    ".model-cache/hub/models--csukuangfj--reazonspeech-k2-v2-ja-en",
+    ".model-cache/hub/models--mlx-community--whisper-small-mlx",
+    ".model-cache/hub/models--mlx-community--whisper-large-v3-turbo",
+    ".model-cache/hub/models--openai--whisper-small",
+    ".model-cache/hub/models--FluidInference--parakeet-0.6b-ja-coreml",
+    ".model-cache/hub/models--reazon-research--reazonspeech-k2-v2/snapshots/291488c8151be24d7da4bf7af26e533fad96e407/encoder-epoch-99-avg-1.onnx",
+    ".model-cache/hub/models--reazon-research--reazonspeech-k2-v2/snapshots/291488c8151be24d7da4bf7af26e533fad96e407/../../blobs/ecdb0b771e16104aaf8e579cb3c1e32fbd589eb641c5946d82b615bd366c5f96",
+    ".model-cache/hub/models--reazon-research--reazonspeech-k2-v2/snapshots/291488c8151be24d7da4bf7af26e533fad96e407/joiner-epoch-99-avg-1.onnx",
+    ".model-cache/hub/models--reazon-research--reazonspeech-k2-v2/snapshots/291488c8151be24d7da4bf7af26e533fad96e407/../../blobs/d38a81d1191c9ed6de6a1719503692e07e3e973e2364adde0abae5eaaded1174"
+  ],
+  "unreferenced_shared_blob_files_removed": 43,
+  "removed_clean_reference_clones": {
+    "/Users/luo/Documents/github/whisper.cpp": "727d3e7666485e12450746b523bfb4e7f057cc5e",
+    "/Users/luo/Documents/github/jp-live-subtitle-cn": "c0aca604c7922c040b41fd74a6034262fb8cf976"
+  },
+  "retained_model_repositories": [
+    "models--mlx-community--Hy-MT2-1.8B-4bit",
+    "models--reazon-research--reazonspeech-k2-v2"
+  ],
+  "protected_file_paths_hash_unchanged": 47,
+  "historical_evidence_entries_unchanged": 20483,
+  "runtime_versions": {
+    "whisperlivekit": "0.2.26",
+    "mlx": "0.31.2",
+    "mlx-lm": "0.31.3",
+    "sherpa-onnx": "2.0.1"
+  },
+  "runtime_versions_unchanged": true,
+  "not_touched": [
+    "test/",
+    "p0/fixtures/",
+    "engine/.venv",
+    "global uv/HuggingFace caches",
+    "system-managed Apple model assets",
+    "WhisperLiveKit current framework clone"
+  ],
+  "test_validation": {
+    "command": "engine/.venv/bin/python -m pytest -q p0/p2/tests",
+    "passed": 37,
+    "exit_code": 0
+  },
+  "production_smoke": {
+    "status": "PASS",
+    "default_profile": "reazon-hy",
+    "scope": "Offline warmup + one existing audio cut ASR + Simplified Chinese MT smoke",
+    "audio_source_id": "csj-reproduction/1",
+    "pcm_sha256": "78093d05e9a871d7d011f20e2d1cebc979f5e96664c21ac6dd2f7f65d2756766",
+    "audio_seconds": 6.738,
+    "asr_equal_saved_Reazon_output": true,
+    "asr_nonempty": true,
+    "translation_has_Han": true,
+    "translation_has_Kana": false,
+    "translation_sha256": "dc78ce6deb120840a41e65b70b2a19b12d4b493c0d3c93149974439703c5985c",
+    "translation_characters": 25,
+    "correctness_score": "NOT_ASSESSED",
+    "realtime_or_browser": "NOT_RUN",
+    "downloads": "offline environment; no dependency or model downloads",
+    "server_state": "remains stopped; no HTTP server started"
+  },
+  "document_package_validation": {
+    "status": "PASS",
+    "helper_tests": {
+      "run": 44,
+      "passed": 44,
+      "exit_code": 0,
+      "log": "BUILD-TESTS.log"
+    },
+    "counts": {
+      "experiments": 27,
+      "primary_experiments": 8,
+      "models": 24,
+      "runtimes": 13,
+      "schemas": 4,
+      "local_links": 77
+    },
+    "refresh_exit_code": 0,
+    "check_exit_code": 0,
+    "manifest_sha256": "e6c23e3eb9677ba3ca2d2e7d502c2cbecbbc505e0420c033d27642928306c409",
+    "model_benchmark": false
+  },
+  "provenance": {
+    "cleanup.py": "1126b5dec78b75fdaec8a348044cc9fb6aaca803d59e60721f48081811731306",
+    "plan.json": "0d4f1974b45bab0cbd31a9ecd511a059f3c38e29c99634957670f8cf7779ce3b",
+    "result.json": "8dfab8293f1371c525251d8a0641fe96f1cb1e60b44acfd1d38402f74a89e932",
+    "smoke.py": "1db8287589932fd75c2582daeecaa001f6b31317257c0fc663e6e86994a1ec5c",
+    "production-smoke.json": "83d317d60061c0f1f04c39bd26d94c55b882a1e3e9bf9e89c70f921cc33fa34c"
+  },
+  "publication_scope": "P2 code, plan, compact results and cleanup record; no weights/raw audio/private config",
+  "publication_line_endings": {
+    "original_CSV_files_verified": 8,
+    "git_blob_bytes_equal_worktree": true,
+    "attributes": "docs/experiments/p2-b*/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol"
+  },
+  "syntax_checks": {
+    "node_check": [
+      "p0/p2/browser.mjs",
+      "p0/p2/clock.mjs"
+    ],
+    "python_compileall": "p0/p2",
+    "status": "PASS"
+  }
+}
