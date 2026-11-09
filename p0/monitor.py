@@ -11,7 +11,10 @@ import statistics
 import subprocess
 import time
 
-from review import percentile
+if __package__:
+    from .review import percentile
+else:
+    from review import percentile
 
 
 INTERVAL_S = 0.25
