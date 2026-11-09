@@ -7,6 +7,7 @@ __pycache__/
 *.egg-info/
 node_modules/
 *.log
+!/docs/live-video-translate-p2-2026-11-07/BUILD-TESTS.log
 *.token
 .env
 .env.*

@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-09T13:28:14.560115+00:00",
+  "scope": "local documentation/helper validation; no target-model benchmarks",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.12.12"
+  },
+  "unit_tests": {
+    "run": 44,
+    "passed": 44,
+    "exit_code": 0,
+    "log": "BUILD-TESTS.log"
+  },
+  "counts": {
+    "experiments": 27,
+    "primary_experiments": 8,
+    "models": 24,
+    "runtimes": 13,
+    "schemas": 4,
+    "local_links": 77
+  },
+  "checks": {
+    "json_parse": true,
+    "python_syntax": true,
+    "registry_references": true,
+    "dependency_dag": true,
+    "local_links": true,
+    "markdown_fences": true,
+    "schema_metaschemas_and_examples": true,
+    "generated_master": true,
+    "target_models_run": false,
+    "production_code_modified": false,
+    "zip_crc": "not_run: no ZIP created"
+  },
+  "examples": {
+    "gate": {
+      "screen_decision": "quality_screen_pass",
+      "registered_route": "Q",
+      "denominator": 34,
+      "net_gains": [
+        3,
+        3
+      ],
+      "rounds": [
+        {
+          "round_id": "seed11",
+          "baseline": 20,
+          "candidate": 23,
+          "restored": [
+            "SYN-21",
+            "SYN-22",
+            "SYN-23"
+          ],
+          "lost": []
+        },
+        {
+          "round_id": "seed29",
+          "baseline": 18,
+          "candidate": 21,
+          "restored": [
+            "SYN-19",
+            "SYN-20",
+            "SYN-21"
+          ],
+          "lost": []
+        }
+      ],
+      "reasons": [],
+      "arithmetic_eligible": true,
+      "reference_pending": true,
+      "evidence_status": "synthetic_only",
+      "release_eligible": false,
+      "scope": "offline arithmetic only; no runtime, resource, DOM, holdout or semantic proof"
+    },
+    "timing": {
+      "denominator": 34,
+      "matched": 20,
+      "within_2s": 20,
+      "within_3s": 20,
+      "within_5s": 20,
+      "within_15s": 20,
+      "matched_p50_ms": 1000,
+      "matched_p95_ms": 1000,
+      "all_units_p95_ms": null,
+      "all_units_p95_unbounded": true,
+      "early_units": 1,
+      "late_units": [],
+      "match_window_ms": 15000,
+      "tail_sample_count_sufficient": true,
+      "all_references_human_declared": false,
+      "formal_tail_claim_eligible": false,
+      "evidence_status": "synthetic_only",
+      "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+      "release_eligible": false,
+      "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+    },
+    "events": {
+      "valid": true,
+      "errors": [],
+      "release_eligible": false,
+      "checked_contract_events": 3,
+      "ignored_telemetry_events": 1,
+      "scope": "partial contract checks only; permitted telemetry payloads are ignored; no full v1, clock calibration, semantic or release proof"
+    }
+  }
+}

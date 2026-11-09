@@ -1,0 +1,4 @@
+{"run_id":"SYNTHETIC-DEMO","experiment_id":"SYNTHETIC-NO-MODEL","session_id":"synthetic-session-1","epoch":0,"evidence_kind":"synthetic","event":"pcm_accepted","t_ns":100,"accepted_samples":3200}
+{"run_id":"SYNTHETIC-DEMO","experiment_id":"SYNTHETIC-NO-MODEL","session_id":"synthetic-session-1","epoch":0,"evidence_kind":"synthetic","event":"resource_sample","t_ns":120,"notes":"synthetic telemetry, no actual resource value"}
+{"run_id":"SYNTHETIC-DEMO","experiment_id":"SYNTHETIC-NO-MODEL","session_id":"synthetic-session-1","epoch":0,"evidence_kind":"synthetic","event":"caption_emit","t_ns":150,"source_id":"SYN-source1","seq":1,"start_sample":0,"end_sample":2800,"text_zh":"合成示例，不是模型输出"}
+{"run_id":"SYNTHETIC-DEMO","experiment_id":"SYNTHETIC-NO-MODEL","session_id":"synthetic-session-1","epoch":0,"evidence_kind":"synthetic","event":"finished","t_ns":200}

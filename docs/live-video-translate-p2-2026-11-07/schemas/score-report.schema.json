@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "P2 offline arithmetic input",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evidence_kind",
+    "registered_route",
+    "reference_status",
+    "unit_ids",
+    "rounds",
+    "protected_unit_ids"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "evidence_kind": {
+      "enum": [
+        "measured",
+        "synthetic"
+      ]
+    },
+    "registered_route": {
+      "enum": [
+        "Q",
+        "R"
+      ]
+    },
+    "reference_status": {
+      "enum": [
+        "historical",
+        "ai_reviewed",
+        "human_verified"
+      ]
+    },
+    "unit_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "minItems": 34,
+      "maxItems": 34
+    },
+    "registration_ref": {
+      "type": "object",
+      "required": [
+        "experiment_id",
+        "registry_sha256"
+      ],
+      "properties": {
+        "experiment_id": {
+          "type": "string"
+        },
+        "registry_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "rounds": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "round_id",
+          "baseline_usable",
+          "candidate_usable",
+          "protected_losses",
+          "uncertain_units",
+          "new_critical_errors"
+        ],
+        "properties": {
+          "round_id": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "seed11",
+              "seed29"
+            ]
+          },
+          "baseline_usable": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "candidate_usable": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "protected_losses": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "uncertain_units": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "new_critical_errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "unit_id",
+                "kind"
+              ],
+              "properties": {
+                "unit_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "kind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "protected_unit_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evidence_kind": {
+            "const": "measured"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "registration_ref"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": true,
+  "$comment": "Helper checks arithmetic; implementation must also verify registry hash, pre-registration time, labels and membership. JSON Schema cannot enforce cross-array ID equality. Usable ID sets must use the frozen conservative rubric; pending units describe reference confidence, not an arithmetic exemption. Protected IDs come from a frozen fact manifest."
+}

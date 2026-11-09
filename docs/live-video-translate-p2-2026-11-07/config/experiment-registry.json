@@ -1,0 +1,1386 @@
+{
+  "schema_version": 1,
+  "status": "plan_template_not_executable_product_config",
+  "as_of": "2026-11-07",
+  "baseline_commit": "7121c1bb4f869f6968e8b381c45117223c708917",
+  "execution_cli_status": "PLANNED_AFTER_T01",
+  "data": {
+    "continuous_pcm": 9,
+    "fixed_asr_cuts": 88,
+    "fixed_mt_texts": 62,
+    "semantic_units": 34,
+    "groups": {
+      "CSJ": 12,
+      "WMF": 22
+    },
+    "baseline_counts": {
+      "seed11": 20,
+      "seed29": 18
+    },
+    "seeds": [
+      11,
+      29
+    ]
+  },
+  "policy": {
+    "all_local_inference_serial": true,
+    "new_critical_errors_max": 0,
+    "protected_losses_max": 0,
+    "q_offline_gain_each_round": 3,
+    "q_realtime_5s_gain_each_round": 4,
+    "r_primary_improvement_fraction": 0.2,
+    "qualified_combinations_max": 2,
+    "b4_formal_slots_max": 3,
+    "b4_slots": [
+      "AST-G4-ZH",
+      null,
+      null
+    ],
+    "route_registration": "freeze all allowed routes and R metric before any output; separate score views cannot add samples",
+    "model_lock_path": "model-lock.json",
+    "task_timeout_unit": "single compute/step call, not native session lifetime",
+    "hot_default_footprint_gib": 2.5,
+    "experimental_stop_footprint_gib": 12,
+    "pcm_queue_samples": 64000,
+    "mt_pending_segments": 4,
+    "drain_timeout_s": 8,
+    "cache_binding": "CACHE requires resolved context_parent_experiment_id and frozen_prompt_manifest_sha256 before execution",
+    "reference_policy": "No human listening now; conservative AI-text screen and independent review may permit provisional engineering 1x; formal quality/timing/release remains unverified.",
+    "input_scope": "causal_audio_only; no subtitle tracks, OCR, future audio or holdout use during development",
+    "unresolved_parent_policy": "Before inference, resolve all model/runtime/parameter inheritance into a complete immutable candidate lock; unresolved bindings block only dependent experiments."
+  },
+  "bindings": {
+    "PLAMO_WINNER_FROM_Q_SCREEN": null,
+    "QUALIFIED_WHISPER_CHECKPOINT": null,
+    "QUALIFIED_AST_FORMAT": null,
+    "ONE_OF_PLAMO08_OR_PLAMO2_GGUF": null
+  },
+  "experiments": [
+    {
+      "id": "PAD-900",
+      "budget_bucket": "B1",
+      "selection": "primary",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "reazon-b0",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "ASR入口官方人工静音能改善边界识别",
+      "parameters": {
+        "head_zero_ms": 900,
+        "tail_zero_ms": 900,
+        "vad": "B0",
+        "threads": 2
+      },
+      "trigger": "baseline reproduced; capability passes; allocated batch budget",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/03-phase-tasks.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "PUNCT-JA",
+      "budget_bucket": "B1",
+      "selection": "primary",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [
+        "punct-ja",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "只补日文标点改善MT问句和句界",
+      "parameters": {
+        "provider": "cpu",
+        "threads": 1,
+        "max_chars": 510,
+        "allowed_insertions": [
+          "、",
+          "。",
+          "？"
+        ],
+        "insertion_policy": "append after original characters, including final character; preserve all original punctuation and record insertion offsets"
+      },
+      "trigger": "baseline reproduced; capability passes; allocated batch budget",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/03-phase-tasks.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "MT-PLAMO08-H0",
+      "budget_bucket": "B1",
+      "selection": "primary",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [
+        "plamo08-mlx"
+      ],
+      "runtime_keys": [
+        "plamo-mlx"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "专用日语翻译模型改善真实ASR文本上的中文质量或资源",
+      "parameters": {
+        "source_lang": "ja",
+        "target_lang": "zh-hans",
+        "temperature": 0,
+        "max_new_tokens": 256,
+        "history": "H0",
+        "cache": "fresh"
+      },
+      "trigger": "baseline reproduced; capability passes; allocated batch budget",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/04-mt-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "MT-PLAMO2-H0",
+      "budget_bucket": "B1",
+      "selection": "primary",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [
+        "plamo2-mlx"
+      ],
+      "runtime_keys": [
+        "plamo-mlx"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "专用日语翻译模型改善真实ASR文本上的中文质量或资源",
+      "parameters": {
+        "source_lang": "ja",
+        "target_lang": "zh-hans",
+        "temperature": 0,
+        "max_new_tokens": 256,
+        "history": "H0",
+        "cache": "fresh"
+      },
+      "trigger": "baseline reproduced; capability passes; allocated batch budget",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/04-mt-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "ASR-SENSEVOICE-I8",
+      "budget_bucket": "B2",
+      "selection": "primary",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "sensevoice-i8",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "sherpa-onnx",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "NAR CPU识别改善质量或资源",
+      "parameters": {
+        "language": "ja",
+        "provider": "cpu",
+        "threads": 2,
+        "emotion_to_mt": false
+      },
+      "trigger": "baseline reproduced; capability passes; allocated batch budget",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "ASR-WHISPER-JA760",
+      "budget_bucket": "B2",
+      "selection": "primary",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "whisper-ja760-ct2",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "faster-whisper",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "日语专用checkpoint改善短段识别",
+      "parameters": {
+        "language": "ja",
+        "task": "transcribe",
+        "device": "cpu",
+        "compute_type": "int8",
+        "cpu_threads": 2,
+        "num_workers": 1,
+        "beam_size": 5,
+        "temperature": 0,
+        "condition_on_previous_text": false,
+        "vad_filter": false
+      },
+      "trigger": "baseline reproduced; capability passes; allocated batch budget",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "NATIVE-VOX-960",
+      "budget_bucket": "B3",
+      "selection": "primary",
+      "state": "planned_not_executed",
+      "mode": "causal-stream",
+      "model_keys": [
+        "voxtral-mlx-fp16",
+        "hymt-b0",
+        "silero-v4-b0"
+      ],
+      "runtime_keys": [
+        "mlx-audio",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01",
+        "T02"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "paired_common_correct_dom_p95",
+      "hypothesis": "连续状态改善切片边界或中文延迟",
+      "parameters": {
+        "transcription_delay_ms": 960,
+        "step_token_cap": 4,
+        "mt_commit": "B0_vad_endpoint",
+        "input_step_ms": 200,
+        "native_audio_stream": true,
+        "max_tokens": 8192,
+        "raw_audio_samples_per_decode_step": 1280,
+        "commit_alignment": "validated_decoder_progress_not_ingested_watermark",
+        "long_session_preflight": "freeze duration-cap and bounded-state/rotation before 60min; 8192 is short-probe only"
+      },
+      "trigger": "baseline reproduced; capability passes; allocated batch budget",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30,
+      "resource_preflight": {
+        "formal_claim_status": "ineligible_current_references",
+        "minimum_common_correct_human_timed_units": 20,
+        "reason": "D0 seed29 baseline=18 and no human timing verification",
+        "measurement_policy": "Only provisional engineering 1x after conservative noninferior AI-text screen and independent review; descriptive timing is not an R pass. Keep the pre-registered metric."
+      }
+    },
+    {
+      "id": "AST-G4-OFFICIAL",
+      "budget_bucket": "B3",
+      "selection": "primary",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "gemma4-mlx"
+      ],
+      "runtime_keys": [
+        "mlx-vlm"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q"
+      ],
+      "resource_primary": null,
+      "hypothesis": "完整音频AST改善中文语义",
+      "parameters": {
+        "source": "Japanese",
+        "target": "Simplified Chinese",
+        "format": "official_transcript_then_chinese",
+        "temperature": 1,
+        "top_p": 0.95,
+        "top_k": 64,
+        "seeds": [
+          11,
+          29
+        ],
+        "max_new_tokens": 256,
+        "thinking": false,
+        "history": 0,
+        "cache": "fresh",
+        "native_audio_stream": false
+      },
+      "trigger": "baseline reproduced; capability passes; allocated batch budget",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/06-ast-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "ASR-FUNASR-MLX",
+      "budget_bucket": "B2-N",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "funasr-mlx",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "mlx-audio",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "不同训练与语言模型改善噪声专名",
+      "parameters": {
+        "language": "ja",
+        "hotwords": [],
+        "context": null,
+        "temperature": 0,
+        "native_audio_stream": false
+      },
+      "trigger": "Dnoise references frozen and existing error attribution supports noise/names",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "AUDIO-GTCRN",
+      "budget_bucket": "B2-N",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "gtcrn",
+        "reazon-b0",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "sherpa-onnx",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "连续增强后按原边界识别改善噪声语义",
+      "parameters": {
+        "provider": "cpu",
+        "threads": 1,
+        "continuous_state": true,
+        "boundaries": "B0",
+        "vad": "B0"
+      },
+      "trigger": "Dnoise ready and noise attribution present",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "PAD-HEAD300",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "reazon-b0",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [
+        "PAD-900"
+      ],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "padding获益后的边界机制诊断",
+      "parameters": {
+        "head_zero_ms": 300,
+        "tail_zero_ms": 900
+      },
+      "trigger": "PAD900 has demonstrated boundary benefit; diagnostic first; formal promotion consumes B4",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/03-phase-tasks.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "MT-PLAMO-WINNER-HS",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [],
+      "runtime_keys": [
+        "plamo-mlx"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": "PLAMO_WINNER_FROM_Q_SCREEN",
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "HS机制能在相同输入和胜出模型上产生独立收益",
+      "parameters": {
+        "mode": "HS",
+        "aux_token_budget": 512,
+        "history_items": 2
+      },
+      "trigger": "Q-qualified PLaMo winner and relevant error mechanism and free B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/04-mt-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "MT-PLAMO-WINNER-HP",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [],
+      "runtime_keys": [
+        "plamo-mlx"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": "PLAMO_WINNER_FROM_Q_SCREEN",
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "HP机制能在相同输入和胜出模型上产生独立收益",
+      "parameters": {
+        "mode": "HP",
+        "aux_token_budget": 512,
+        "history_items": 2
+      },
+      "trigger": "Q-qualified PLaMo winner and relevant error mechanism and free B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/04-mt-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "MT-PLAMO-WINNER-G0",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [],
+      "runtime_keys": [
+        "plamo-mlx"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": "PLAMO_WINNER_FROM_Q_SCREEN",
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "G0机制能在相同输入和胜出模型上产生独立收益",
+      "parameters": {
+        "mode": "G0",
+        "aux_token_budget": 512,
+        "history_items": 2
+      },
+      "trigger": "Q-qualified PLaMo winner and relevant error mechanism and free B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/04-mt-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "MT-PLAMO-WINNER-CACHE",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [],
+      "runtime_keys": [
+        "plamo-mlx"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": "PLAMO_WINNER_FROM_Q_SCREEN",
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "CACHE机制能在相同输入和胜出模型上产生独立收益",
+      "parameters": {
+        "mode": "CACHE",
+        "context_parent_experiment_id": null,
+        "frozen_prompt_manifest_sha256": null,
+        "history_policy": "inherit exactly from qualified context parent; do not add two history items implicitly",
+        "compare": [
+          "fresh",
+          "exact_prefix"
+        ]
+      },
+      "trigger": "Q-qualified PLaMo winner and relevant error mechanism and free B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/04-mt-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "ASR-SENSEVOICE-EMOTION",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [
+        "ASR-SENSEVOICE-I8"
+      ],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "真实预测情绪元数据改善语气不添加语义",
+      "parameters": {
+        "use_same_asr_outputs": true
+      },
+      "trigger": "parent qualified and relevant error mechanism and free B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "ASR-FUNASR-HOTWORDS",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "funasr-mlx",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "mlx-audio",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [
+        "ASR-FUNASR-MLX"
+      ],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "预先已知术语提示改善专名",
+      "parameters": {
+        "hotwords_source": "preexisting_video_metadata",
+        "context": null
+      },
+      "trigger": "parent qualified, glossary frozen without reference leakage, B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "NATIVE-VOX-240",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "causal-stream",
+      "model_keys": [
+        "voxtral-mlx-fp16",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "mlx-audio",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [
+        "NATIVE-VOX-960"
+      ],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "paired_common_correct_dom_p95",
+      "hypothesis": "缩短target delay是否改善最终中文而不降质",
+      "parameters": {
+        "transcription_delay_ms": 240,
+        "mt_commit": "same_as_parent"
+      },
+      "trigger": "parent qualified and B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30,
+      "resource_preflight": {
+        "formal_claim_status": "ineligible_current_references",
+        "minimum_common_correct_human_timed_units": 20,
+        "reason": "D0 seed29 baseline=18 and no human timing verification",
+        "measurement_policy": "Only provisional engineering 1x after conservative noninferior AI-text screen and independent review; descriptive timing is not an R pass. Keep the pre-registered metric."
+      }
+    },
+    {
+      "id": "NATIVE-VOX-INCREMENTAL-MT",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "causal-stream",
+      "model_keys": [
+        "voxtral-mlx-fp16",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "mlx-audio",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [
+        "NATIVE-VOX-960"
+      ],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "paired_common_correct_dom_p95",
+      "hypothesis": "连续原文的有界早提交缩短中文等待",
+      "parameters": {
+        "mt_commit": "native_punctuation_or_vad_or_forced_known_token_boundary",
+        "max_unsubmitted_ms": 8000,
+        "min_mt_interval_ms": 400,
+        "public_partial": false
+      },
+      "trigger": "parent qualified and B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30,
+      "resource_preflight": {
+        "formal_claim_status": "ineligible_current_references",
+        "minimum_common_correct_human_timed_units": 20,
+        "reason": "D0 seed29 baseline=18 and no human timing verification",
+        "measurement_policy": "Only provisional engineering 1x after conservative noninferior AI-text screen and independent review; descriptive timing is not an R pass. Keep the pre-registered metric."
+      }
+    },
+    {
+      "id": "STREAM-ALIGNATT",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "causal-stream",
+      "model_keys": [
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "whisperlivekit",
+        "simulstreaming",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": "QUALIFIED_WHISPER_CHECKPOINT",
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "paired_common_correct_dom_p95",
+      "hypothesis": "同权重不同确认策略改善稳定中文延迟",
+      "parameters": {
+        "frame_ms": 20,
+        "initial_safety_frames": 25
+      },
+      "trigger": "same checkpoint quality valid, attention available, wait attributable, not already failed identical config",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30,
+      "resource_preflight": {
+        "formal_claim_status": "ineligible_current_references",
+        "minimum_common_correct_human_timed_units": 20,
+        "reason": "D0 seed29 baseline=18 and no human timing verification",
+        "measurement_policy": "Only provisional engineering 1x after conservative noninferior AI-text screen and independent review; descriptive timing is not an R pass. Keep the pre-registered metric."
+      }
+    },
+    {
+      "id": "HW-QWEN-COREML",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "qwen-coreml",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "speech-swift",
+        "project-b0"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "完整CPU/ANE路径在合格质量下改善联跑资源",
+      "parameters": {
+        "encoder_compute_units": "cpuAndNeuralEngine",
+        "decoder_compute_units": "cpuAndNeuralEngine",
+        "entry": "transcribeWithoutMLX"
+      },
+      "trigger": "Qwen reference quality plausible and macOS requirements met and B4 slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "AST-G4-ZH",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "gemma4-mlx"
+      ],
+      "runtime_keys": [
+        "mlx-vlm"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [
+        "AST-G4-OFFICIAL"
+      ],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q"
+      ],
+      "resource_primary": null,
+      "hypothesis": "单一输出或历史变量改善AST折中",
+      "parameters": {
+        "variation": "AST-G4-ZH",
+        "thinking": false,
+        "seeds": [
+          11,
+          29
+        ]
+      },
+      "trigger": "AST-G4-OFFICIAL completed; parent qualified OR one predeclared protocol-cost hypothesis; allocate B4 slot before scoring",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/06-ast-recipes.md",
+      "formal_slot": "B4-1",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "AST-G4-HISTORY",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "gemma4-mlx"
+      ],
+      "runtime_keys": [
+        "mlx-vlm"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [
+        "AST-G4-OFFICIAL"
+      ],
+      "parent_binding": "QUALIFIED_AST_FORMAT",
+      "registered_routes": [
+        "Q"
+      ],
+      "resource_primary": null,
+      "hypothesis": "单一输出或历史变量改善AST折中",
+      "parameters": {
+        "variation": "AST-G4-HISTORY",
+        "thinking": false,
+        "seeds": [
+          11,
+          29
+        ]
+      },
+      "trigger": "AST format passed G1 Q screen; bind that qualified format; allocate B4 slot before scoring",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/06-ast-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "AST-G4-JSON",
+      "budget_bucket": "B4",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "gemma4-mlx"
+      ],
+      "runtime_keys": [
+        "mlx-vlm"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [
+        "AST-G4-OFFICIAL"
+      ],
+      "parent_binding": "QUALIFIED_AST_FORMAT",
+      "registered_routes": [
+        "Q"
+      ],
+      "resource_primary": null,
+      "hypothesis": "单一输出或历史变量改善AST折中",
+      "parameters": {
+        "variation": "AST-G4-JSON",
+        "thinking": false,
+        "seeds": [
+          11,
+          29
+        ]
+      },
+      "trigger": "qualified AST format bound; concrete structured-output need; allocate B4 slot before scoring",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/06-ast-recipes.md",
+      "formal_slot": null,
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "MT-PLAMO-GGUF-FALLBACK",
+      "budget_bucket": "FALLBACK",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-text",
+      "model_keys": [],
+      "runtime_keys": [
+        "llama-cpp"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": "ONE_OF_PLAMO08_OR_PLAMO2_GGUF",
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "full_chain_hot_process_tree_peak_footprint",
+      "hypothesis": "一个尺寸GGUF作为明确MLX部署/资源问题的后备",
+      "parameters": {
+        "precision": "Q4_K_M"
+      },
+      "trigger": "documented MLX incompatibility/resource issue; shared one MT fallback slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/04-mt-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    },
+    {
+      "id": "NATIVE-VIBE-FALLBACK",
+      "budget_bucket": "FALLBACK",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "causal-stream",
+      "model_keys": [
+        "vibe-stream",
+        "hymt-b0"
+      ],
+      "runtime_keys": [
+        "mlx-audio",
+        "project-b0",
+        "vibe-upstream"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q",
+        "R"
+      ],
+      "resource_primary": "paired_common_correct_dom_p95",
+      "hypothesis": "另一原生音频流协议的有界备选",
+      "parameters": {
+        "sample_rate": 24000,
+        "frame_samples": 3200,
+        "new_frames": 22,
+        "lookahead_frames": 4
+      },
+      "trigger": "Voxtral concrete runtime/state/resource blocker; one native fallback slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/05-asr-stream-hardware-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30,
+      "resource_preflight": {
+        "formal_claim_status": "ineligible_current_references",
+        "minimum_common_correct_human_timed_units": 20,
+        "reason": "D0 seed29 baseline=18 and no human timing verification",
+        "measurement_policy": "Only provisional engineering 1x after conservative noninferior AI-text screen and independent review; descriptive timing is not an R pass. Keep the pre-registered metric."
+      }
+    },
+    {
+      "id": "AST-G3N-FALLBACK",
+      "budget_bucket": "FALLBACK",
+      "selection": "conditional",
+      "state": "planned_not_executed",
+      "mode": "fixed-cuts",
+      "model_keys": [
+        "gemma3n-mlx"
+      ],
+      "runtime_keys": [
+        "mlx-vlm"
+      ],
+      "depends_on_tasks": [
+        "T00",
+        "T01"
+      ],
+      "depends_on_experiments": [],
+      "parent_binding": null,
+      "registered_routes": [
+        "Q"
+      ],
+      "resource_primary": null,
+      "hypothesis": "完整音频Gemma3n作为明确Gemma4障碍的替补",
+      "parameters": {
+        "sample_rate": 16000,
+        "max_audio_seconds": 30
+      },
+      "trigger": "concrete G4 blocker or predeclared substitute reason; sole AST fallback slot",
+      "gate": "docs/08-scoring-and-acceptance.md",
+      "recipe": "docs/06-ast-recipes.md",
+      "formal_slot": "batch_allocation",
+      "evidence_required": [
+        "resolved-locks",
+        "hypothesis",
+        "input-hashes",
+        "raw-outputs",
+        "events",
+        "judgements",
+        "decision",
+        "review"
+      ],
+      "timeout_seconds": 30
+    }
+  ],
+  "reviewed_at": "2026-11-08"
+}

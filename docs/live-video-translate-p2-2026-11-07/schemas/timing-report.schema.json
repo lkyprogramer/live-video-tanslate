@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "P2 timing arithmetic input",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evidence_kind",
+    "unit_ids",
+    "rows"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "evidence_kind": {
+      "enum": [
+        "measured",
+        "synthetic"
+      ]
+    },
+    "unit_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "scope_label": {
+      "type": "string"
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "unit_id",
+          "end_ms",
+          "stable_correct_ms",
+          "timing_reference"
+        ],
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "end_ms": {
+            "type": "number",
+            "minimum": 0
+          },
+          "stable_correct_ms": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "timing_reference": {
+            "enum": [
+              "historical",
+              "ai_reviewed",
+              "human_verified",
+              "unknown"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "match_window_ms": {
+      "const": 15000
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evidence_kind": {
+            "const": "measured"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "manifest_sha256",
+          "scope_label"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": true,
+  "$comment": "Helper enforces the frozen 15s matching window and keeps late IDs. Raw input/events remain unchanged. It cannot verify clock calibration, readable DOM or semantic truth and never authorizes formal timing claims."
+}

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "P2 normalized event",
+  "type": "object",
+  "required": [
+    "run_id",
+    "experiment_id",
+    "session_id",
+    "epoch",
+    "t_ns",
+    "event"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "experiment_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "t_ns": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "event": {
+      "enum": [
+        "pcm_accepted",
+        "caption_emit",
+        "cancel",
+        "finished",
+        "capture",
+        "pcm_consumed",
+        "vad_release",
+        "asr_enqueue",
+        "asr_start",
+        "asr_end",
+        "source_commit",
+        "mt_enqueue",
+        "mt_start",
+        "mt_first_token",
+        "mt_end",
+        "ast_preprocess",
+        "ast_encoder",
+        "ast_prefill",
+        "ast_decode",
+        "caption_filtered",
+        "ws_receive",
+        "dom_visible",
+        "dom_hidden",
+        "dom_removed",
+        "drain",
+        "worker_return",
+        "resource_sample"
+      ]
+    },
+    "accepted_samples": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "start_sample": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "end_sample": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "evidence_kind": {
+      "enum": [
+        "measured",
+        "synthetic"
+      ]
+    },
+    "source_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "phase": {
+      "enum": [
+        "start",
+        "end",
+        "sample"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event": {
+            "const": "pcm_accepted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "accepted_samples"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event": {
+            "const": "caption_emit"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "start_sample",
+          "end_sample",
+          "seq",
+          "source_id"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": true,
+  "$comment": "Full runner must enforce sample ordering, PCM hashes, epoch lifecycle and session contract; helper only checks a subset."
+}
