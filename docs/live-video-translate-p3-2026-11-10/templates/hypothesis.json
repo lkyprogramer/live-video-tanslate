@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "data_kind": "template",
+  "experiment_id": null,
+  "parent_experiment_id": null,
+  "freeze_before_first_output": true,
+  "mechanism_hypothesis": null,
+  "one_changed_axis": null,
+  "unchanged_controls": [
+    "Hy weight/revision",
+    "M0 prompt/sampling",
+    "200ms real PCM packet transport",
+    "final Chinese append-only",
+    "source data and reference version"
+  ],
+  "selected_routes": [],
+  "main_metric": null,
+  "preconditions": [],
+  "expected_required_model_ids": [],
+  "model_parameters": {},
+  "runtime_parameters": {},
+  "state_reset_policy": null,
+  "commit_policy": null,
+  "budget_engineering_hours": null,
+  "quality_runtime_hours_limit": null,
+  "stop_rules_doc": "docs/02-experiment-design.md",
+  "failure_falsifies": null,
+  "failure_does_not_falsify": null,
+  "authorized_by_receipt": null,
+  "registered_at": null,
+  "registration_sha256": null
+}

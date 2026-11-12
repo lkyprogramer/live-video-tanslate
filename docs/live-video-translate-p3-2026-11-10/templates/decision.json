@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "data_kind": "template",
+  "run_id": null,
+  "experiment_id": null,
+  "status": "planned",
+  "score_status": "unscored",
+  "gates": {
+    "capability": "not_run",
+    "Q": "not_run",
+    "formal_R_latency": "not_run",
+    "research_R_memory": "not_run",
+    "causality": "not_run",
+    "ja_append_only": "not_run",
+    "zh_append_only": "not_run",
+    "default_footprint": "not_run",
+    "realtime": "not_run",
+    "lifecycle": "not_run",
+    "long_run": "not_run",
+    "holdout": "not_run",
+    "independent_review": "not_run",
+    "license": "not_run"
+  },
+  "historical_P2_R_policy_changed": false,
+  "default_replacement_policy": "legacy_Q_or_formal_R_latency",
+  "policy_approval_receipt": null,
+  "recommendation": "not_decided",
+  "release_candidate": false,
+  "production_change_authorized": false,
+  "helper_result_used_as_release_decision": false,
+  "measured_summary": {
+    "semantic_denominator": null,
+    "baseline_correct_per_repeat": [],
+    "candidate_correct_per_repeat": [],
+    "new_critical_errors": null,
+    "protected_losses": null,
+    "full_tree_footprint_peak_bytes": null
+  },
+  "evidence_paths": [],
+  "blockers": [
+    "No target-machine model test performed by this document package."
+  ],
+  "stop_reason": null,
+  "next_reopen_trigger": null
+}

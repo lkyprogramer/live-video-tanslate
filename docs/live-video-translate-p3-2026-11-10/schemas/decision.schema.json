@@ -1,0 +1,405 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "data_kind",
+    "run_id",
+    "experiment_id",
+    "status",
+    "score_status",
+    "gates",
+    "historical_P2_R_policy_changed",
+    "default_replacement_policy",
+    "policy_approval_receipt",
+    "recommendation",
+    "release_candidate",
+    "production_change_authorized",
+    "helper_result_used_as_release_decision",
+    "measured_summary",
+    "evidence_paths",
+    "blockers",
+    "stop_reason",
+    "next_reopen_trigger"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "data_kind": {
+      "enum": [
+        "template",
+        "measured"
+      ]
+    },
+    "run_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "experiment_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "planned",
+        "locked",
+        "capability_pass",
+        "quality_scored",
+        "realtime_scored",
+        "engineering_pass",
+        "holdout_pass",
+        "release_candidate",
+        "blocked_data",
+        "blocked_runtime",
+        "blocked_permission",
+        "failed_task",
+        "failed_quality",
+        "failed_resource",
+        "inconclusive",
+        "needs_human",
+        "not_run"
+      ]
+    },
+    "score_status": {
+      "enum": [
+        "unscored",
+        "provisional",
+        "human_verified"
+      ]
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "Q",
+        "formal_R_latency",
+        "research_R_memory",
+        "causality",
+        "ja_append_only",
+        "zh_append_only",
+        "default_footprint",
+        "realtime",
+        "lifecycle",
+        "long_run",
+        "holdout",
+        "independent_review",
+        "license"
+      ],
+      "properties": {
+        "capability": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "Q": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "formal_R_latency": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "research_R_memory": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "causality": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "ja_append_only": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "zh_append_only": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "default_footprint": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "realtime": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "lifecycle": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "long_run": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "holdout": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "independent_review": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        },
+        "license": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "pass",
+            "fail",
+            "inconclusive",
+            "needs_human",
+            "not_applicable"
+          ]
+        }
+      }
+    },
+    "historical_P2_R_policy_changed": {
+      "type": "boolean",
+      "const": false
+    },
+    "default_replacement_policy": {
+      "enum": [
+        "legacy_Q_or_formal_R_latency",
+        "explicit_user_approved_new_policy"
+      ]
+    },
+    "policy_approval_receipt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "recommendation": {
+      "enum": [
+        "not_decided",
+        "keep_baseline",
+        "research_continue",
+        "stop_branch",
+        "needs_evidence",
+        "release_review"
+      ]
+    },
+    "release_candidate": {
+      "type": "boolean"
+    },
+    "production_change_authorized": {
+      "type": "boolean"
+    },
+    "helper_result_used_as_release_decision": {
+      "type": "boolean",
+      "const": false
+    },
+    "measured_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "semantic_denominator",
+        "baseline_correct_per_repeat",
+        "candidate_correct_per_repeat",
+        "new_critical_errors",
+        "protected_losses",
+        "full_tree_footprint_peak_bytes"
+      ],
+      "properties": {
+        "semantic_denominator": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "baseline_correct_per_repeat": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "candidate_correct_per_repeat": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "new_critical_errors": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "protected_losses": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "full_tree_footprint_peak_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "evidence_paths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stop_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "next_reopen_trigger": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:live-video-translate:p3:decision:1",
+  "title": "P3 decision report, not an automated release gate",
+  "$comment": "Future decisions.py and reviewer must enforce all gates and permission receipts. Research_R_memory cannot substitute for legacy_R. Schema structure is not evidence. No models are measured in this package.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "data_kind": {
+            "const": "template"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "release_candidate": {
+            "const": false
+          },
+          "production_change_authorized": {
+            "const": false
+          },
+          "recommendation": {
+            "const": "not_decided"
+          }
+        }
+      }
+    }
+  ]
+}

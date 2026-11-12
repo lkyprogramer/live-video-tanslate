@@ -1,0 +1,334 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "data_kind",
+    "run_id",
+    "experiment_id",
+    "attempt",
+    "status",
+    "score_status",
+    "project_revision",
+    "working_revision",
+    "patch_sha256",
+    "mode",
+    "seeds",
+    "selected_routes",
+    "references",
+    "authorization",
+    "materials_lock_path",
+    "runtime_lock_path",
+    "expected_required_model_ids",
+    "budget",
+    "executed_stages",
+    "evidence",
+    "blockers",
+    "next_allowed_action",
+    "production_default_changed"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "data_kind": {
+      "enum": [
+        "template",
+        "measured"
+      ]
+    },
+    "run_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "experiment_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "locked",
+        "capability_pass",
+        "quality_scored",
+        "realtime_scored",
+        "engineering_pass",
+        "holdout_pass",
+        "release_candidate",
+        "blocked_data",
+        "blocked_runtime",
+        "blocked_permission",
+        "failed_task",
+        "failed_quality",
+        "failed_resource",
+        "inconclusive",
+        "needs_human",
+        "not_run"
+      ]
+    },
+    "score_status": {
+      "enum": [
+        "unscored",
+        "provisional",
+        "human_verified"
+      ]
+    },
+    "project_revision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "working_revision": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "patch_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        null,
+        "fixed-cuts",
+        "fixed-text",
+        "causal-stream",
+        "realtime-1x",
+        "oracle-diagnostic"
+      ]
+    },
+    "seeds": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "uniqueItems": true
+    },
+    "selected_routes": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Q",
+          "formal_R_latency",
+          "research_R_memory"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_manifest_sha256",
+        "reference_version",
+        "truth_status",
+        "clock_calibration_sha256"
+      ],
+      "properties": {
+        "input_manifest_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "reference_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "truth_status": {
+          "enum": [
+            "pending_listen",
+            "provisional",
+            "human_verified"
+          ]
+        },
+        "clock_calibration_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementation",
+        "high_resource",
+        "holdout",
+        "production_change",
+        "receipt_path"
+      ],
+      "properties": {
+        "implementation": {
+          "type": "boolean"
+        },
+        "high_resource": {
+          "type": "boolean"
+        },
+        "holdout": {
+          "type": "boolean"
+        },
+        "production_change": {
+          "type": "boolean"
+        },
+        "receipt_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      }
+    },
+    "materials_lock_path": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "runtime_lock_path": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "expected_required_model_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engineering_hours_used",
+        "model_run_hours_used",
+        "total_wall_hours",
+        "engineering_hours_limit",
+        "dependency_repairs_used"
+      ],
+      "properties": {
+        "engineering_hours_used": {
+          "type": "number",
+          "minimum": 0
+        },
+        "model_run_hours_used": {
+          "type": "number",
+          "minimum": 0
+        },
+        "total_wall_hours": {
+          "type": "number",
+          "minimum": 0
+        },
+        "engineering_hours_limit": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "dependency_repairs_used": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      }
+    },
+    "executed_stages": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "origin"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "origin": {
+            "enum": [
+              "new_measurement",
+              "reused_receipt",
+              "static_review",
+              "synthetic"
+            ]
+          }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "next_allowed_action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "production_default_changed": {
+      "type": "boolean",
+      "const": false
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:live-video-translate:p3:run-manifest:1",
+  "title": "P3 planned or measured run manifest",
+  "$comment": "Template validity does not mean execution-ready. Future P3 check must require authorization, selected experiment and required model set, complete locks/bytes/runtime, reliable provenance and non-template data before inference. No schema can verify human review or enforce a live process budget. Production default changes are outside this experiment artifact."
+}

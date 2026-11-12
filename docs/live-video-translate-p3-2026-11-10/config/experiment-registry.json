@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "document_status": "execution_spec_not_implemented",
+  "as_of": "2026-11-10",
+  "timezone": "Asia/Shanghai",
+  "project_revision": "77e24c3e490a11721041a40ad4bd203f51f84039",
+  "reference_docs": [
+    "docs/00-contract-and-baseline.md",
+    "docs/02-experiment-design.md",
+    "docs/08-gates-and-stop-rules.md",
+    "docs/09-runtime-integration.md"
+  ],
+  "baseline": {
+    "id": "B0-P3-PAIRED",
+    "asr": "reazon-k2-v2",
+    "mt": "hy-mt2-1p8b",
+    "vad_artifact": "silero-v4-b0",
+    "seeds": [
+      11,
+      29
+    ],
+    "historical_d0_units": 34,
+    "historical_offline_correct": [
+      20,
+      18
+    ],
+    "historical_1x_5s_correct": [
+      19,
+      17
+    ],
+    "historical_scores_are_not_new_measurements": true
+  },
+  "budgets": {
+    "primary_candidate_limit": 3,
+    "conditional_configuration_limit": 1,
+    "total_formal_candidate_configuration_limit": 4,
+    "e2e_configuration_limit": 2,
+    "secondary_selection_limit": 1,
+    "dependency_repairs_per_candidate": 2,
+    "higher_precision_diagnostic_configurations_per_candidate": 1,
+    "engineering_hours_per_day": 8,
+    "g0_engineering_hours": 8,
+    "minimal_T02a_included_in_g0": true,
+    "T02b_online_integration_total_engineering_hours": 8,
+    "T02b_requires_quality_entry_gate": true,
+    "r2t2_engineering_hours": 16,
+    "ja123_engineering_hours": 16,
+    "primary_quality_runtime_hours_each": 2,
+    "secondary_engineering_hours": 4,
+    "secondary_quality_runtime_hours": 2,
+    "conditional_engineering_hours": 4,
+    "long_run_minutes": 60,
+    "exclude_download_and_human_wait_from_engineering_hours": true,
+    "record_total_wall_clock": true,
+    "model_experiment_groups_serial": true,
+    "within_group_production_pipeline_concurrency": true,
+    "controls_charged_to_parent_budget": true
+  },
+  "primary": [
+    {
+      "id": "P3-R2T2-160-U1-S0-W16O8",
+      "role": "primary",
+      "selected": true,
+      "model_ids": [
+        "r2t2-gguf",
+        "hy-mt2-1p8b"
+      ],
+      "routes": [
+        "Q"
+      ],
+      "input_mode": "causal-stream",
+      "asr_backend": "full_stream_llama",
+      "weight_quantization": "Q4_K_M",
+      "mmproj_quantization": "Q8",
+      "chunk_ms": 160,
+      "unstable_internal_tokens": 1,
+      "commit_policy": "S0",
+      "state_policy": "streaming_transcribe_no_reset_16s_drop_oldest_8s",
+      "reset_on_vad": false,
+      "formal_output_is_session_cumulative_committed_prefix": true,
+      "source_recipe": "docs/04-r2t2-mac-spike.md",
+      "implementation_status": "not_implemented",
+      "measurement_status": "not_run",
+      "language": "Japanese",
+      "context": "",
+      "lookahead_ms": 160,
+      "first_chunk_ms": 320,
+      "subsequent_chunk_ms": 160,
+      "unfixed_chunk_num": 0,
+      "rollback_punctuation": false,
+      "commit_subpolicy": "S0_UNTIMED_VAD_SNAPSHOT",
+      "driver_origin": "local_combination_of_pinned_example_schedule_and_no_reset_not_official_complete_recipe",
+      "step_token_budget": {
+        "first": 4,
+        "after_new_committed_text": 2,
+        "without_new_committed_text": "min(previous+1,4)"
+      },
+      "eof_policy": "pinned_finish_no_reset; empty_buffer_keeps_withheld_tail; no_provisional_promotion",
+      "eof_max_new_tokens": 4
+    },
+    {
+      "id": "P3-JA123-RNNT-480-S0",
+      "role": "primary",
+      "selected": true,
+      "model_ids": [
+        "ja123-m1-6",
+        "hy-mt2-1p8b"
+      ],
+      "routes": [
+        "Q",
+        "research_R_memory"
+      ],
+      "input_mode": "causal-stream",
+      "checkpoint": "M1-6.nemo",
+      "decoder": "RNNT",
+      "right_context_ms": 480,
+      "commit_policy": "S0",
+      "backend": "resolve_exact_NeMo_or_cache_ONNX_before_first_output",
+      "ctc_substitution_allowed": false,
+      "source_recipe": "docs/05-japanese-cache-aware.md",
+      "implementation_status": "not_implemented",
+      "measurement_status": "not_run"
+    }
+  ],
+  "secondary": {
+    "default_choice": "P3-OMNI300-V2-I8-S0",
+    "selected_choice": null,
+    "selection_must_be_frozen_before_any_secondary_output": true,
+    "automatic_rotation_after_failure": false,
+    "choices": [
+      {
+        "id": "P3-OMNI300-V2-I8-S0",
+        "model_ids": [
+          "omni300-v2-onnx",
+          "hy-mt2-1p8b"
+        ],
+        "routes": [
+          "Q",
+          "research_R_memory"
+        ],
+        "input_mode": "fixed-cuts",
+        "backend": "ONNX_Runtime_CPU",
+        "weight_quantization": "INT8",
+        "commit_policy": "S0",
+        "upstream_v2_provenance_required": true
+      },
+      {
+        "id": "P3-FUNMLT-Q8-S0",
+        "model_ids": [
+          "fun-asr-mlt",
+          "hy-mt2-1p8b"
+        ],
+        "routes": [
+          "Q"
+        ],
+        "input_mode": "fixed-cuts",
+        "backend": "transcribe.cpp_Metal_if_verified",
+        "weight_quantization": "Q8_0",
+        "language": "ja",
+        "hotwords": false,
+        "itn": "original_default_locked",
+        "commit_policy": "S0"
+      },
+      {
+        "id": "P3-KANA20-S0",
+        "model_ids": [
+          "kana20m",
+          "hy-mt2-1p8b"
+        ],
+        "routes": [
+          "Q"
+        ],
+        "input_mode": "fixed-cuts",
+        "backend": "author_PyTorch_CPU",
+        "precondition": "oracle_correct_kana_to_Hy_pass_with_reviewed_reference",
+        "native_streaming_claim": false,
+        "commit_policy": "S0"
+      }
+    ]
+  },
+  "conditional": {
+    "selected_choice": null,
+    "global_limit": 1,
+    "choices": [
+      {
+        "id": "P3-R2T2-160-U1-S1-W16O8",
+        "parent_id": "P3-R2T2-160-U1-S0-W16O8",
+        "change_only": {
+          "commit_policy": "S1"
+        },
+        "routes": [
+          "Q"
+        ],
+        "precondition": "two_quality_repeats_noninferior_no_new_critical_no_protected_loss_resource_acceptable"
+      },
+      {
+        "id": "P3-JA123-RNNT-80-S0",
+        "parent_id": "P3-JA123-RNNT-480-S0",
+        "change_only": {
+          "right_context_ms": 80
+        },
+        "routes": [
+          "Q",
+          "research_R_memory"
+        ],
+        "precondition": "480ms_cache_runtime_and_quality_gates_pass_and_measured_latency_headroom"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "CTRL-QWEN17-160-U1-W16O8",
+      "model_ids": [
+        "qwen17-gguf-control"
+      ],
+      "purpose": "matched_R2T2_mechanism_only",
+      "counts_as_candidate": false,
+      "cost_record_required": true,
+      "match": [
+        "backend",
+        "quantization",
+        "chunk_ms",
+        "unstable_internal_tokens",
+        "state_policy",
+        "input_audio",
+        "language",
+        "context",
+        "lookahead_ms",
+        "first_chunk_ms",
+        "step_token_budget",
+        "rollback_punctuation",
+        "commit_subpolicy",
+        "eof_max_new_tokens"
+      ],
+      "no_match_means_no_training_only_attribution": true
+    },
+    {
+      "id": "ORACLE-KANA-HY",
+      "model_ids": [
+        "hy-mt2-1p8b"
+      ],
+      "purpose": "semantic_interface_gate_only",
+      "counts_as_candidate": false,
+      "counts_as_product_score": false,
+      "reviewed_pronunciation_required": true
+    }
+  ],
+  "policies": {
+    "research_R_memory_is_not_legacy_R": true,
+    "default_replacement_requires_legacy_Q_or_R_latency_and_full_acceptance_or_explicit_policy_approval": true,
+    "no_auto_default_change": true,
+    "no_auto_push": true,
+    "no_auto_cleanup": true,
+    "no_future_audio": true,
+    "no_cloud_or_4090": true,
+    "no_subtitles_or_ocr": true,
+    "no_unselected_model_download": true
+  }
+}

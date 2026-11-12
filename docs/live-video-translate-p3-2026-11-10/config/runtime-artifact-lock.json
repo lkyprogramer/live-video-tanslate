@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "document_status": "source_snapshot_with_unresolved_target_fields",
+  "as_of": "2026-11-10",
+  "project_revision": "77e24c3e490a11721041a40ad4bd203f51f84039",
+  "source_locks": [
+    {
+      "id": "project",
+      "source_url": "https://github.com/lkyprogramer/live-video-tanslate",
+      "revision": "77e24c3e490a11721041a40ad4bd203f51f84039",
+      "patch_sha256": null
+    },
+    {
+      "id": "r2t2",
+      "source_url": "https://github.com/netease-youdao/Confucius4-R2T2",
+      "revision": "72b81be7070095410b75ed2e11998e347f655218",
+      "patch_sha256": null
+    },
+    {
+      "id": "r2t2-llama",
+      "source_url": "https://github.com/ggml-org/llama.cpp",
+      "revision": "ad6c66839af3c5646fba8c6c2e2087a1e4e38948",
+      "patch_sha256": null
+    },
+    {
+      "id": "ja123-author",
+      "source_url": "https://github.com/yoinncyan/my-interspeech-2026",
+      "revision": "cc1cdf12a3133b22349c520e5b81f0334a01e5ad",
+      "patch_sha256": null
+    },
+    {
+      "id": "whisperlivekit-baseline",
+      "source_url": "https://github.com/QuentinFuxa/WhisperLiveKit",
+      "revision": "13ee8515f136e0fd0bf31fb8ab0b63ab10670fa2",
+      "patch_sha256": null
+    }
+  ],
+  "baseline_runtime_from_pyproject": {
+    "python": ">=3.12,<3.13",
+    "sherpa_onnx": "2.0.1",
+    "mlx": "0.31.2",
+    "mlx_lm": "0.31.3",
+    "transformers": "5.22.1",
+    "actual_environment_fingerprint_sha256": null,
+    "engine_uv_lock_sha256": null
+  },
+  "baseline_artifacts": [
+    {
+      "id": "silero-v4-b0",
+      "kind": "existing_frozen_ONNX_not_a_new_download",
+      "relative_path": null,
+      "sha256": "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6",
+      "size_bytes": null,
+      "provenance_receipt_sha256": null
+    },
+    {
+      "id": "hy-M0-template-and-generation",
+      "kind": "existing_frozen_prompt_and_sampling",
+      "relative_path": null,
+      "sha256": null,
+      "size_bytes": null,
+      "provenance_receipt_sha256": null
+    }
+  ],
+  "required_candidate_fields": [
+    "exact_runtime_lock",
+    "frontend_config_sha256",
+    "tokenizer_sha256",
+    "actual_weight_dtype",
+    "encoder_dtype",
+    "projector_dtype",
+    "activation_dtype",
+    "kv_or_rnnt_state_dtype",
+    "context_and_batch_limits",
+    "thread_limits",
+    "license_text_sha256",
+    "license_use_decision",
+    "reference_runtime_or_fixture_sha256",
+    "build_and_conversion_argv",
+    "actual_artifact_source_mapping",
+    "reference_backend_artifact_frontend_input_schedule_and_parity_tolerances",
+    "raw_PCM_frontend_causal_support_and_feature_ready_watermark",
+    "surface_process_membership_and_hot_phase_definition"
+  ],
+  "unresolved_fields_block_selected_phase": true,
+  "note": "Source commits are not model weight revisions. Fill actual file inventories and target runtime per selected phase. Null patch hash means unresolved; use a separately recorded clean-tree assertion when there is genuinely no patch, never a dummy hash. Historical receipts stay immutable."
+}

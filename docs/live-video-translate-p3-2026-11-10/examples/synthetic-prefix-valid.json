@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "data_kind": "synthetic",
+  "records": [
+    {"scope_id": "synthetic-scope-a", "channel": "ja", "sequence_id": 1, "accepted_samples": 16000, "consumed_samples": 12000, "source_end_sample": 8000, "text": "こんにちは"},
+    {"scope_id": "synthetic-scope-a", "channel": "zh", "sequence_id": 1, "accepted_samples": 16000, "consumed_samples": 12000, "source_end_sample": 8000, "text": "你好"},
+    {"scope_id": "synthetic-scope-a", "channel": "zh", "sequence_id": 2, "accepted_samples": 24000, "consumed_samples": 16000, "source_end_sample": 12000, "text": "你好"},
+    {"scope_id": "synthetic-scope-a", "channel": "zh", "sequence_id": 3, "accepted_samples": 32000, "consumed_samples": 24000, "source_end_sample": 16000, "text": "你好，世界"},
+    {"scope_id": "synthetic-scope-b", "channel": "zh", "sequence_id": 1, "accepted_samples": 100, "consumed_samples": 80, "source_end_sample": 40, "text": "独立范围"}
+  ]
+}

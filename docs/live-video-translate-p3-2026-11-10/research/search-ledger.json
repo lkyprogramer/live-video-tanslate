@@ -1,0 +1,766 @@
+{
+  "date": "2026-11-10",
+  "recent_window": "2025-11-10 to 2026-11-10, plus older unbounded searches",
+  "definition": "Requested result slots and exact returned URLs; not full-text reads; identical articles at different URLs remain distinct",
+  "root": [
+    {
+      "query": "Official open multilingual speech recognition model releases in 2026 with Japanese FLEURS evaluation and downloadable weights on Hugging Face, beyond Whisper and Qwen ASR",
+      "numResults": 15,
+      "objective": "Discover overlooked ASR families, prioritize original model cards and papers with Japanese results, separate open checkpoints from commercial APIs and English-only models.",
+      "id": 1,
+      "returnedURLs": [
+        "https://huggingface.co/blog/CohereLabs/cohere-transcribe-03-2026-release",
+        "https://huggingface.co/HojoAI/Hojo-ASR-Multi-V1",
+        "https://huggingface.co/ibm-granite/granite-speech-4.1-2b/raw/main/README.md",
+        "https://huggingface.co/ibm-granite/granite-speech-5.0-470m-turboctc/raw/main/README.md",
+        "https://gigazine.net/gsc_news/en/20261102-haas-ja-v1-asr/",
+        "https://huggingface.co/ibm-granite/granite-4.0-1b-speech",
+        "https://huggingface.co/onnx-community/nemotron-3.5-asr-streaming-0.6b-onnx-int4",
+        "https://huggingface.co/datasets/yukobayashi500/ja-asr-leaderboard-2026",
+        "https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B",
+        "https://huggingface.co/nvidia/nemotron-labs-unified-asr-0.6b",
+        "https://huggingface.co/facebook/mms-1b-l1107/blob/main/README.md",
+        "https://huggingface.co/BuzzASR",
+        "https://huggingface.co/knoveleng/polyglot-lion-1.7b",
+        "https://github.com/Oruk-AI/orukeet",
+        "https://huggingface.co/datasets/hf-audio/multilingual_evals/commit/6035d422786c2fe38a541a9fa191e42e3c0f1ca0"
+      ]
+    },
+    {
+      "query": "Meta Omnilingual ASR Japanese 300M 1B 3B 7B model inference streaming ONNX Apple Silicon fairseq2 released 2025 2026",
+      "numResults": 10,
+      "objective": "Find official repository and Japanese language support, architecture sizes and Mac execution evidence, not general launch news.",
+      "id": 2,
+      "returnedURLs": [
+        "https://github.com/facebookresearch/omnilingual-asr/",
+        "https://github.com/facebookresearch/omnilingual-asr/blob/main/src/omnilingual_asr/models/inference/README.md",
+        "https://ai.meta.com/blog/omnilingual-asr-advancing-automatic-speech-recognition/",
+        "https://soniqo.audio/guides/omnilingual",
+        "https://pypi.org/project/fast-omniasr/",
+        "https://arxiv.org/html/2511.09690",
+        "https://github.com/soniqo/speech-swift/pull/201",
+        "https://huggingface.co/facebook/omniASR-LLM-300M",
+        "https://huggingface.co/facebook/omniASR-CTC-300M",
+        "https://huggingface.co/OpenVoiceOS/omnilingual-asr-ctc-300m-onnx"
+      ]
+    },
+    {
+      "query": "ESPnet OWSM v4 Dolphin multilingual speech recognition Japanese open model low latency native implementation 2026",
+      "numResults": 10,
+      "objective": "Find exact Japanese-capable checkpoints outside common Whisper derivatives, source weights runtime and benchmarks, exclude mere surveys.",
+      "id": 3,
+      "returnedURLs": [
+        "https://github.com/dataoceanai/dolphin",
+        "https://github.com/espnet/espnet/",
+        "https://github.com/espnet/notebook/blob/master/Demos/asr_demo.ipynb",
+        "https://huggingface.co/OpenASR/dolphin-base",
+        "https://huggingface.co/OpenVoiceOS/dolphin-small-onnx",
+        "https://huggingface.co/espnet/owsm_v4_base_102M",
+        "https://arxiv.org/html/2506.00338",
+        "https://manyeyes.github.io/manyspeech/en/cli/models/selection-guide/asr.html",
+        "https://huggingface.co/espnet/owsm_ctc_v4_1B",
+        "https://huggingface.co/espnet/owsm_ctc_v4_1B?library=espnet"
+      ]
+    },
+    {
+      "query": "Open ASR Japanese leaderboard FLEURS CER 2026 small multilingual speech recognition benchmark reproducible model catalog",
+      "numResults": 15,
+      "objective": "Find original leaderboards/datasets/catalog with actual Japanese metrics and reproducible evaluation, distinguish audio duration/RTF/hardware and sample sizes.",
+      "id": 4,
+      "returnedURLs": [
+        "https://huggingface.co/datasets/yukobayashi500/ja-asr-leaderboard-2026",
+        "https://github.com/huggingface/open_asr_leaderboard",
+        "https://github.com/kuro-shiba/ASR_ja_comparison",
+        "https://www.sota2.com/research/sota/automatic-speech-recognition-on-fleurs-ja",
+        "https://dev.classmethod.jp/articles/japanese-asr-l40s-fleurs-benchmark/",
+        "https://arxiv.org/html/2510.06961v2",
+        "https://models.handy.computer/languages/ja/",
+        "https://www.sota2.com/research/sota/multilingual-speech-recognition-on-fleurs-language-specific-results",
+        "https://github.com/Ikaikaalika/polyglot-asr-bench",
+        "https://github.com/kuro-shiba/ASR_ja_comparison/blob/main/asr/fleurs_ja/results/fleurs-ja-650-summary-pass1-no-whisper-large-v3.md",
+        "https://huggingface.co/aufklarer/Nemotron-3.5-ASR-Streaming-0.6B-MLX-5bit",
+        "https://github.com/maxwhipw/marmalade-stt-android/blob/main/docs/benchmarks/2026-10-japanese.md",
+        "https://github.com/SpeechColab/GigaSpeechBench/blob/main/README.md",
+        "https://huggingface.co/japanese-asr",
+        "https://github.com/ouktlab/asr-ja_evalkit"
+      ]
+    },
+    {
+      "query": "OWSM CTC v4 Japanese to Chinese speech translation audio.cpp GGUF Metal support model language task symbols",
+      "numResults": 10,
+      "objective": "Verify actual Japanese recognition and Japanese-to-Chinese ST direction, exact CTC vs autoregressive checkpoint, native CPU or Metal implementation and short audio behavior.",
+      "id": 5,
+      "returnedURLs": [
+        "https://github.com/0xShug0/audio.cpp",
+        "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+        "https://huggingface.co/espnet/owsm_ctc_v4_1B",
+        "https://github.com/0xShug0/audio.cpp/blob/main/docs/recipes.md",
+        "https://github.com/0xShug0/audio.cpp/releases",
+        "https://huggingface.co/spaces/espnet/owsm-ctc-v4/blob/2afc6104e82cb3d854781e7899de07753d034e0f/app.py",
+        "https://raw.githubusercontent.com/Elbios/audio.cpp/refs/heads/main/docs/gguf.md",
+        "https://docs.rs/audio-cpp/latest/audio_cpp/enum.ModelFamily.html",
+        "https://aclanthology.org/2024.acl-long.549/",
+        "https://www.isca-archive.org/interspeech_2025/peng25c_interspeech.html"
+      ]
+    },
+    {
+      "query": "BuzzASR Japanese Whisper large v3 monolingual checkpoint Japanese CER FLEURS EMNLP 2026",
+      "numResults": 5,
+      "objective": "Find exact Japanese weights and primary evaluation; distinguish broad average improvements from actual Japanese improvement.",
+      "id": 6,
+      "returnedURLs": [
+        "https://pirateface.co/BuzzASR/japanese",
+        "https://huggingface.co/BuzzASR",
+        "https://lemn-lab.github.io/buzz-asr/results/",
+        "https://aclanthology.org/2026.findings-emnlp.2335/",
+        "https://www.linkedin.com/posts/shugo-nozaki_i-published-a-new-article-on-buzzasr-a-study-activity-7503958000630591488-e1yR"
+      ]
+    },
+    {
+      "query": "yukobayashi500 ja-asr-leaderboard-2026 broadcasting FLEURS Reazon Qwen reproducible benchmark dataset methodology",
+      "numResults": 5,
+      "objective": "Read original Japanese benchmark methodology with paired model ranking shifts, references, sample size and code; do not use aggregated leaderboard commentary.",
+      "id": 7,
+      "returnedURLs": [
+        "https://huggingface.co/datasets/yukobayashi500/ja-asr-leaderboard-2026",
+        "https://zenn.dev/yukobayashi500/articles/849115a7c596f7",
+        "https://github.com/kuro-shiba/ASR_ja_comparison",
+        "https://zenn.dev/holotherapper/articles/adlib-asr-bench",
+        "https://research.reazon.jp/_static/reazonspeech_nlp2023.pdf"
+      ]
+    }
+  ],
+  "japanese": [
+    {
+      "id": 1,
+      "query": "2025年11月10日から2026年11月10日 日本語 音声認識 軽量 オープンソース モデル 公開 NII Reazon NTT LINE Sakana",
+      "numResults": 15,
+      "returnedURLs": [
+        "https://gigazine.net/news/20261102-haas-ja-v1-asr/",
+        "https://research.reazon.jp/projects/ReazonSpeech/index.html",
+        "https://ai-plex.jp/haas-ja-v1-japanese-asr-model/",
+        "https://github.com/reazon-research/ReazonSpeech",
+        "https://research.reazon.jp/blog/2024-08-01-ReazonSpeech.html",
+        "https://data-litmus.com/articles/ai/2026-10-11-hayamimi-cpu-multilingual-asr/",
+        "https://huggingface.co/ayousanz/kodama-ja-streaming-small",
+        "https://gigazine.net/news/20261011-hayamimi/",
+        "https://ayousanz.hatenadiary.jp/entry/2026/08/22/150231",
+        "https://zenn.dev/rick_lyric/articles/434c34e7128af3",
+        "https://huggingface.co/reazon-research/reazonspeech-nemo-v2/commit/f889979c703276c52a5441a32f9ebe338f9050b6",
+        "https://research.reazon.jp/news/reazonspeech.html",
+        "https://github.com/kuro-shiba/ASR_ja_comparison",
+        "https://www.issoh.co.jp/tech/details/10066/",
+        "https://gigazine.net/news/20260225-moonshine-voice/"
+      ]
+    },
+    {
+      "id": 2,
+      "query": "日本語 ストリーミング 音声認識 ESPnet icefall sherpa Zipformer Conformer CTC 学習済みモデル",
+      "numResults": 15,
+      "returnedURLs": [
+        "https://github.com/fujielab/fujielab-asr",
+        "https://github.com/ouktlab/espnet_asr_models/blob/main/README.md",
+        "https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-ctc/zipformer-ctc-models.html",
+        "https://huggingface.co/kizuna-intelligence/zipformer-rnnt-japanese-hiragana",
+        "https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/index.html",
+        "https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-ctc/index.html",
+        "https://research.reazon.jp/blog/2024-08-01-ReazonSpeech.html",
+        "https://k2-fsa.github.io/sherpa/sherpa/pretrained_models/online_transducer.html",
+        "https://huggingface.co/streaming-ja-asr-anon/parakeet-streaming-ja-fully-open",
+        "https://k2-fsa.github.io/sherpa/sherpa/pretrained_models/offline_ctc/icefall.html",
+        "https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/conformer-transducer-models.html",
+        "https://github.com/k2-fsa/icefall/",
+        "https://github.com/ekhodzitsky/phonex/blob/main/docs/MODELS.md",
+        "https://github.com/k2-fsa/sherpa-onnx/issues/2640",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/markdown.md"
+      ]
+    },
+    {
+      "id": 3,
+      "query": "日本語 音声認識 ローカル Mac Apple Silicon ONNX 軽量 wav2vec HuBERT MMS Omnilingual モデル",
+      "numResults": 15,
+      "returnedURLs": [
+        "https://huggingface.co/Sanami/haas-ja-coreml",
+        "https://qiita.com/youtoy/items/69dbeca7e9e1ecae88d9",
+        "https://huggingface.co/Coidemo/wav2vec2-japanese-mlx",
+        "https://huggingface.co/OpenVoiceOS/mms-1b-all-onnx",
+        "https://huggingface.co/TylorShine/distilhubert-hiragana-ctc/blob/main/README.md",
+        "https://huggingface.co/0x3/japanese-wav2vec2-large-hiragana-ctc",
+        "https://soniqo.audio/guides/omnilingual",
+        "https://voice-ping.com/blog/research-offline-speech-transcription-benchmark/",
+        "https://github.com/oboroge0/hayamimi",
+        "https://huggingface.co/Aayush9029/cohere-transcribe-2b-coreml-onnx",
+        "https://huggingface.co/facebook/mms-1b-all/blob/main/README.md",
+        "https://github.com/oboroge0/hayamimi/blob/main/README.ja.md",
+        "https://nyosegawa.com/en/posts/hiragana-asr/",
+        "https://pypi.org/project/whisper-input/0.8.0/",
+        "https://huggingface.co/collections/aufklarer/coreml-speech-models"
+      ]
+    },
+    {
+      "id": 4,
+      "query": "category:research paper Japanese streaming automatic speech recognition pretrained model 2025 2026 NTT NII Reazon ESPnet",
+      "numResults": 15,
+      "returnedURLs": [
+        "https://doi.org/10.1109/icassp49660.2025.10889802",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/markdown.md",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/",
+        "https://github.com/fujielab/fujielab-asr",
+        "https://www.nhk.or.jp/strl/publica/annual/2025/6/4.html",
+        "https://huggingface.co/ayousanz/kodama-ja-streaming-small",
+        "https://huggingface.co/streaming-ja-asr-anon/parakeet-streaming-ja-fully-open",
+        "https://huggingface.co/fujie/espnet_asr_cejc_pron_aux_cbs_transducer_081616_hop132",
+        "https://github.com/ouktlab/espnet_asr_models",
+        "https://huggingface.co/reazon-research/reazonspeech-espnet-next",
+        "https://huggingface.co/reazon-research/reazonspeech-espnet-v2/blob/55332b8a20417c36a53a64708ab4b326d5602875/README.md",
+        "https://ar5iv.labs.arxiv.org/html/2603.11578",
+        "https://ken.ieice.org/ken/paper/20250302UcIK/",
+        "https://gigazine.net/news/20261102-haas-ja-v1-asr/",
+        "https://research.reazon.jp/_static/reazonspeech_nlp2023.pdf"
+      ]
+    },
+    {
+      "id": 5,
+      "query": "streaming-ja-asr-anon parakeet-streaming-ja-fully-open M1-6.nemo Japanese 123M cache aware streaming Yinchang Yang",
+      "numResults": 10,
+      "returnedURLs": [
+        "https://huggingface.co/streaming-ja-asr-anon/parakeet-streaming-ja-fully-open",
+        "https://nanless.github.io/audio-paper-digest-blog/posts/conference-interspeech-2026-conference-paper-id-yang26r-interspeech-c792381cf0/",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/markdown.md",
+        "https://docs.nvidia.com/nemo-framework/user-guide/latest/nemotoolkit/asr/models.html",
+        "https://github.com/NVIDIA-NeMo/NeMo/blob/main/examples/asr/conf/asr_streaming_inference/cache_aware_rnnt.yaml",
+        "https://docs.nvidia.com/nemo/speech/latest/asr/featured_models.html",
+        "https://huggingface.co/nvidia/multitalker-parakeet-streaming-0.6b-v1",
+        "https://huggingface.co/collections/tuandunghcmut/streaming-asr-models",
+        "https://huggingface.co/buckets/lomenot/storage"
+      ]
+    },
+    {
+      "id": 6,
+      "query": "日本語 小型 音声認識 モデル NII NTT LINE PFN Sakana 2026 オープンソース 重み 公開 Conformer CTC",
+      "numResults": 10,
+      "returnedURLs": [
+        "https://huggingface.co/nvidia/parakeet-tdt_ctc-0.6b-ja/blob/main/README.md",
+        "https://aidejima.doilll.com/news/20261001-lokutor-oido-esp32-speech-recognition/",
+        "https://gigazine.net/news/20261102-haas-ja-v1-asr/",
+        "https://huggingface.co/OpenVoiceOS/nvidia-parakeet-tdt_ctc-0.6b-ja-onnx",
+        "https://huggingface.co/streaming-ja-asr-anon/parakeet-streaming-ja-fully-open",
+        "https://dev.classmethod.jp/articles/japanese-asr-l40s-fleurs-benchmark/",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/markdown.md",
+        "https://huggingface.co/kizuna-intelligence/zipformer-rnnt-japanese-hiragana",
+        "https://huggingface.co/prj-beatrice/japanese-hubert-base-phoneme-ctc-v4",
+        "https://huggingface.co/TylorShine/distilhubert-hiragana-ctc/blob/main/README.md"
+      ]
+    },
+    {
+      "id": 7,
+      "query": "日本語 distilhubert-hiragana-ctc wav2vec2 hiragana 0x3 315M TylorShine M2 音声認識",
+      "numResults": 10,
+      "returnedURLs": [
+        "https://huggingface.co/TylorShine/distilhubert-hiragana-ctc",
+        "https://huggingface.co/0x3/japanese-wav2vec2-large-hiragana-ctc",
+        "https://github.com/nyosegawa/hiragana-asr",
+        "https://nyosegawa.com/posts/hiragana-asr/",
+        "https://huggingface.co/TylorShine/wavlm-base-plus-hiragana-ctc",
+        "https://huggingface.co/TylorShine/wavlm-base-plus-hiragana-ctc-v2",
+        "https://scrapbox.io/pokutuna/ASR_%E3%83%A1%E3%83%A2",
+        "https://research.reazon.jp/blog/2024-10-21-Wav2Vec2-base-release.html",
+        "https://nyosegawa.com/en/posts/hiragana-asr/",
+        "https://huggingface.co/sakasegawa/japanese-wav2vec2-large-hiragana-ctc"
+      ]
+    },
+    {
+      "id": 8,
+      "query": "日本語 音声認識 ESPnet OWSM CTC v4 1B 180M JTubeSpeech Japanese pretrained checkpoint",
+      "numResults": 10,
+      "returnedURLs": [
+        "https://huggingface.co/espnet/owsm_ctc_v4_1B",
+        "https://github.com/espnet/notebook/blob/master/Demos/asr_demo.ipynb",
+        "https://github.com/sarulab-speech/jtubespeech/blob/master/scripts/align.py",
+        "https://huggingface.co/espnet/owsm_v4_medium_1B",
+        "https://arxiv.org/html/2112.09323v1",
+        "https://arxiv.org/html/2506.00338",
+        "https://huggingface.co/collections/pyf98/open-whisper-style-speech-models-owsm",
+        "https://huggingface.co/prj-beatrice/japanese-hubert-base-phoneme-ctc-v4",
+        "https://github.com/espnet/espnet_model_zoo/blob/master/espnet_model_zoo/table.csv",
+        "https://huggingface.co/ouktlab/espnet_asr-ja-kc_am-transformer-robustcorpus10_lm-transformer-corpus10-bccwj-wiki40b"
+      ]
+    }
+  ],
+  "native": [
+    {
+      "id": 1,
+      "numResults": 10,
+      "query": "日本語 音声認識 M1 Mac CoreML ANE リアルタイム 2025 2026 GitHub",
+      "returnedURLs": [
+        "https://github.com/FluidInference/fluidaudio",
+        "https://huggingface.co/Sanami/haas-ja-coreml",
+        "https://github.com/soniqo/speech-swift/blob/main/README_ja.md",
+        "https://huggingface.co/FluidInference/parakeet-0.6b-ja-coreml",
+        "https://github.com/FluidInference/FluidAudio/blob/6428e291/Documentation/ASR/NemotronMultilingual.md",
+        "https://github.com/sagostin/gotranscribesrv",
+        "https://github.com/FluidInference/FluidAudio/blob/main/Documentation/Models.md",
+        "https://github.com/sebastian-software/whisper-coreml",
+        "https://github.com/jkf87/murmur",
+        "https://github.com/AustinJiangH/voixful"
+      ]
+    },
+    {
+      "id": 2,
+      "numResults": 10,
+      "query": "GitHub Apple Neural Engine Core ML speech recognition Japanese streaming ASR Swift C++ runtime 2026 AppleNN",
+      "returnedURLs": [
+        "https://github.com/mweinbach/NemotronCoreAI",
+        "https://github.com/FluidInference/FluidAudio/blob/6428e291/Documentation/ASR/NemotronMultilingual.md",
+        "https://github.com/FluidInference/FluidAudio/pull/657",
+        "https://github.com/soniqo/speech-swift/releases/tag/v0.0.20",
+        "https://github.com/k2-fsa/sherpa-onnx/pull/3671",
+        "https://github.com/OpenVoiceOS/ovos-stt-plugin-coreml",
+        "https://github.com/sagostin/gotranscribesrv",
+        "https://github.com/AustinJiangH/voixful",
+        "https://github.com/soniqo/speech-swift/",
+        "https://github.com/ggml-org/whisper.cpp/"
+      ]
+    },
+    {
+      "id": 3,
+      "numResults": 10,
+      "query": "Reddit developer speech recognition Apple Silicon M1 Japanese streaming quantized encoder CoreML Metal problems",
+      "returnedURLs": [
+        "https://zenn.dev/shu223/articles/whisper-coreml",
+        "https://carelesswhisper.app/blog/core-ml-metal-dictation",
+        "https://huggingface.co/FluidInference/parakeet-0.6b-ja-coreml",
+        "https://github.com/SYSTRAN/faster-whisper/issues/51",
+        "https://huggingface.co/FluidInference/parakeet-tdt-0.6b-v3-coreml/commit/b10f7099a2118cf07cf96f0ee758779f64336a4e",
+        "https://github.com/ggerganov/whisper.cpp/issues/1901",
+        "https://github.com/dvoitekh/whispercoreml",
+        "https://github.com/SYSTRAN/faster-whisper/issues/168",
+        "https://github.com/ontypehq/mlx-swift-asr",
+        "https://huggingface.co/aufklarer/Nemotron-3.5-ASR-Streaming-0.6B-MLX-4bit"
+      ]
+    },
+    {
+      "id": 4,
+      "numResults": 10,
+      "query": "GitHub sherpa onnx icefall streaming Japanese multilingual speech recognition CPU small model 2025 2026",
+      "returnedURLs": [
+        "https://github.com/Gilgamesh-J/deployment-for-icefall-streaming-model",
+        "https://github.com/oboroge0/hayamimi",
+        "https://github.com/sandraschi/speech-mcp/blob/main/docs/STREAMING_ASR.md",
+        "https://github.com/k2-fsa/icefall/",
+        "https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/index.html",
+        "https://github.com/speechmux/plugin-stt-sherpa-onnx/blob/main/README.md",
+        "https://github.com/k2-fsa/sherpa-onnx/",
+        "https://github.com/Gilgamesh-J/X-ASR",
+        "https://github.com/yangb05/PengChengStarling",
+        "https://github.com/k2-fsa/sherpa-onnx/pull/3671"
+      ]
+    },
+    {
+      "id": 5,
+      "numResults": 10,
+      "query": "GitHub transformers.js ONNX WebGPU Japanese speech recognition streaming new models 2026",
+      "returnedURLs": [
+        "https://github.com/khawjaahmad/nemotron-asr-webgpu",
+        "https://github.com/ysdede/parakeet.js/",
+        "https://huggingface.co/spaces/ibm-granite/granite-speech-webgpu/blob/main/README.md",
+        "https://github.com/snomiao/otoji",
+        "https://huggingface.co/goryodog/tokihisu-nemotron-3.5-asr-streaming-0.6b-webgpu-fp16",
+        "https://github.com/k2-fsa/sherpa-onnx/pull/3671",
+        "https://huggingface.co/onnx-community/cohere-transcribe-03-2026-ONNX",
+        "https://github.com/huggingface/transformers.js-examples/tree/main/moonshine-web",
+        "https://huggingface.co/wmoto-ai/moonshine-tiny-ja-ONNX",
+        "https://github.com/huggingface/transformers.js/blob/main/packages/transformers/docs/source/guides/webgpu.md"
+      ]
+    },
+    {
+      "id": 6,
+      "numResults": 8,
+      "query": "AppleNN ANE ASR speech recognition small Japanese model Swift CoreML encoder quantization 2026 GitHub",
+      "returnedURLs": [
+        "https://huggingface.co/Sanami/haas-ja-coreml",
+        "https://huggingface.co/josscii/parakeet-0.6b-ja-coreml/blob/6d945d20adaa63fbb3f5a4590940971995955d32/README.md",
+        "https://github.com/soniqo/speech-swift/releases/tag/v0.0.20",
+        "https://github.com/OpenVoiceOS/ovos-stt-plugin-coreml",
+        "https://github.com/soniqo/speech-swift",
+        "https://huggingface.co/Audio8/Audio8-ASR-0.1B-iOS-ANE/blob/1b26b5d95b235b7edc142d15d9e3003894cc32f7/README.md",
+        "https://huggingface.co/beshkenadze/nemotron-3.5-asr-streaming-0.6b-coreml-ane",
+        "https://github.com/Blaizzy/mlx-audio-swift/pull/202"
+      ]
+    },
+    {
+      "id": 7,
+      "numResults": 8,
+      "query": "soniqo speech-swift Qwen3 ASR CoreML MLState M1 encoder decoder benchmark memory parity",
+      "returnedURLs": [
+        "https://github.com/soniqo/speech-swift/blob/main/docs/inference/qwen3-asr-inference.md",
+        "https://github.com/soniqo/speech-swift/blob/main/docs/benchmarks/asr-wer.md",
+        "https://github.com/soniqo/speech-swift/pull/292",
+        "https://github.com/soniqo/speech-swift/issues/110",
+        "https://github.com/soniqo/speech-swift/",
+        "https://huggingface.co/aufklarer/Qwen3-ASR-CoreML",
+        "https://soniqo.audio/faq",
+        "https://soniqo.audio/architecture"
+      ]
+    },
+    {
+      "id": 8,
+      "numResults": 8,
+      "query": "Sanami Haas-ja CoreML M1 speech.cpp 0.10 quantization short chunk Japanese latency GitHub",
+      "returnedURLs": [
+        "https://huggingface.co/Sanami/haas-ja-coreml",
+        "https://github.com/nyosegawa/speech.cpp",
+        "https://huggingface.co/Sanami/haas-ja-coreml/tree/main",
+        "https://zenn.dev/airtanker/articles/haas-ja-mac-dictation",
+        "https://github.com/third-intelligence/Haas-ASR",
+        "https://huggingface.co/sakasegawa/Haas-ja-v1.0-GGUF",
+        "https://nyosegawa.com/en/posts/speech-cpp/",
+        "https://github.com/nyosegawa/speech.cpp/blob/main/docs/cli.md"
+      ]
+    },
+    {
+      "id": 9,
+      "numResults": 8,
+      "query": "Reddit Haas ja speech.cpp Mac M1 Japanese recognition author Sanami sakasegawa",
+      "returnedURLs": [
+        "https://github.com/nyosegawa/speech.cpp",
+        "https://huggingface.co/Sanami/haas-ja-coreml",
+        "https://huggingface.co/sakasegawa/Haas-ja-v1.0-GGUF",
+        "https://github.com/masatatsu8/haas-input",
+        "https://nyosegawa.com/en/posts/speech-cpp/",
+        "https://zenn.dev/airtanker/articles/haas-ja-mac-dictation",
+        "https://fyve.co.jp/ai-advisor/articles/speech-cpp-haas-ja-mac-transcription",
+        "https://huggingface.co/oboroge0/Haas-ja-v1.0-onnx"
+      ]
+    },
+    {
+      "id": 10,
+      "numResults": 8,
+      "query": "Audio8 ASR 0.1B Japanese benchmark CER WER Edge0 Audio8 iOS ANE GitHub streaming speech recognition",
+      "returnedURLs": [
+        "https://huggingface.co/Edge0/Audio8-ASR-0.1B",
+        "https://huggingface.co/Edge0/Audio8-ASR-0.1B-iOS-ANE",
+        "https://edge0.ai/models/asr-0.1b",
+        "https://github.com/scrappylabsai/audio8-asr-lean",
+        "https://note.com/ai_driven/n/n36dc0235c5b1",
+        "https://zenn.dev/kun432/scraps/f8b16a3139ebb1",
+        "https://ai-engineering-trend.medium.com/can-a-100m-parameter-on-device-asr-model-even-transcribe-rap-7c52783a2c66",
+        "https://www.voiceaispace.com/articles/edge0-open-sources-audio8-on-device-speech-models-and-a-35b-llm-it-says-runs-in"
+      ]
+    },
+    {
+      "id": 11,
+      "numResults": 6,
+      "query": "speech-swift Omnilingual CTC v2 coreml ANE CPU GPU japanese issue regression 2026",
+      "returnedURLs": [
+        "https://github.com/soniqo/speech-swift/blob/main/docs/inference/omnilingual-asr-inference.md",
+        "https://github.com/soniqo/speech-swift/pull/201",
+        "https://github.com/soniqo/speech-swift/releases",
+        "https://soniqo.audio/guides/omnilingual",
+        "https://huggingface.co/aufklarer/Omnilingual-ASR-CTC-300M-CoreML-INT8/blob/main/README.md",
+        "https://github.com/soniqo/speech-swift/pull/278"
+      ]
+    },
+    {
+      "id": 12,
+      "numResults": 6,
+      "query": "AppleNN Swift ANE speech ASR runtime Japanese 2026 GitHub",
+      "returnedURLs": [
+        "https://github.com/mweinbach/NemotronCoreAI",
+        "https://github.com/soniqo/speech-swift/releases/tag/v0.0.20",
+        "https://github.com/AustinJiangH/voixful",
+        "https://github.com/soniqo/speech-swift/",
+        "https://github.com/mweinbach/parakeet-coreml-swift",
+        "https://github.com/FluidInference/fluidaudio-rs/issues/7"
+      ]
+    },
+    {
+      "id": 13,
+      "numResults": 6,
+      "query": "Reddit Audio8 ASR Edge0 Japanese Apple ANE M1 transcription developer",
+      "returnedURLs": [
+        "https://huggingface.co/Edge0/Audio8-ASR-0.1B-iOS-ANE",
+        "https://huggingface.co/Edge0/Audio8-ASR-0.1B-iOS-ANE/blame/main/SpeechKit/README.md",
+        "https://huggingface.co/Audio8/Audio8-ASR-0.1B-iOS-ANE/raw/main/GETTING_STARTED.md",
+        "https://huggingface.co/Edge0/Audio8-ASR-0.1B",
+        "https://zenn.dev/shu223/articles/whisper-coreml",
+        "https://github.com/SYSTRAN/faster-whisper/issues/51"
+      ]
+    }
+  ],
+  "streaming": [
+    {
+      "id": 1,
+      "numResults": 10,
+      "query": "category:research paper streaming speech recognition 2026 2025 block causal encoder state space Mamba RWKV transducer CIF open source model weights multilingual Japanese",
+      "returnedURLs": [
+        "https://arxiv.org/html/2602.11298v2",
+        "https://aclanthology.org/2026.findings-emnlp.330.pdf",
+        "https://arxiv.org/html/2510.18684v2",
+        "https://www.isca-archive.org/interspeech_2025/moriya25_interspeech.html",
+        "https://arxiv.org/html/2506.19761",
+        "https://arxiv.org/html/2606.24169",
+        "https://arxiv.org/html/2502.11123v3",
+        "https://arxiv.org/html/2602.24245v1",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/markdown.md",
+        "https://arxiv.org/abs/2501.02832v3"
+      ]
+    },
+    {
+      "id": 2,
+      "numResults": 10,
+      "query": "multilingual speech foundation model open weights Japanese streaming ASR speech translation new release 2026 2025 compact 1B 500M",
+      "returnedURLs": [
+        "https://huggingface.co/ibm-granite/granite-4.0-1b-speech",
+        "https://huggingface.co/blog/ibm-granite/granite-4-speech",
+        "https://huggingface.co/ibm-granite/granite-speech-4.1-2b",
+        "https://gigazine.net/gsc_news/en/20261102-haas-ja-v1-asr/",
+        "https://huggingface.co/nvidia/canary-1b-v2",
+        "https://kyutai.org/blog/2026-02-12-hibiki-zero/",
+        "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP",
+        "https://huggingface.co/nvidia/nemotron-labs-unified-asr-0.6b",
+        "https://huggingface.co/IndexTeam/Index-Echo-S2ST-9B",
+        "https://arxiv.org/html/2509.14128"
+      ]
+    },
+    {
+      "id": 3,
+      "numResults": 10,
+      "query": "category:research paper simultaneous speech translation Japanese Chinese 2025 2026 open source streaming speech to text prefix training",
+      "returnedURLs": [
+        "https://arxiv.org/html/2509.01200v2",
+        "https://aclanthology.org/2026.wmt-main.15/",
+        "https://github.com/nethermanpro/simulmega",
+        "https://aclanthology.org/2025.iwslt-1.39.pdf",
+        "https://arxiv.org/pdf/2508.07781",
+        "https://www.arxiv.org/pdf/2603.11578",
+        "https://aclanthology.org/2026.iwslt-1.30.pdf",
+        "https://arxiv.org/html/2610.02612",
+        "https://lacuna.tiptreesystems.com/work/do-llms-need-architectural-changes-for-simultaneous-speech",
+        "https://aclanthology.org/2025.iwslt-1.41.pdf"
+      ]
+    },
+    {
+      "id": 4,
+      "numResults": 10,
+      "query": "category:research paper partial speech prefix training incremental speech translation teacher student distillation streaming multilingual 2026 2025",
+      "returnedURLs": [
+        "https://arxiv.org/html/2607.13158",
+        "https://arxiv.org/html/2610.02612",
+        "https://aclanthology.org/2026.wmt-main.15/",
+        "https://arxiv.org/html/2509.01200v2",
+        "https://www.alphaxiv.org/abs/2506.18828",
+        "https://arxiv.org/html/2608.03610",
+        "https://arxiv.org/pdf/2507.07803",
+        "https://arxiv.org/html/2601.22777v2",
+        "https://arxiv.org/html/2609.05799v1",
+        "https://arxiv.org/html/2610.32214"
+      ]
+    },
+    {
+      "id": 5,
+      "numResults": 7,
+      "query": "A Compact Fully-Open Cache-Aware Streaming Model for Japanese ASR Yang 2026 Interspeech checkpoint code Huggingface",
+      "returnedURLs": [
+        "https://huggingface.co/streaming-ja-asr-anon/parakeet-streaming-ja-fully-open",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/markdown.md",
+        "https://interspeech-2026-wiki.vercel.app/papers/yang26r_interspeech/",
+        "https://huggingface.co/nvidia/stt_ka_fastconformer_hybrid_transducer_ctc_large_streaming_80ms_pc",
+        "https://huggingface.co/nvidia/stt_en_fastconformer_hybrid_large_streaming_multi",
+        "https://huggingface.co/moonshine-ai/moonshine-streaming-small-ja",
+        "https://huggingface.co/ayousanz/kodama-ja-streaming-small"
+      ]
+    },
+    {
+      "id": 6,
+      "numResults": 7,
+      "query": "Chunk-wise Attention Transducers for Fast and Accurate Streaming Speech-to-Text 2602.24245 official weights Japanese languages",
+      "returnedURLs": [
+        "https://arxiv.org/abs/2602.24245",
+        "https://arxiv.org/html/2602.24245",
+        "https://arxiv.org/pdf/2602.24245",
+        "https://www.alphaxiv.org/abs/2602.24245",
+        "https://huggingface.co/streaming-ja-asr-anon/parakeet-streaming-ja-fully-open",
+        "https://doi.org/10.1109/icassp55912.2026.11460802",
+        "https://arxiv.org/pdf/2602.24245v1/fastconformer_transducer_bpe_streaming.yaml"
+      ]
+    },
+    {
+      "id": 7,
+      "numResults": 7,
+      "query": "Japanese streaming ASR continuous integrate and fire transducer 2026 2025 open checkpoint Hugging Face WeNet Zipformer Squeezeformer",
+      "returnedURLs": [
+        "https://github.com/fujielab/fujielab-asr",
+        "https://huggingface.co/streaming-ja-asr-anon/parakeet-streaming-ja-fully-open",
+        "https://huggingface.co/ayousanz/kodama-ja-streaming-small",
+        "https://huggingface.co/fujie/espnet_asr_cejc_pron_aux_cbs_transducer_081616_hop132",
+        "https://huggingface.co/reazon-research/japanese-zipformer-base-k2-rs35kh",
+        "https://csukuangfj.github.io/sherpa/onnx/pretrained_models/online-transducer/index.html",
+        "https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-ar_en_id_ja_ru_th_vi_zh-2025-02-10/commit/8248322d9167a408b966f37fbc75e9f4afc70d6f"
+      ]
+    },
+    {
+      "id": 8,
+      "numResults": 7,
+      "query": "category:research paper streaming ASR translation N-best lattice semantic interface Japanese contextual biasing 2026 2025 open source",
+      "returnedURLs": [
+        "https://arxiv.org/html/2508.13358",
+        "https://github.com/owaski/iwslt-2026-baselines",
+        "https://ar5iv.labs.arxiv.org/html/2603.11578",
+        "https://ojs.aaai.org/index.php/AAAI/article/download/40733/44694",
+        "https://arxiv.org/html/2512.17648",
+        "https://doi.org/10.1109/apsipaasc63619.2025.10848752",
+        "https://aclanthology.org/2005.iwslt-1.3.pdf"
+      ]
+    },
+    {
+      "id": 9,
+      "numResults": 5,
+      "query": "CSSEL-P2P Junkun Chen Microsoft Phi-4-MM 2607.13158 model weights github release Japanese Chinese",
+      "returnedURLs": [
+        "https://arxiv.org/html/2607.13158",
+        "https://huggingface.co/microsoft/Phi-4-multimodal-instruct/blob/main/data_summary_card.md",
+        "https://www.alphaxiv.org/abs/2607.13158",
+        "https://huggingface.co/microsoft/Phi-4-multimodal-instruct/tree/2258faa22fbe042d3c73b0545fb9f1feaf59ab51/speech-lora",
+        "https://huggingface.co/microsoft/Phi-4-multimodal-instruct/raw/main/modeling_phi4mm.py"
+      ]
+    },
+    {
+      "id": 10,
+      "numResults": 5,
+      "query": "TC-BiMamba LC-BiMamba Mamba-ASR Japanese pretrained model checkpoint github streaming",
+      "returnedURLs": [
+        "https://github.com/xi-j/Mamba-ASR",
+        "https://aclanthology.org/2026.findings-emnlp.330/",
+        "https://github.com/xi-j/Mamba-ASR/issues/7",
+        "https://github.com/Audio-WestlakeU/UMA-ASR",
+        "https://www.isca-archive.org/interspeech_2025/moriya25_interspeech.html"
+      ]
+    },
+    {
+      "id": 11,
+      "numResults": 5,
+      "query": "Hikari Streaming Translation Transcription Speech to Text Causal Alignment SoftBank Intuitions 2603.11578 Huggingface github",
+      "returnedURLs": [
+        "https://huggingface.co/sbintuitions/hikari-medium",
+        "https://arxiv.org/abs/2603.11578",
+        "https://huggingface.co/papers/2603.11578",
+        "https://huggingface.co/cstr/hikari-medium-GGUF",
+        "https://huggingface.co/sbintuitions"
+      ]
+    },
+    {
+      "id": 12,
+      "numResults": 5,
+      "query": "Japanese native streaming speech recognition model open source 2026 causal checkpoint",
+      "returnedURLs": [
+        "https://huggingface.co/moonshine-ai/moonshine-streaming-tiny-ja",
+        "https://huggingface.co/moonshine-ai/moonshine-streaming-small-ja",
+        "https://huggingface.co/sbintuitions/hikari-medium",
+        "https://github.com/QUENTINFUXA/WHISPERLIVEKIT",
+        "https://arxiv.org/html/2609.07549v2"
+      ]
+    },
+    {
+      "id": 13,
+      "numResults": 5,
+      "query": "streaming speech recognition contextual biasing low memory Japanese hotword FST transducer sherpa onnx 2026 2025 implementation",
+      "returnedURLs": [
+        "https://k2-fsa.github.io/sherpa/onnx/hotwords/index.html",
+        "https://github.com/k2-fsa/sherpa-onnx/issues/3572",
+        "https://github.com/k2-fsa/sherpa-onnx/blob/c6691594/sherpa-onnx/python/sherpa_onnx/online_recognizer.py",
+        "https://github.com/k2-fsa/sherpa-onnx/issues/1910",
+        "https://k2-fsa.github.io/sherpa/onnx/c-api/html/online_asr.html"
+      ]
+    },
+    {
+      "id": 14,
+      "numResults": 5,
+      "query": "simultaneous speech translation Japanese Chinese source streaming open source weights StreamUni StreamSpeech SimulMask DiSeg 2026",
+      "returnedURLs": [
+        "https://github.com/ictnlp/StreamSpeech",
+        "https://github.com/topics/simultaneous-translation",
+        "https://github.com/LeiLiLab/InfiniSST",
+        "https://ictnlp.github.io/StreamSpeech-site/",
+        "https://aclanthology.org/2026.emnlp-main.1859.pdf"
+      ]
+    },
+    {
+      "id": 15,
+      "numResults": 5,
+      "query": "streaming translation stable prefix training open source weights Japanese Chinese 2026 small model no revision",
+      "returnedURLs": [
+        "https://aclanthology.org/2026.wmt-main.15.pdf",
+        "https://github.com/netease-youdao/Confucius4-R2T2",
+        "https://paperlayer.ai/abs/2610.02612v1",
+        "https://arxiv.org/html/2611.06043v1",
+        "https://kyutai.org/blog/2026-02-12-hibiki-zero/"
+      ]
+    },
+    {
+      "id": 16,
+      "numResults": 7,
+      "query": "X-ASR Guo 2026 streaming Zipformer WhisperRT Krichli 2026 causal Whisper open model Japanese GitHub",
+      "returnedURLs": [
+        "https://github.com/tomer9080/WhisperRT-Streaming",
+        "https://github.com/Gilgamesh-J/X-ASR",
+        "https://github.com/k2-fsa/sherpa-onnx/releases",
+        "https://huggingface.co/GilgameshWind/X-ASR-zh-en",
+        "https://github.com/k2-fsa/sherpa-onnx/releases/tag/v1.13.3",
+        "https://github.com/fujielab/fujielab-asr",
+        "https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/zipformer-transducer-models.html"
+      ]
+    },
+    {
+      "id": 17,
+      "numResults": 7,
+      "query": "GPT-Live-Transcribe open source model weights streaming Japanese WhisperRT causal encoder 2026",
+      "returnedURLs": [
+        "https://developers.openai.com/api/docs/models/gpt-live-transcribe",
+        "https://github.com/tomer9080/WhisperRT-Streaming",
+        "https://huggingface.co/MLSpeech/WhisperRT-Streaming",
+        "https://developers.openai.com/api/docs/guides/realtime-transcription",
+        "https://arxiv.org/html/2508.12301",
+        "https://developers.openai.com/cookbook/examples/migrating_from_whisper_to_gpt_transcribe",
+        "https://openai.com/index/advancing-voice-intelligence-with-new-models-in-the-api/"
+      ]
+    }
+  ],
+  "stats": {
+    "groups": [
+      {
+        "name": "root",
+        "queries": 7,
+        "slots": 70,
+        "returned": 70,
+        "unique": 65
+      },
+      {
+        "name": "japanese",
+        "queries": 8,
+        "slots": 100,
+        "returned": 100,
+        "unique": 83
+      },
+      {
+        "name": "native",
+        "queries": 13,
+        "slots": 108,
+        "returned": 108,
+        "unique": 84
+      },
+      {
+        "name": "streaming",
+        "queries": 17,
+        "slots": 117,
+        "returned": 117,
+        "unique": 103
+      }
+    ],
+    "queries": 45,
+    "slots": 395,
+    "returned": 395,
+    "exactUnique": 311
+  }
+}

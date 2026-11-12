@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:live-video-translate:p3:model-lock:1",
+  "title": "P3 model material lock helper input, version 1",
+  "description": "Lock structure only. Null metadata is unknown, never latest; this schema intentionally has no data_kind field.",
+  "$comment": "Run p3_evidence.py check-lock after schema validation. The helper additionally rejects duplicate JSON object keys, duplicate entry IDs and globally duplicate file paths. It validates URL scheme=https, hostname, absence of credentials/whitespace using urllib.parse.urlsplit; the string pattern here is only a structural screen, not an exact URL parser. It validates normalized relative POSIX paths (no absolute path, dot/dot-dot traversal, redundant separators, colon, or backslash). --root additionally checks resolved-path containment (including symlink escapes), regular files, existence, size and SHA-256. These runtime filesystem checks cannot be expressed by this schema. Null revision/hash/size or empty files on required entries yield unresolved / exit 2; optional pending entries do not block. Empty entries are structurally allowed by the helper and do not prove that any model exists. JSON Schema integer may accept lexical 1.0; helper version and size require Python int, not bool. No model, provenance, license, quality, resource or release eligibility is verified.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_revision", "entries"],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "project_revision": {"$ref": "#/$defs/revision"},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "required", "source_url", "revision", "files"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "required": {"type": "boolean"},
+          "source_url": {
+            "type": "string",
+            "minLength": 9,
+            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[^\\s]+$",
+            "$comment": "Authoritative hostname/credentials validation is performed by helper URL parsing, not this partial structural pattern."
+          },
+          "revision": {"anyOf": [{"$ref": "#/$defs/revision"}, {"type": "null"}]},
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["path", "sha256", "size_bytes"],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "$comment": "Non-whitespace path string here; normalized relative path, traversal/absolute-path rejection, global path uniqueness, symlink containment and regular-file checks are enforced by helper."
+                },
+                "sha256": {
+                  "anyOf": [
+                    {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-fA-F]{64}$"},
+                    {"type": "null"}
+                  ]
+                },
+                "size_bytes": {"type": ["integer", "null"], "minimum": 0}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "revision": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-fA-F]{40}$"}
+  }
+}

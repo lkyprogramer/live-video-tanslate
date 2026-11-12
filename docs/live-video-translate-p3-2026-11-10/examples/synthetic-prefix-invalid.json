@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "data_kind": "synthetic",
+  "records": [
+    {"scope_id": "synthetic-rewrite", "channel": "zh", "sequence_id": 1, "accepted_samples": 16000, "consumed_samples": 12000, "source_end_sample": 8000, "text": "今天晴天"},
+    {"scope_id": "synthetic-rewrite", "channel": "zh", "sequence_id": 2, "accepted_samples": 24000, "consumed_samples": 20000, "source_end_sample": 16000, "text": "今天雨天"}
+  ]
+}

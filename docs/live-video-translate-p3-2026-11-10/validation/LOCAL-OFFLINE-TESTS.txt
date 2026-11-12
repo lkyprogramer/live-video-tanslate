@@ -1,0 +1,52 @@
+test_duplicate_json_key_rejected (test_p3_evidence.EvidenceTests.test_duplicate_json_key_rejected) ... ok
+test_lock_boolean_size_rejected (test_p3_evidence.EvidenceTests.test_lock_boolean_size_rejected) ... ok
+test_lock_directory_rejected (test_p3_evidence.EvidenceTests.test_lock_directory_rejected) ... ok
+test_lock_duplicate_entry_id_rejected (test_p3_evidence.EvidenceTests.test_lock_duplicate_entry_id_rejected) ... ok
+test_lock_empty_required_files_unresolved (test_p3_evidence.EvidenceTests.test_lock_empty_required_files_unresolved) ... ok
+test_lock_invalid_revision_rejected (test_p3_evidence.EvidenceTests.test_lock_invalid_revision_rejected) ... ok
+test_lock_missing_file_rejected (test_p3_evidence.EvidenceTests.test_lock_missing_file_rejected) ... ok
+test_lock_non_https_url_rejected (test_p3_evidence.EvidenceTests.test_lock_non_https_url_rejected) ... ok
+test_lock_null_hash_size_required_unresolved (test_p3_evidence.EvidenceTests.test_lock_null_hash_size_required_unresolved) ... ok
+test_lock_null_revision_required_unresolved (test_p3_evidence.EvidenceTests.test_lock_null_revision_required_unresolved) ... ok
+test_lock_optional_pending_does_not_block (test_p3_evidence.EvidenceTests.test_lock_optional_pending_does_not_block) ... ok
+test_lock_path_escape_rejected_without_root (test_p3_evidence.EvidenceTests.test_lock_path_escape_rejected_without_root) ... ok
+test_lock_real_bytes_verified (test_p3_evidence.EvidenceTests.test_lock_real_bytes_verified) ... ok
+test_lock_structure_only_does_not_verify_bytes (test_p3_evidence.EvidenceTests.test_lock_structure_only_does_not_verify_bytes) ... ok
+test_lock_symlink_escape_rejected (test_p3_evidence.EvidenceTests.test_lock_symlink_escape_rejected) ... ok
+test_lock_wrong_sha_rejected (test_p3_evidence.EvidenceTests.test_lock_wrong_sha_rejected) ... ok
+test_lock_wrong_size_rejected (test_p3_evidence.EvidenceTests.test_lock_wrong_size_rejected) ... ok
+test_missing_input_emits_safe_error (test_p3_evidence.EvidenceTests.test_missing_input_emits_safe_error) ... ok
+test_prefix_append_and_same_text_with_watermark_progress (test_p3_evidence.EvidenceTests.test_prefix_append_and_same_text_with_watermark_progress) ... ok
+test_prefix_boolean_integer_rejected (test_p3_evidence.EvidenceTests.test_prefix_boolean_integer_rejected) ... ok
+test_prefix_chinese_rewrite_rejected (test_p3_evidence.EvidenceTests.test_prefix_chinese_rewrite_rejected) ... ok
+test_prefix_consumed_above_accepted_rejected (test_p3_evidence.EvidenceTests.test_prefix_consumed_above_accepted_rejected) ... ok
+test_prefix_cross_channel_text_independent (test_p3_evidence.EvidenceTests.test_prefix_cross_channel_text_independent) ... ok
+test_prefix_cross_channel_watermarks_shared (test_p3_evidence.EvidenceTests.test_prefix_cross_channel_watermarks_shared) ... ok
+test_prefix_cross_scope_independent (test_p3_evidence.EvidenceTests.test_prefix_cross_scope_independent) ... ok
+test_prefix_future_source_sample_rejected (test_p3_evidence.EvidenceTests.test_prefix_future_source_sample_rejected) ... ok
+test_prefix_same_sequence_rejected (test_p3_evidence.EvidenceTests.test_prefix_same_sequence_rejected) ... ok
+test_prefix_source_end_independent_between_channels (test_p3_evidence.EvidenceTests.test_prefix_source_end_independent_between_channels) ... ok
+test_prefix_source_end_regression_rejected (test_p3_evidence.EvidenceTests.test_prefix_source_end_regression_rejected) ... ok
+test_prefix_unicode_normalization_not_applied (test_p3_evidence.EvidenceTests.test_prefix_unicode_normalization_not_applied) ... ok
+test_schema_boolean_version_rejected (test_p3_evidence.EvidenceTests.test_schema_boolean_version_rejected) ... ok
+test_timing_boolean_time_rejected (test_p3_evidence.EvidenceTests.test_timing_boolean_time_rejected) ... ok
+test_timing_duplicate_unit_rejected (test_p3_evidence.EvidenceTests.test_timing_duplicate_unit_rejected) ... ok
+test_timing_empty_rejected (test_p3_evidence.EvidenceTests.test_timing_empty_rejected) ... ok
+test_timing_finite_overall_p95_with_one_missing_of_twenty (test_p3_evidence.EvidenceTests.test_timing_finite_overall_p95_with_one_missing_of_twenty) ... ok
+test_timing_inclusive_5s_and_15s (test_p3_evidence.EvidenceTests.test_timing_inclusive_5s_and_15s) ... ok
+test_timing_late_makes_small_sample_overall_unbounded (test_p3_evidence.EvidenceTests.test_timing_late_makes_small_sample_overall_unbounded) ... ok
+test_timing_missing_in_denominator (test_p3_evidence.EvidenceTests.test_timing_missing_in_denominator) ... ok
+test_timing_nearest_rank_small_sample (test_p3_evidence.EvidenceTests.test_timing_nearest_rank_small_sample) ... ok
+test_timing_negative_latency_retained (test_p3_evidence.EvidenceTests.test_timing_negative_latency_retained) ... ok
+test_timing_negative_timestamp_rejected (test_p3_evidence.EvidenceTests.test_timing_negative_timestamp_rejected) ... ok
+test_timing_nonfinite_rejected (test_p3_evidence.EvidenceTests.test_timing_nonfinite_rejected) ... ok
+test_timing_reversed_interval_rejected (test_p3_evidence.EvidenceTests.test_timing_reversed_interval_rejected) ... ok
+test_unknown_fields_rejected (test_p3_evidence.EvidenceTests.test_unknown_fields_rejected) ... ok
+test_master_matches_maintained_sources (test_package_render.PackageRenderTests.test_master_matches_maintained_sources) ... ok
+test_prompt_and_chapter_links_are_relocated (test_package_render.PackageRenderTests.test_prompt_and_chapter_links_are_relocated) ... ok
+test_render_uses_source_changes (test_package_render.PackageRenderTests.test_render_uses_source_changes) ... ok
+
+----------------------------------------------------------------------
+Ran 47 tests in 2.239s
+
+OK

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "data_kind": "template",
+  "run_id": null,
+  "experiment_id": null,
+  "attempt": 1,
+  "status": "planned",
+  "score_status": "unscored",
+  "project_revision": "77e24c3e490a11721041a40ad4bd203f51f84039",
+  "working_revision": null,
+  "patch_sha256": null,
+  "mode": null,
+  "seeds": [
+    11,
+    29
+  ],
+  "selected_routes": [],
+  "references": {
+    "input_manifest_sha256": null,
+    "reference_version": null,
+    "truth_status": "pending_listen",
+    "clock_calibration_sha256": null
+  },
+  "authorization": {
+    "implementation": false,
+    "high_resource": false,
+    "holdout": false,
+    "production_change": false,
+    "receipt_path": null
+  },
+  "materials_lock_path": null,
+  "runtime_lock_path": null,
+  "expected_required_model_ids": [],
+  "budget": {
+    "engineering_hours_used": 0,
+    "model_run_hours_used": 0,
+    "total_wall_hours": 0,
+    "engineering_hours_limit": null,
+    "dependency_repairs_used": 0
+  },
+  "executed_stages": [],
+  "evidence": [],
+  "blockers": [
+    "Template only. Populate and freeze from authorized target-machine evidence before use."
+  ],
+  "next_allowed_action": "Read README and prompts/EXECUTOR.md; do not infer or download on receipt of the package alone.",
+  "production_default_changed": false
+}

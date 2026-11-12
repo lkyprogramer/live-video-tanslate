@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "project_revision": "77e24c3e490a11721041a40ad4bd203f51f84039",
+  "entries": [
+    {
+      "id": "reazon-k2-v2",
+      "required": true,
+      "source_url": "https://huggingface.co/reazon-research/reazonspeech-k2-v2",
+      "revision": "291488c8151be24d7da4bf7af26e533fad96e407",
+      "files": []
+    },
+    {
+      "id": "hy-mt2-1p8b",
+      "required": true,
+      "source_url": "https://huggingface.co/mlx-community/Hy-MT2-1.8B-4bit",
+      "revision": "e5c6fe56c7b3bc77fae5ae92db31f2178f1e6912",
+      "files": []
+    },
+    {
+      "id": "r2t2-gguf",
+      "required": false,
+      "source_url": "https://huggingface.co/netease-youdao/Confucius4-R2T2-GGUF",
+      "revision": null,
+      "files": []
+    },
+    {
+      "id": "qwen17-gguf-control",
+      "required": false,
+      "source_url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B",
+      "revision": null,
+      "files": []
+    },
+    {
+      "id": "ja123-m1-6",
+      "required": false,
+      "source_url": "https://huggingface.co/streaming-ja-asr-anon/parakeet-streaming-ja-fully-open",
+      "revision": null,
+      "files": []
+    },
+    {
+      "id": "omni300-v2-onnx",
+      "required": false,
+      "source_url": "https://huggingface.co/OpenVoiceOS/omnilingual-asr-ctc-300m-onnx",
+      "revision": null,
+      "files": []
+    },
+    {
+      "id": "kana20m",
+      "required": false,
+      "source_url": "https://huggingface.co/kizuna-intelligence/zipformer-rnnt-japanese-hiragana",
+      "revision": null,
+      "files": []
+    },
+    {
+      "id": "fun-asr-mlt",
+      "required": false,
+      "source_url": "https://huggingface.co/FunAudioLLM/Fun-ASR-MLT-Nano-2512",
+      "revision": null,
+      "files": []
+    }
+  ]
+}

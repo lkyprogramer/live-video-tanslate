@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "created_at": "2026-11-10T07:22:50.908365+00:00",
+  "scope": "local P3 document/helper validation; no model or product test",
+  "python": "3.12.12",
+  "tests": {
+    "run": 47,
+    "passed": 47
+  },
+  "examples": [
+    {
+      "command": "timing",
+      "path": "examples/synthetic-timing.json",
+      "expected_exit": 0,
+      "observed_exit": 0
+    },
+    {
+      "command": "prefix-audit",
+      "path": "examples/synthetic-prefix-valid.json",
+      "expected_exit": 0,
+      "observed_exit": 0
+    },
+    {
+      "command": "prefix-audit",
+      "path": "examples/synthetic-prefix-invalid.json",
+      "expected_exit": 1,
+      "observed_exit": 1
+    },
+    {
+      "command": "check-lock",
+      "path": "examples/synthetic-lock-pending.json",
+      "expected_exit": 2,
+      "observed_exit": 2
+    },
+    {
+      "command": "check-lock",
+      "path": "config/model-lock.json",
+      "expected_exit": 2,
+      "observed_exit": 2
+    }
+  ],
+  "target_models_run": false,
+  "production_code_changed": false,
+  "release_eligible": false,
+  "counts": {
+    "schemas": 5,
+    "schema_instances": 7,
+    "local_links": 101
+  },
+  "final_independent_review": "PASS_WITH_DOCUMENTED_LIMITS",
+  "final_review_path": "validation/ASTRA-FINAL-REVIEW.md",
+  "reviewed_core_SHA256_verified": 19,
+  "final_artifacts_checked_at": "2026-11-10T07:27:00.485251+00:00"
+}

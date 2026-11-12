@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-11-10",
+  "status": "pre_registered_spec_not_results",
+  "input": {
+    "sample_rate_hz": 16000,
+    "channels": 1,
+    "encoding": "s16le",
+    "packet_samples": 3200,
+    "last_packet_can_be_short": true,
+    "clock": "monotonic_with_browser_calibration"
+  },
+  "queues": {
+    "pcm_samples_max": 64000,
+    "enqueue_timeout_ms": 1000,
+    "mt_pending_max": 4,
+    "mt_inflight_max": 1,
+    "browser_buffered_bytes_max": 64000,
+    "drain_timeout_ms": 8000,
+    "native_call_timeout_ms": 30000
+  },
+  "dataset": {
+    "D0": {
+      "pcm": 9,
+      "fixed_cuts": 88,
+      "fixed_mt_texts": 62,
+      "semantic_units": 34,
+      "pending_listen": 15,
+      "seeds": [
+        11,
+        29
+      ]
+    },
+    "D1_min_semantic_units": 20,
+    "holdout_min_sources": 6,
+    "holdout_min_semantic_units": 60,
+    "short_utterance_min_count": 20,
+    "short_duration_seconds": [
+      1,
+      3
+    ]
+  },
+  "timing": {
+    "coverage_thresholds_ms": [
+      2000,
+      3000,
+      5000,
+      15000
+    ],
+    "matching_window_ms": 15000,
+    "quantile": "nearest_rank",
+    "allow_negative_sentence_end_latency": true,
+    "unmatched_overall_latency": "infinity_encoded_null_with_unbounded_true",
+    "formal_latency_common_correct_min": 20,
+    "browser_calibration_roundtrips_before": 10,
+    "browser_calibration_roundtrips_after": 10
+  },
+  "Q": {
+    "offline_each_repeat_net_correct_min": 3,
+    "realtime_each_repeat_net_5s_correct_min": 4,
+    "new_critical_errors_max": 0,
+    "protected_losses_max": 0,
+    "matched_p95_ms_max": 3000
+  },
+  "formal_R_latency": {
+    "main_metric": "paired_common_correct_dom_p95",
+    "each_repeat_relative_improvement_min": 0.2,
+    "quality_noninferior_each_repeat": true,
+    "coverage_5s_noninferior_each_repeat": true,
+    "new_critical_errors_max": 0,
+    "protected_losses_max": 0,
+    "common_correct_min": 20,
+    "posthoc_switch_forbidden": true
+  },
+  "research_R_memory": {
+    "main_metric": "tree_physical_footprint_peak_bytes",
+    "each_repeat_relative_improvement_min": 0.2,
+    "quality_noninferior_each_repeat": true,
+    "coverage_5s_noninferior_each_repeat": true,
+    "new_critical_errors_max": 0,
+    "protected_losses_max": 0,
+    "is_legacy_R": false,
+    "grants_default_replacement_eligibility": false,
+    "p95_guard_can_be_descriptive_below_N20": true,
+    "missing_clock_or_timing_reference": "inconclusive",
+    "phase": "hot_input_and_drain",
+    "same_surface_required": true,
+    "offline_entry_is_quality_prerequisite_only": true
+  },
+  "tolerances": {
+    "cpu_seconds_per_audio_second_relative_increase_max": 0.1,
+    "system_gpu_mean_percentage_point_increase_max": 3,
+    "p95_guard_increase_max_of": {
+      "absolute_ms": 100,
+      "relative": 0.1
+    }
+  },
+  "resources": {
+    "sample_interval_ms": 250,
+    "default_hot_tree_footprint_peak_bytes_max": 2684354560,
+    "default_footprint_unavailable": "inconclusive",
+    "hard_tree_footprint_bytes_max": 12884901888,
+    "critical_pressure_duration_s": 30,
+    "swap_growth_duration_s": 30,
+    "oldest_pcm_age_s": 2,
+    "oldest_pcm_age_violation_duration_s": 10,
+    "long_run_minutes": 60,
+    "long_run_footprint_median_growth_max_of": {
+      "relative": 0.1,
+      "bytes": 134217728
+    },
+    "hot_interval": "warmup completed before first formal PCM through completed normal drain/native/MT",
+    "surface_process_sets": {
+      "ws": "run-owned server/native/Hy descendants",
+      "chrome": "ws set plus run-owned isolated Chrome processes"
+    },
+    "missing_footprint_or_process_sample": "inconclusive; never substitute RSS",
+    "aggregate": "sum same-sample process footprints then peak; no independent peak addition; not exact unique physical pages"
+  },
+  "default_replacement": {
+    "legacy_gate": "Q_or_formal_R_latency_or_explicit_user_approved_new_policy",
+    "historical_5s_correct_min": 109,
+    "historical_units": 121,
+    "holdout_5s_correct_fraction_min": 0.9,
+    "matched_p50_ms_max": 1500,
+    "matched_p95_ms_max": 3000,
+    "short_onset_to_correct_p90_ms_max": 4500,
+    "short_missing_is_infinity": true,
+    "silence_captions_max": 0,
+    "new_critical_errors_max": 0,
+    "protected_losses_max": 0,
+    "external_revisions_max": 0,
+    "require_human_review": true,
+    "require_independent_review": true,
+    "production_switch_requires_explicit_user_approval": true
+  },
+  "readability": {
+    "continuous_visible_min_ms": 600,
+    "characters_per_second": 12,
+    "character_counter": "sum(ch.isalnum() for ch in text_zh)",
+    "required_duration": "max(600, character_count/12*1000)",
+    "require_closed_visible_interval": true,
+    "require_unoccluded": true,
+    "multi_caption": "each necessary fragment qualifies; last necessary qualified first-visible timestamp",
+    "latency_endpoint": "qualified interval first visibility; no dwell-time addition",
+    "WS_and_DOM_scores_separate": true
+  }
+}

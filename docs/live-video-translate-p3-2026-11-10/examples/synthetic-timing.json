@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "data_kind": "synthetic",
+  "units": [
+    {"unit_id": "synthetic-early", "source_start_ms": 0, "source_end_ms": 1000, "stable_correct_ms": 500},
+    {"unit_id": "synthetic-5s", "source_start_ms": 1000, "source_end_ms": 2000, "stable_correct_ms": 7000},
+    {"unit_id": "synthetic-15s", "source_start_ms": 2000, "source_end_ms": 3000, "stable_correct_ms": 18000},
+    {"unit_id": "synthetic-late", "source_start_ms": 3000, "source_end_ms": 4000, "stable_correct_ms": 19001},
+    {"unit_id": "synthetic-missing", "source_start_ms": 4000, "source_end_ms": 5000, "stable_correct_ms": null}
+  ]
+}

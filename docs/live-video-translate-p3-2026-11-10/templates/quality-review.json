@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "data_kind": "template",
+  "reference_version": null,
+  "reviewer_kind": null,
+  "reviewer_id": null,
+  "reviewed_at": null,
+  "blind_output_order_sha256": null,
+  "instructions": "Use independent blinded judgments. AI-assisted is not human_verified. Preserve uncertain items and all new critical errors, including when baseline was missing.",
+  "units": [
+    {
+      "unit_id": null,
+      "clip_id": null,
+      "seed": null,
+      "required_semantics": null,
+      "reference_status": "pending_listen",
+      "source_start_sample": null,
+      "source_end_sample": null,
+      "asr_ja": null,
+      "raw_zh": null,
+      "filtered_zh": null,
+      "dom_text": null,
+      "label": "uncertain",
+      "new_critical_error": null,
+      "protected_loss": null,
+      "stable_correct_host_ms": null,
+      "reason": null,
+      "evidence_paths": []
+    }
+  ],
+  "release_eligible": false
+}

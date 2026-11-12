@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:live-video-translate:p3:prefix-audit-input:1",
+  "title": "P3 cumulative committed-text prefix audit input, version 1",
+  "description": "Normalized cumulative committed-text snapshots, never native protocol deltas.",
+  "$comment": "Run p3_evidence.py prefix-audit after schema validation. The helper additionally enforces strictly increasing sequence_id, nondecreasing source_end_sample and exact startswith text extension per (scope_id, channel); nondecreasing accepted_samples/consumed_samples across both channels per scope_id; and 0 <= source_end_sample <= consumed_samples <= accepted_samples per row. No Unicode normalization is applied. Duplicate JSON object keys are rejected by the helper loader. JSON Schema integer is mathematical and may accept lexical 1.0; the helper requires Python int (never bool) for version, sequence and sample values. Scope identity ownership, lifecycle completeness, semantic correctness and sample rate are not verified. No result grants release eligibility.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "data_kind",
+    "records"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "data_kind": {
+      "type": "string",
+      "enum": [
+        "synthetic",
+        "measured"
+      ]
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scope_id",
+          "channel",
+          "sequence_id",
+          "accepted_samples",
+          "consumed_samples",
+          "source_end_sample",
+          "text"
+        ],
+        "properties": {
+          "scope_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "ja",
+              "zh"
+            ]
+          },
+          "sequence_id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "accepted_samples": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "consumed_samples": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "source_end_sample": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

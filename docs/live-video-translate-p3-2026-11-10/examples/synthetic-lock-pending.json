@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "project_revision": "0000000000000000000000000000000000000000",
+  "entries": [
+    {
+      "id": "synthetic-required-model-not-acquired",
+      "required": true,
+      "source_url": "https://example.invalid/synthetic-model",
+      "revision": null,
+      "files": [{"path": "synthetic/model-not-present.bin", "sha256": null, "size_bytes": null}]
+    },
+    {
+      "id": "synthetic-optional-model-not-acquired",
+      "required": false,
+      "source_url": "https://example.invalid/synthetic-optional-model",
+      "revision": null,
+      "files": []
+    }
+  ]
+}
