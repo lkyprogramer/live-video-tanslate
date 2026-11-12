@@ -1,0 +1,96 @@
+{
+  "evidence_kind": "measured_capability_probe",
+  "date": "2026-11-12",
+  "repo_head": "77e24c3e490a11721041a40ad4bd203f51f84039",
+  "sherpa_version": "2.0.1",
+  "model_revision": "291488c8151be24d7da4bf7af26e533fad96e407",
+  "model_hashes": {
+    "encoder-epoch-99-avg-1.int8.onnx": "2c7bd08a8a99f9ddd0d9e458456577b1f6279214e51426f114f9eced44c54e1d",
+    "decoder-epoch-99-avg-1.onnx": "58b18211ae06265466bfa17172dab574df94f76c8bcb61a3640c28ba860e4124",
+    "joiner-epoch-99-avg-1.int8.onnx": "49cc7ea1d3d35a40a27442db5e89996da64bf0e683a903dce76e99e57a12e4de",
+    "tokens.txt": "2c3ac659818a48a0c04010e0593bbc4d7c8a24a054340b01131499c05fd52def"
+  },
+  "provider": "cpu",
+  "num_threads": 2,
+  "sample_rate": 16000,
+  "fixture": "p0/fixtures/first-photo.pcm",
+  "fixture_sha256": "835c5e292dbdd83aa5604b0f2047917735fe4e4b89bb89548bd35fbd87953c80",
+  "raw_evidence_local_only": "p0/evidence/local-architecture-20261112/timestamp-probe.json",
+  "raw_evidence_sha256": "4734ab1eab3ed6c4b582f541e295b8664b1451330eaccf0ef2928ab302f8d568",
+  "probes": [
+    {
+      "name": "full",
+      "samples": 112000,
+      "duration_s": 7.0,
+      "token_count": 22,
+      "timestamp_count": 22,
+      "duration_count": 0,
+      "equal_lengths": true,
+      "monotonic": true,
+      "in_input_range": true
+    },
+    {
+      "name": "prefix",
+      "samples": 56000,
+      "duration_s": 3.5,
+      "token_count": 4,
+      "timestamp_count": 4,
+      "duration_count": 0,
+      "equal_lengths": true,
+      "monotonic": true,
+      "in_input_range": true
+    },
+    {
+      "name": "silence",
+      "samples": 16000,
+      "duration_s": 1.0,
+      "token_count": 2,
+      "timestamp_count": 2,
+      "duration_count": 0,
+      "equal_lengths": true,
+      "monotonic": true,
+      "in_input_range": true
+    }
+  ],
+  "shared_prefix_comparison": [
+    {
+      "token_index": 0,
+      "full_input_timestamp_s": 0.0,
+      "prefix_input_timestamp_s": 0.0,
+      "absolute_delta_ms": 0.0
+    },
+    {
+      "token_index": 1,
+      "full_input_timestamp_s": 2.319999933242798,
+      "prefix_input_timestamp_s": 2.440000057220459,
+      "absolute_delta_ms": 120.0
+    },
+    {
+      "token_index": 2,
+      "full_input_timestamp_s": 2.759999990463257,
+      "prefix_input_timestamp_s": 2.759999990463257,
+      "absolute_delta_ms": 0.0
+    },
+    {
+      "token_index": 3,
+      "full_input_timestamp_s": 3.0,
+      "prefix_input_timestamp_s": 3.0799999237060547,
+      "absolute_delta_ms": 80.0
+    }
+  ],
+  "silence_observation": {
+    "vad_used": false,
+    "nonempty_text": true,
+    "text": "えっ",
+    "scope": "raw ASR only; not end-to-end VAD behavior"
+  },
+  "not_validated": [
+    "token alignment accuracy",
+    "safe rolling-window trimming",
+    "streaming translation quality",
+    "realtime latency",
+    "Chrome capture",
+    "resource usage",
+    "long-running behavior"
+  ]
+}

@@ -27,6 +27,8 @@ npm --prefix extension run package
 
 ## 验证与现状
 
+下一轮工作以[本地滚动识别与字幕修订方案](docs/local-streaming-architecture-plan-2026-11-12.md)为入口：先固定 ReazonSpeech + Hy-MT2 验证调度和句级提交，再评估草稿字幕。方案尚未实施；视频和参考字幕由用户提供，运行时不读取字幕轨、不使用云端。
+
 ```sh
 uv sync --project engine --frozen
 uv run --project engine --frozen pytest -q engine/tests
