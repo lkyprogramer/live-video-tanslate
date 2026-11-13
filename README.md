@@ -27,7 +27,7 @@ npm --prefix extension run package
 
 ## 验证与现状
 
-下一轮工作以[本地滚动识别与字幕修订方案](docs/local-streaming-architecture-plan-2026-11-12.md)为入口：固定 ReazonSpeech + Hy-MT2 验证滚动调度，分别评估句级提交与草稿字幕。方案尚未实施；视频和参考字幕由用户提供，运行时不读取字幕轨、不使用云端。
+下一轮工作以[本地滚动识别与字幕修订方案](docs/local-streaming-architecture-plan-2026-11-12.md)为入口：固定 ReazonSpeech + Hy-MT2 验证滚动调度，分别评估句级提交与草稿字幕。方案尚未实施；已登记用户提供的《重启人生》第 1 集视频与日文 SRT 作为新增开发/回归来源，语义和语音时标仍待校准。运行时不读取字幕轨、不使用云端。
 
 方案已综合 [P3 执行包](docs/live-video-translate-p3-2026-11-10/README.md)的因果约束、取消回收、评测和完整验收要求。RNNT、R2T2 仅保留有证据触发的后续研究指针，不随 A0/A1 自动启动。
 

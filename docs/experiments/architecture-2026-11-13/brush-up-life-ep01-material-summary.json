@@ -1,0 +1,139 @@
+{
+  "material_id": "brush-up-life-ep01",
+  "source_group_id": "brush-up-life-ep01",
+  "inspected_on": "2026-11-13",
+  "evidence_kind": "local_material_inspection",
+  "source": "user_provided_local_files",
+  "assigned_role": "development_and_regression",
+  "independent_source_count": 1,
+  "media_files_committed": false,
+  "video": {
+    "filename": "Brush.Up.Life.EP01.1080p.HULU.WEB-DL.AAC2.0.H.264-MagicStar.mkv",
+    "size_bytes": 1013146782,
+    "sha256": "f7ea73e789b8cb934f06aa1ebb184d22b9a7264eb9e9c1a15ded4d8566e1a25f",
+    "container": "matroska,webm",
+    "start_time_s": 0,
+    "duration_s": 2722.048,
+    "video_stream": {
+      "index": 0,
+      "codec": "h264",
+      "profile": "High",
+      "width": 1920,
+      "height": 1080,
+      "pixel_format": "yuv420p",
+      "average_frame_rate": "2997/100"
+    },
+    "audio_stream": {
+      "index": 1,
+      "codec": "aac",
+      "profile": "LC",
+      "sample_rate": 48000,
+      "channels": 2,
+      "channel_layout": "stereo",
+      "language_tag": "jpn"
+    },
+    "other_streams": [
+      {"index": 2, "codec": "png", "width": 331, "height": 186, "attached_pic": true}
+    ],
+    "embedded_subtitle_stream_count": 0
+  },
+  "subtitle": {
+    "filename": "Brush.Up.Life.EP01.1080p.HULU.WEB-DL.AAC2.0.H.264-MagicStar.srt",
+    "size_bytes": 68704,
+    "sha256": "92f21c209886bcd2cef4dcb1b78b348690e87170df4f39833fc9bdc4fb8827da",
+    "encoding": "UTF-8",
+    "utf8_bom": false,
+    "cue_count": 736,
+    "first_start_ms": 13948,
+    "last_end_ms": 2689054,
+    "cue_duration_ms": {"minimum": 934, "median": 2936, "maximum": 31498},
+    "parse_error_count": 0,
+    "non_positive_duration_count": 0,
+    "start_time_regression_count": 0,
+    "adjacent_overlap_count": 0,
+    "numbering_contiguous": true,
+    "cues_outside_container_duration": 0,
+    "multiline_cue_count": 530,
+    "cue_duration_1_to_3_seconds_count": 467,
+    "marker_counts": {
+      "contains_kana": 714,
+      "contains_parenthesized_text": 455,
+      "contains_music_symbol": 32,
+      "contains_narration_angle_marker": 154,
+      "contains_continuation_arrow": 122,
+      "contains_html_tag": 0
+    },
+    "reference_status": "provided_japanese_subtitles_pending_listening_and_semantic_annotation",
+    "authorship_and_generation_method": "unverified",
+    "audio_alignment_status": "not_verified"
+  },
+  "verification": {
+    "ffmpeg_version": "6.1.1",
+    "ffprobe_version": "6.1.1",
+    "command_templates": {
+      "placeholder_note": "Substitute the registered local source video and the listed seek position; these templates describe the executed inspection commands.",
+      "metadata": "ffprobe -v error -show_entries 'format=format_name,start_time,duration,size,bit_rate:stream=index,codec_type,codec_name,profile,width,height,pix_fmt,r_frame_rate,avg_frame_rate,sample_rate,channels,channel_layout,start_time,duration:stream_tags=language,title' -of json '<source_video>'",
+      "attachment_check": "ffprobe -v error -show_entries 'stream=index,codec_name,codec_type:stream_disposition=attached_pic' -of json '<source_video>'",
+      "video_audio_decode": "ffmpeg -v error -nostdin -ss <seek_s> -i '<source_video>' -t 3 -map 0:0 -map 0:1 -sn -dn -f null -",
+      "initial_duration_assumption": "ffmpeg -v error -nostdin -ss 14 -i '<source_video>' -t 3 -map 0:1 -vn -sn -dn -ac 1 -ar 16000 -f s16le -",
+      "sample_limited_pcm": "ffmpeg -v error -nostdin -ss <seek_s> -t 3.1 -i '<source_video>' -map 0:1 -vn -sn -dn -af 'aresample=16000,aformat=sample_fmts=s16:channel_layouts=mono,atrim=end_sample=48000,asetpts=PTS-STARTPTS' -f s16le -"
+    },
+    "metadata_and_file_hashes": "PASS",
+    "subtitle_structure_and_bounds": "PASS",
+    "video_audio_decode_samples": {
+      "status": "PASS",
+      "seek_positions_s": [14, 1200, 2680],
+      "duration_s_each": 3,
+      "stream_indexes": [0, 1],
+      "all_exit_codes": 0,
+      "error_output": "empty"
+    },
+    "initial_duration_assumption": {
+      "status": "FAIL",
+      "description": "A successful seek-based 3-second conversion did not produce exactly duration * sample_rate samples; no decode error was reported.",
+      "seek_position_s": 14,
+      "requested_duration_s": 3,
+      "assumed_sample_count": 48000,
+      "observed_sample_count": 47987,
+      "observed_bytes": 95974,
+      "ffmpeg_exit_code": 0,
+      "cause_status": "not_further_isolated"
+    },
+    "pcm_conversion_by_explicit_sample_limit": {
+      "status": "PASS",
+      "input_duration_limit_s": 3.1,
+      "filter": "aresample=16000,aformat=sample_fmts=s16:channel_layouts=mono,atrim=end_sample=48000,asetpts=PTS-STARTPTS",
+      "format": "s16le",
+      "sample_rate": 16000,
+      "channels": 1,
+      "samples_each": 48000,
+      "bytes_each": 96000,
+      "padding_added": false,
+      "outputs": [
+        {"seek_position_s": 14, "sha256": "9fd17b888ba6851f211204eade503c3b2a3524ea6abd0f3df8afcf0af98d742f"},
+        {"seek_position_s": 1200, "sha256": "db67d4fd15aa4733a84df3e2d0f34306db70e8adf14f5e5a4f942353afee7c72"},
+        {"seek_position_s": 2680, "sha256": "f932e023f3cc0c48f4b6650d25d5bfa942a4cb6a7ffd38c6f2422459fa4d5d81"}
+      ],
+      "outputs_retained": false
+    }
+  },
+  "not_run": [
+    "full_episode_decode",
+    "full_episode_pcm_preparation",
+    "mp4_remux",
+    "chrome_playback_and_tab_capture",
+    "subtitle_audio_alignment_listening",
+    "semantic_unit_annotation",
+    "asr_or_translation_inference",
+    "realtime_latency_or_resource_measurement",
+    "60_minute_continuous_session"
+  ],
+  "limitations": [
+    "Matching filenames and valid subtitle timestamps do not establish audiovisual or word-level synchronization.",
+    "Subtitle cues are not semantic units or verified 1-to-3-second speech examples.",
+    "One episode remains one source when split into multiple clips; it is not the required independent holdout set.",
+    "The 2722.048-second episode is shorter than the required 60-minute continuous-session test.",
+    "A successful FFmpeg decode does not establish browser playback or capture compatibility.",
+    "Exact-size diagnostic PCM outputs do not establish their alignment to subtitle speech boundaries."
+  ]
+}
