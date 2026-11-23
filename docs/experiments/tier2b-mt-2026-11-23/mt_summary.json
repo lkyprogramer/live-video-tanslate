@@ -1,0 +1,226 @@
+{
+  "translategemma-4b": {
+    "repo_id": "mlx-community/translategemma-4b-it-4bit",
+    "load_s": 186.56,
+    "modes": {
+      "M0": {
+        "non_empty": 183,
+        "gateway_pass": 180,
+        "p50_s": 5.7288,
+        "p95_s": 6.3231,
+        "tracks": {
+          "oracle_d0": {
+            "rows": 34,
+            "non_empty": 34,
+            "gateway_pass": 34,
+            "p50_s": 5.6746,
+            "p95_s": 6.2408
+          },
+          "nemo_v2": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 62,
+            "p50_s": 6.0094,
+            "p95_s": 6.3769
+          },
+          "qwen3_1.7b": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 65,
+            "p50_s": 5.5551,
+            "p95_s": 6.3034
+          },
+          "d1_srt": {
+            "rows": 19,
+            "non_empty": 19,
+            "gateway_pass": 19,
+            "p50_s": 5.3668,
+            "p95_s": 5.7837
+          }
+        }
+      }
+    },
+    "gpu_peak_mib": 2359.34,
+    "rss_mib": 2269.98
+  },
+  "seed-x-7b": {
+    "repo_id": "dong-99/Seed-X-PPO-7B-mlx-4Bit",
+    "load_s": 173.55,
+    "modes": {
+      "M0": {
+        "non_empty": 183,
+        "gateway_pass": 79,
+        "p50_s": 0.9664,
+        "p95_s": 3.3754,
+        "tracks": {
+          "oracle_d0": {
+            "rows": 34,
+            "non_empty": 34,
+            "gateway_pass": 16,
+            "p50_s": 1.2008,
+            "p95_s": 8.1469
+          },
+          "nemo_v2": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 24,
+            "p50_s": 0.9744,
+            "p95_s": 7.9979
+          },
+          "qwen3_1.7b": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 32,
+            "p50_s": 0.8758,
+            "p95_s": 1.765
+          },
+          "d1_srt": {
+            "rows": 19,
+            "non_empty": 19,
+            "gateway_pass": 7,
+            "p50_s": 0.9983,
+            "p95_s": 2.2071
+          }
+        }
+      }
+    },
+    "gpu_peak_mib": 4354.48,
+    "rss_mib": 2840.27
+  },
+  "plamo3-8b": {
+    "repo_id": "pfnet/plamo-3-translate-8b-MLX-4bit",
+    "error": "The model at /Users/luo/Documents/github/jp-live-video-tanslate/.model-cache/hub/models--pfnet--plamo-3-translate-8b-MLX-4bit/snapshots/79cbecfbceadb4b330b7e54a73f9a068cfa4e7ba requires importing and running a custom module ('modeling_plamo_mlx.py') to build its architecture. This is disabled by default. Pass trust_remote_code=True if you trust this model."
+  },
+  "qwen3-4b": {
+    "repo_id": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    "load_s": 329.34,
+    "modes": {
+      "M0": {
+        "non_empty": 183,
+        "gateway_pass": 178,
+        "p50_s": 0.5287,
+        "p95_s": 0.9642,
+        "tracks": {
+          "oracle_d0": {
+            "rows": 34,
+            "non_empty": 34,
+            "gateway_pass": 34,
+            "p50_s": 0.5508,
+            "p95_s": 0.9318
+          },
+          "nemo_v2": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 63,
+            "p50_s": 0.4736,
+            "p95_s": 0.7806
+          },
+          "qwen3_1.7b": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 62,
+            "p50_s": 0.5896,
+            "p95_s": 1.0239
+          },
+          "d1_srt": {
+            "rows": 19,
+            "non_empty": 19,
+            "gateway_pass": 19,
+            "p50_s": 0.7058,
+            "p95_s": 0.9279
+          }
+        }
+      },
+      "M_CTX": {
+        "non_empty": 130,
+        "gateway_pass": 124,
+        "p50_s": 1.3409,
+        "p95_s": 2.2588,
+        "tracks": {
+          "nemo_v2": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 60,
+            "p50_s": 1.1672,
+            "p95_s": 1.9587
+          },
+          "qwen3_1.7b": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 64,
+            "p50_s": 1.4945,
+            "p95_s": 2.418
+          }
+        }
+      }
+    },
+    "gpu_peak_mib": 2758.75,
+    "rss_mib": 4418.83
+  },
+  "qwen3-8b": {
+    "repo_id": "mlx-community/Qwen3-8B-4bit",
+    "load_s": 365.15,
+    "modes": {
+      "M0": {
+        "non_empty": 183,
+        "gateway_pass": 182,
+        "p50_s": 1.4862,
+        "p95_s": 3.4189,
+        "tracks": {
+          "oracle_d0": {
+            "rows": 34,
+            "non_empty": 34,
+            "gateway_pass": 34,
+            "p50_s": 1.0589,
+            "p95_s": 1.8277
+          },
+          "nemo_v2": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 64,
+            "p50_s": 1.2008,
+            "p95_s": 2.0727
+          },
+          "qwen3_1.7b": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 65,
+            "p50_s": 1.8982,
+            "p95_s": 4.1656
+          },
+          "d1_srt": {
+            "rows": 19,
+            "non_empty": 19,
+            "gateway_pass": 19,
+            "p50_s": 2.4409,
+            "p95_s": 3.3175
+          }
+        }
+      },
+      "M_CTX": {
+        "non_empty": 130,
+        "gateway_pass": 121,
+        "p50_s": 4.0137,
+        "p95_s": 6.8587,
+        "tracks": {
+          "nemo_v2": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 60,
+            "p50_s": 3.8602,
+            "p95_s": 5.4814
+          },
+          "qwen3_1.7b": {
+            "rows": 65,
+            "non_empty": 65,
+            "gateway_pass": 61,
+            "p50_s": 4.2314,
+            "p95_s": 6.9441
+          }
+        }
+      }
+    },
+    "gpu_peak_mib": 4907.65,
+    "rss_mib": 4418.83
+  }
+}
