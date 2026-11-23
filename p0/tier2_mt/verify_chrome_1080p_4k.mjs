@@ -7,9 +7,12 @@ import { join, resolve } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const ROOT = resolve(import.meta.dirname, '../..');
-const OUT_DIR = join(ROOT, 'p0/evidence/m1-pro-hq-browser-20261123');
-const MP4_1080P = join(OUT_DIR, 'media/brush-up-life-ep01-1080p.mp4');
-const MP4_4K = join(OUT_DIR, 'media/brush-up-life-4k-35s.mp4');
+const OUT_DIR = process.env.CHROME_E2E_OUT || join(ROOT, 'p0/evidence/m1-pro-hq-browser-20261123');
+const MEDIA_DIR = process.env.MEDIA_DIR || join(OUT_DIR, 'media');
+const EXT_DIR = process.env.EXT_DIST_DIR || join(ROOT, 'extension/dist');
+const PROFILE_ID = process.env.TEST_PROFILE || 'm1-pro-hq';
+const MP4_1080P = join(MEDIA_DIR, 'brush-up-life-ep01-1080p.mp4');
+const MP4_4K = join(MEDIA_DIR, 'brush-up-life-4k-35s.mp4');
 const JUMP1_S = 275.0; // 04:35.0 (right before 04:35.676-05:20.676 19-cue dense dialogue)
 const JUMP2_S = 725.0; // 12:05.0 (karaoke reunion 4-person dense dialogue)
 
@@ -144,27 +147,31 @@ async function installCaptionObserver(tab) {
     setInterval(() => {
       const hosts = [...document.querySelectorAll('div')];
       let text = '';
+      let prevText = '';
       for (const h of hosts) {
-        const lbl = h.shadowRoot?.querySelector('div');
+        if (!h.hasAttribute('data-local-video-subtitle')) continue;
+        const lbl = h.shadowRoot?.querySelector('span[data-current]') || h.shadowRoot?.querySelector('span');
+        const prev = h.shadowRoot?.querySelector('span[data-prev]');
         if (lbl && lbl.textContent && !lbl.hasAttribute('data-status')) {
           text = lbl.textContent.trim();
+          prevText = prev?.textContent?.trim() || '';
           break;
         }
       }
       if (text && text !== lastText) {
         lastText = text;
-        window.__capLog.push({ t_ms: Date.now(), media_time: Number(v.currentTime.toFixed(2)), text_zh: text });
+        window.__capLog.push({ t_ms: Date.now(), media_time: Number(v.currentTime.toFixed(2)), text_zh: text, prev_zh: prevText });
       }
     }, 100);
   })()`);
 }
 
 let service;
-const summary = { scenarios: {} };
+const summary = { profile_id: PROFILE_ID, scenarios: {} };
 
 try {
   summary.chrome = (await cdp('Browser.getVersion')).product;
-  const { id: extId } = await cdp('Extensions.loadUnpacked', { path: join(ROOT, 'extension/dist') });
+  const { id: extId } = await cdp('Extensions.loadUnpacked', { path: EXT_DIR });
   summary.extension_id = extId;
 
   const baseToml = await readFile(join(ROOT, 'engine/config/profiles.toml'), 'utf8');
@@ -203,13 +210,13 @@ try {
   const optTab = await openTab(`chrome-extension://${extId}/options.html`);
   await until(() => evaluate(optTab, '!!document.querySelector("#token")'), 10000, 'options page');
   const okProfile = await evaluate(optTab, `(async () => {
-    await chrome.storage.local.set({ token: ${JSON.stringify(token)}, profile_id: 'm1-pro-hq' });
+    await chrome.storage.local.set({ token: ${JSON.stringify(token)}, profile_id: ${JSON.stringify(PROFILE_ID)} });
     const r = await fetch('http://127.0.0.1:18765/v1/profiles', { headers: { Authorization: 'Bearer ' + ${JSON.stringify(token)} } });
     const data = await r.json();
-    const hq = data.profiles.find(p => p.id === 'm1-pro-hq');
+    const hq = data.profiles.find(p => p.id === ${JSON.stringify(PROFILE_ID)});
     return hq?.available === true;
   })()`);
-  if (!okProfile) throw Error('m1-pro-hq not available in /v1/profiles');
+  if (!okProfile) throw Error(`${PROFILE_ID} not available in /v1/profiles`);
 
   const sampler = sampleProcStats((rows) => {
     const srv = rows.find((r) => r.pid === service.pid);
@@ -349,6 +356,7 @@ try {
     chrome_peak_cpu_pct: Math.max(...procSamples.map((s) => s.chrome_cpu_pct)),
   };
 
+  summary.diagnostics = diagnostics;
   await writeFile(join(OUT_DIR, 'chrome_e2e_summary.json'), JSON.stringify(summary, null, 2) + '\n');
   console.log('CHROME_E2E_DONE', JSON.stringify({
     '1080p': {
