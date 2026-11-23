@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import threading
 import time
 import unicodedata
 from uuid import uuid4
@@ -57,6 +58,8 @@ def chinese(text):
 
 
 class Connection:
+    _FLUSH_STAGES = frozenset({"ready", "ws_sent", "gateway_filtered", "asr_end", "mt_end"})
+
     def __init__(self, ws, trace_path):
         self.ws = ws
         self.trace_path = trace_path
@@ -67,11 +70,28 @@ class Connection:
         self.active = False
         self.write_lock = asyncio.Lock()
         self.failure = asyncio.get_running_loop().create_future()
+        self._trace_lock = threading.Lock()
+        self._trace_file = None
 
     def record(self, stage, **fields):
-        with open(self.trace_path, "a", encoding="utf-8") as log_file:
-            log_file.write(json.dumps({"t": time.monotonic(), "stage": stage,
-                                       "session_id": self.session_id, **fields}, ensure_ascii=False) + "\n")
+        if not self.trace_path:
+            return
+        line = json.dumps({"t": time.monotonic(), "stage": stage,
+                           "session_id": self.session_id, **fields}, ensure_ascii=False) + "\n"
+        with self._trace_lock:
+            if self._trace_file is None:
+                self._trace_file = open(self.trace_path, "a", encoding="utf-8", buffering=8192)
+            self._trace_file.write(line)
+            if stage in self._FLUSH_STAGES:
+                self._trace_file.flush()
+
+    def close_trace(self):
+        with self._trace_lock:
+            if self._trace_file is not None:
+                with suppress(OSError):
+                    self._trace_file.flush()
+                    self._trace_file.close()
+                self._trace_file = None
 
     async def send(self, type_, **data):
         if self.session_id is not None:
@@ -315,6 +335,7 @@ def create_app(config: Settings, token: str, backends: dict[str, SubtitleBackend
                 if session is not None:
                     await session.aclose()
             finally:
+                connection.close_trace()
                 if owns_lease:
                     leased = False
 

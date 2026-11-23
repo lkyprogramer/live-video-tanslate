@@ -23,10 +23,23 @@ class ServerConfig(StrictModel):
 
 
 class AsrConfig(StrictModel):
-    type: Literal["reazon_sherpa", "qwen3_asr_mlx"]
-    model_revision: Revision
+    type: Literal["reazon_sherpa", "qwen3_asr_mlx", "speech_cpp_nemo"]
+    model_revision: Revision | None = None
+    model_file: str | None = None
     threads: int = Field(default=2, ge=1, le=10)
     vad_pause_ms: int = Field(default=600, ge=100, le=1500)
+    max_segment_s: float = Field(default=0.0, ge=0.0, le=30.0)
+    overlap_ms: int = Field(default=350, ge=0, le=1000)
+    decoding: Literal["beam", "greedy"] = "beam"
+
+    @model_validator(mode="after")
+    def check_source(self):
+        if self.type == "speech_cpp_nemo":
+            if not self.model_file or "/" in self.model_file or "\\" in self.model_file or ".." in self.model_file:
+                raise ValueError("speech_cpp_nemo requires a safe model_file basename")
+        elif self.model_revision is None:
+            raise ValueError(f"{self.type} requires model_revision")
+        return self
 
 
 class MtConfig(StrictModel):

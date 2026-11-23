@@ -220,3 +220,190 @@ def test_collapse_repetition_and_kana_repair():
     assert tr.translate(lp._NoopSession(), "何であるか") == "首先是什么"
     assert len(calls) == 2
 
+
+def test_smart_segmenter_and_dedup():
+    class FakeSegment:
+        def __init__(self, start, samples):
+            self.start = start
+            self.samples = samples
+
+    class FakeVad:
+        def __init__(self):
+            self._speaking = True
+            self._queue = []
+            self._total = 0
+
+        def accept_waveform(self, arr):
+            self._total += len(arr)
+
+        def is_speech_detected(self):
+            return self._speaking
+
+        def empty(self):
+            return not self._queue
+
+        @property
+        def front(self):
+            return self._queue[0]
+
+        def pop(self):
+            self._queue.pop(0)
+
+        def flush(self):
+            self._speaking = False
+            self._queue.append(FakeSegment(0, np.ones(self._total, dtype=np.float32) * 0.2))
+
+    vad = FakeVad()
+    seg = lp._SmartSegmenter(vad, max_segment_s=4.5, overlap_ms=350)
+    emitted = []
+    # Build 6.0s of 200ms frames with an energy dip around 3.8s-4.0s
+    rng = np.random.default_rng(7)
+    for i in range(30):
+        amp = 0.01 if i in (18, 19) else 0.25
+        samples = (rng.standard_normal(3200).astype(np.float32) * amp).clip(-1.0, 1.0)
+        frame = (samples * 32767.0).astype("<i2").tobytes()
+        emitted.extend(seg.push(frame))
+    emitted.extend(seg.push(None))
+
+    assert len(emitted) >= 2
+    assert emitted[0][2] is False
+    assert emitted[1][2] is True
+    prev_end = 0
+    for start, arr, _ in emitted:
+        end = start + len(arr)
+        assert start < end
+        assert end > prev_end
+        prev_end = end
+
+    assert lp._dedup_boundary_ja("そういえば保育士さんって", "保育士さんって大変だよね。") == "大変だよね。"
+    assert lp._dedup_boundary_ja("こんにちは", "今日はいい天気。") == "今日はいい天気。"
+
+
+def test_mlx_priority_scheduler_mt_over_asr_and_cancel(tmp_path, monkeypatch):
+    settings = load_settings(_write_hq_config(tmp_path))
+    cache = Path(settings.cache_root)
+    vad = cache / "reazonspeech-assets/silero_vad.onnx"
+    vad.parent.mkdir(parents=True, exist_ok=True)
+    vad.write_bytes(b"vad")
+    monkeypatch.setattr(lp, "VAD_SHA", hashlib.sha256(b"vad").hexdigest())
+
+    for p in (
+        cache / f"hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/{REV_A}/config.json",
+        cache / f"hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/{REV_A}/model.safetensors",
+        cache / f"hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/{REV_A}/tokenizer_config.json",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/config.json",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/model.safetensors",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/tokenizer.json",
+    ):
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(b"{}")
+
+    order = []
+
+    class FakeAsr:
+        def __init__(self, *a):
+            pass
+
+        def new_vad(self):
+            return object()
+
+        def decode(self, samples, *, cancel_event=None):
+            order.append("asr")
+            return "こんにちは"
+
+    class FakeMt:
+        def __init__(self, *a):
+            pass
+
+        def new_session(self):
+            return lp._NoopSession()
+
+        @staticmethod
+        def translate(session, text_ja, *, cancel_event=None):
+            order.append("mt")
+            return "你好。"
+
+    call_idx = 0
+
+    def fake_vad_segments(vad_obj, frame):
+        nonlocal call_idx
+        call_idx += 1
+        if frame is not None and call_idx <= 2:
+            yield (call_idx - 1) * 1600, np.zeros(1600, dtype=np.float32)
+
+    monkeypatch.setattr(lp, "Qwen3AsrRecognizer", FakeAsr)
+    monkeypatch.setattr(lp, "Qwen3Translator", FakeMt)
+    monkeypatch.setattr(lp, "vad_segments", fake_vad_segments)
+
+    async def scenario():
+        backend = lp.LocalBackend(cache, settings.profiles["m1-pro-hq"])
+        emitted = []
+        session = await backend.open(lambda item: emitted.append(item) or asyncio.sleep(0))
+        await session.accept_pcm(b"\x00\x00" * 1600)
+        await session.accept_pcm(b"\x00\x00" * 1600)
+        await session.finish()
+        assert session.cancelled.is_set() is False
+        await session.aclose()
+        assert session.cancelled.is_set() is True
+        await backend.aclose()
+        return emitted
+
+    emitted = asyncio.run(scenario())
+    assert len(emitted) == 2
+    assert order == ["asr", "mt", "asr", "mt"]
+
+
+def test_speech_cpp_nemo_config_validation(tmp_path):
+    cfg = tmp_path / "profiles.toml"
+    cfg.write_text(
+        f"""
+schema_version = 1
+default_profile_id = "reazon-hy"
+cache_root = "{tmp_path / 'cache'}"
+
+[server]
+port = 18765
+allowed_origin = "chrome-extension://{'a' * 32}"
+
+[profiles.reazon-hy]
+label = "ReazonSpeech"
+type = "local_pipeline"
+enabled = true
+
+[profiles.reazon-hy.asr]
+type = "reazon_sherpa"
+model_revision = "{REV_A}"
+
+[profiles.reazon-hy.mt]
+type = "hy_mt2_mlx"
+model_revision = "{REV_B}"
+
+[profiles.m1-pro-nemo]
+label = "NeMo-v2"
+type = "local_pipeline"
+enabled = true
+
+[profiles.m1-pro-nemo.asr]
+type = "speech_cpp_nemo"
+model_file = "reazonspeech-nemo-619M-v2-Q8_0.gguf"
+threads = 8
+decoding = "beam"
+max_segment_s = 4.5
+overlap_ms = 350
+
+[profiles.m1-pro-nemo.mt]
+type = "qwen3_mt_mlx"
+model_revision = "{REV_B}"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    settings = load_settings(cfg)
+    nemo = settings.profiles["m1-pro-nemo"]
+    assert nemo.asr.type == "speech_cpp_nemo"
+    assert nemo.asr.threads == 8
+    backend = lp.LocalBackend(Path(settings.cache_root), nemo)
+    assert backend.uses_speech_cpp_asr is True
+    assert len(backend.missing) == 6
+
+
