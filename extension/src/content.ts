@@ -19,7 +19,10 @@ function install() {
   let seq = 0;
   let lastNotice: Player | undefined;
   let ticker: number | undefined;
-  let hide: number | undefined;
+  let hideCurr: number | undefined;
+  let hidePrev: number | undefined;
+  let currShownAt = 0;
+  let currDwellMs = 4000;
   let bindings: AbortController | undefined;
   const observer = new ResizeObserver(position);
   const host = document.createElement('div');
@@ -27,18 +30,24 @@ function install() {
   const shadow = host.attachShadow({ mode: 'open' });
   const style = document.createElement('style');
   style.textContent = `
-    :host { all: initial; position: fixed; display: flex; z-index: 2147483647;
-      align-items: flex-end; justify-content: center; pointer-events: none; box-sizing: border-box; }
+    :host { all: initial; position: fixed; display: flex; flex-direction: column; z-index: 2147483647;
+      align-items: center; justify-content: flex-end; gap: .32em; pointer-events: none; box-sizing: border-box;
+      padding-bottom: 5%; }
     span { font: 600 clamp(16px, 2.4vw, 34px)/1.4 system-ui, sans-serif; display: inline-block;
       max-width: 86%; text-align: center; color: white; background: rgba(0,0,0,.78);
-      padding: .22em .55em; margin-bottom: 5%; border-radius: .28em; white-space: pre-wrap;
+      padding: .22em .55em; border-radius: .28em; white-space: pre-wrap;
       overflow-wrap: anywhere; }
+    span[data-prev] { font-size: clamp(14px, 2.0vw, 29px); opacity: .78; }
     span:empty { display: none; }
     span[data-status] { font-size: 14px; color: #fff4cf; }
   `;
+  const prevLabel = document.createElement('span');
+  prevLabel.dataset.prev = '';
+  prevLabel.lang = 'zh-Hans';
   const label = document.createElement('span');
+  label.dataset.current = '';
   label.lang = 'zh-Hans';
-  shadow.append(style, label);
+  shadow.append(style, prevLabel, label);
 
   let diagnosticCue: { session_id: string; seq: number; epoch: number } | undefined;
   let displayedCue: typeof diagnosticCue;
@@ -74,12 +83,45 @@ function install() {
       width: rect.width + 'px', height: rect.height + 'px' });
   }
 
+  function clearBoth() {
+    clearTimeout(hideCurr);
+    clearTimeout(hidePrev);
+    if (SUBTITLE_DIAGNOSTICS) diagnosticCue = undefined;
+    prevLabel.textContent = '';
+    label.textContent = '';
+    label.removeAttribute('data-status');
+  }
+
   function show(text = '', status = false) {
-    clearTimeout(hide);
-    if (SUBTITLE_DIAGNOSTICS) diagnosticCue = text && !status ? { session_id: sessionId, seq, epoch } : undefined;
+    if (!text) {
+      clearBoth();
+      position();
+      return;
+    }
+    if (status) {
+      clearBoth();
+      label.textContent = text;
+      label.toggleAttribute('data-status', true);
+      hideCurr = window.setTimeout(() => { label.textContent = ''; }, 4000);
+      position();
+      return;
+    }
+    clearTimeout(hideCurr);
+    clearTimeout(hidePrev);
+    if (label.textContent && !label.hasAttribute('data-status')) {
+      prevLabel.textContent = label.textContent;
+      const elapsed = performance.now() - currShownAt;
+      const prevDwell = Math.min(3500, Math.max(1800, currDwellMs - elapsed));
+      hidePrev = window.setTimeout(() => { prevLabel.textContent = ''; }, prevDwell);
+    } else {
+      prevLabel.textContent = '';
+    }
+    if (SUBTITLE_DIAGNOSTICS) diagnosticCue = { session_id: sessionId, seq, epoch };
     label.textContent = text;
-    label.toggleAttribute('data-status', status);
-    if (text) hide = window.setTimeout(() => { label.textContent = ''; }, 4000);
+    label.removeAttribute('data-status');
+    currShownAt = performance.now();
+    currDwellMs = Math.min(6500, Math.max(2500, Math.round(text.length * 170)));
+    hideCurr = window.setTimeout(() => { label.textContent = ''; }, currDwellMs);
     position();
   }
 
@@ -139,11 +181,10 @@ function install() {
     bindings?.abort();
     observer.disconnect();
     clearInterval(ticker);
-    clearTimeout(hide);
     video = undefined;
     lastNotice = undefined;
     host.remove();
-    label.textContent = '';
+    clearBoth();
   }
 
   function update(view: View) {
@@ -173,8 +214,9 @@ function install() {
           bindings?.abort();
           observer.disconnect();
           clearInterval(ticker);
-          clearTimeout(hide);
-          hide = window.setTimeout(() => { host.remove(); }, 4000);
+          clearTimeout(hideCurr);
+          clearTimeout(hidePrev);
+          hideCurr = window.setTimeout(() => { host.remove(); }, 4000);
         } else unbind();
     }
   }

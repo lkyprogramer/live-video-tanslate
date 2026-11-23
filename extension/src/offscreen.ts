@@ -103,10 +103,12 @@ class Activation {
     }
     if (!changedVideo && player.state === previous?.state) return;
     this.reset();
-    if (player.state === 'playing') void this.connect(this.epoch, performance.now() - retiredAt < 2000);
+    if (player.state === 'playing') {
+      void this.connect(this.epoch, performance.now() - retiredAt < 2000 ? 3 : 0);
+    }
   }
 
-  private async connect(epoch: number, retry: boolean) {
+  private async connect(epoch: number, busyRetries: number) {
     try {
       this.view({ kind: 'status', text: '正在连接本地字幕服务…' });
       const token = this.settings.token!;
@@ -131,13 +133,15 @@ class Activation {
         }
         if (event.type === 'error') {
           if (conn.sessionId && event.session_id !== conn.sessionId) return;
-          if (event.code === 'busy' && retry && !conn.sessionId) {
+          if (event.code === 'busy' && busyRetries > 0 && !conn.sessionId) {
             clearTimeout(conn.timer);
             this.socket = undefined;
             ws.close();
+            const delays = [700, 350, 150];
+            const delay = delays[busyRetries - 1] ?? 350;
             setTimeout(() => {
-              if (!this.closed && this.epoch === epoch) void this.connect(epoch, false);
-            }, 500);
+              if (!this.closed && this.epoch === epoch) void this.connect(epoch, busyRetries - 1);
+            }, delay);
           } else this.stop(event.code, event.reason);
           return;
         }
