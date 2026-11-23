@@ -27,3 +27,18 @@ type = "whisperlivekit_ws"
 enabled = false
 url = "ws://127.0.0.1:18766/asr"
 token_env = "WLK_API_TOKEN"
+
+[profiles.m1-pro-hq]
+label = "Qwen3 · M1 Pro 高精度"
+type = "local_pipeline"
+enabled = false
+
+[profiles.m1-pro-hq.asr]
+type = "qwen3_asr_mlx"
+model_revision = "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+threads = 2
+vad_pause_ms = 600
+
+[profiles.m1-pro-hq.mt]
+type = "qwen3_mt_mlx"
+model_revision = "50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b"

@@ -23,14 +23,14 @@ class ServerConfig(StrictModel):
 
 
 class AsrConfig(StrictModel):
-    type: Literal["reazon_sherpa"]
+    type: Literal["reazon_sherpa", "qwen3_asr_mlx"]
     model_revision: Revision
     threads: int = Field(default=2, ge=1, le=10)
     vad_pause_ms: int = Field(default=600, ge=100, le=1500)
 
 
 class MtConfig(StrictModel):
-    type: Literal["hy_mt2_mlx"]
+    type: Literal["hy_mt2_mlx", "qwen3_mt_mlx"]
     model_revision: Revision
 
 
