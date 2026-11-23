@@ -1,5 +1,7 @@
 # Chrome 日语语音实时中文字幕方案
 
+> **历史基线提示**：本文档记录的是 **2026-11-06 P0/v0 阶段的 WhisperLiveKit 初始架构基线**。当前生产引擎已演进为自研异步解耦流水线（支持 `m1-pro-nemo` CPU/GPU 异构、`m1-pro-hq` 全 MLX GPU 及 `reazon-hy` 三档，含 KV Cache 复用、能量谷 4.5s 短切分、协作式取消与双行自适应字幕）。最新架构与实测现状请参见 [README.md](../README.md)、[本机配置与模型下载](local-setup.md)、[极致优化方案](m1-pro-extreme-optimization-plan-2026-11-23.md) 与 [Step 2–3 端到端验收报告](step2-3-optimization-verification-2026-11-23.md)。
+
 **开发入口**　实现扩展、切换后端或执行验收时，使用新版开发方案与 v1 合同。[可执行开发方案](development-plan.md) · [字幕协议与后端合同](subtitle-backend-contract.md)
 
 **当前选型**　独立开发 Chrome 扩展。Mac 端首选 ReazonSpeech k2-v2 + sherpa-onnx + Silero VAD（600 ms）+ Hy-MT2 进入全量验收。[七组实测对比与原型方案](p0-asr-selection.md)

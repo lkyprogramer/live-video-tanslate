@@ -1,30 +1,79 @@
-# 本机使用与验收
+# 本机配置、模型准备与验收
 
-## 启动
+以下所有命令默认在项目根目录执行，适用环境为 Apple Silicon Mac、macOS、Chrome 116+、Python 3.12、`uv` 与 Node.js 22。
 
-当前默认链路是 ReazonSpeech、Silero VAD 600 ms 和 Hy-MT2。运行环境为 Apple Silicon Mac、Python 3.12、uv、Node.js 22 和 Chrome。以下命令均从项目根目录运行。
+---
+
+## 1. 准备 Python 与扩展环境
+
+### 1.1 Python 引擎环境（`engine/.venv`）
+
+基础环境可通过 `uv` 创建，而启用 `m1-pro-hq` / `m1-pro-nemo` 所需的 `mlx==0.32.4` 与 `mlx-audio==0.6.7` 因受上游 `whisperlivekit` 元数据（`mlx<0.32`）约束，实际以 `engine/.venv/bin/python` 直接运行并按需补装 `mlx==0.32.4` / `mlx-audio==0.6.7`：
 
 ```sh
 uv sync --project engine --frozen
+# 若需运行 m1-pro-hq / m1-pro-nemo，确保 venv 内已安装 mlx==0.32.4 与 mlx-audio==0.6.7
 ```
 
-使用预构建 ZIP 时直接解压。也可以从源码构建扩展。
+### 1.2 构建 Chrome 扩展
+
+使用预构建 ZIP 时直接解压即可；从源码构建或打包：
 
 ```sh
 npm --prefix extension ci
-npm --prefix extension run build
+npm --prefix extension run build      # 输出至 extension/dist
+# npm --prefix extension run package  # 可选：打包至 artifacts/
 ```
 
-首次安装时，用以下命令下载固定版本的模型。已有缓存可以直接复用。
+---
+
+## 2. 准备模型与原生推理库
+
+所有模型统一缓存在项目根目录 `.model-cache/`（已加入 `.gitignore`）。
+
+### 2.1 公共 VAD 模型（所有档位必需）
+
+服务启动时会校验 `silero_vad.onnx` 的 SHA-256：
 
 ```sh
 mkdir -p .model-cache/reazonspeech-assets
 curl -fLsS https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx \
   -o .model-cache/reazonspeech-assets/silero_vad.onnx
+```
+
+### 2.2 `m1-pro-nemo`（推荐 M1 Pro 主力 · 异构极速高精档）
+
+1. **编译 `speech.cpp` 并下载 `reazonspeech-nemo-619M-v2-Q8_0.gguf`**（需 `cmake`、`ninja`、`clang++`）：
+   ```sh
+   ./scripts/setup_speech_cpp_nemo.sh
+   ```
+   产物会安装到 `.model-cache/speech-cpp/`（`libspeech.4.dylib`、`libspeech.dylib` 与 `Q8_0` GGUF 模型）。
+2. **下载 `Qwen3-4B-Instruct-2507-4bit`**：见下方第 2.3 节共用命令。
+
+### 2.3 `m1-pro-hq`（全 MLX GPU 档）与 `reazon-hy`（轻量基线档）
+
+按需下载对应固定 revision 快照（已存在则自动复用）：
+
+```sh
 HF_HOME="$PWD/.model-cache" HF_HUB_DISABLE_IMPLICIT_TOKEN=1 \
-  uv run --project engine --frozen python - <<'PY'
+  engine/.venv/bin/python - <<'PY'
 from huggingface_hub import snapshot_download
 
+# m1-pro-nemo 与 m1-pro-hq 共用 MT：Qwen3-4B-Instruct-2507-4bit
+snapshot_download(
+    "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    revision="50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b",
+    allow_patterns=["*.json", "*.jinja", "*.safetensors"],
+)
+
+# 仅 m1-pro-hq 需要：Qwen3-ASR-1.7B-8bit
+snapshot_download(
+    "mlx-community/Qwen3-ASR-1.7B-8bit",
+    revision="a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+    allow_patterns=["*.json", "*.safetensors", "vocab.json", "merges.txt"],
+)
+
+# 仅 reazon-hy 需要：ReazonSpeech k2-v2 INT8 + Hy-MT2 1.8B 4-bit
 snapshot_download(
     "reazon-research/reazonspeech-k2-v2",
     revision="291488c8151be24d7da4bf7af26e533fad96e407",
@@ -39,29 +88,30 @@ snapshot_download(
 PY
 ```
 
-服务启动时校验 Silero 文件的 SHA-256。权重备齐后，观看阶段在本机推理。
+---
 
-1. 在 Chrome 打开 `chrome://extensions`，开启开发者模式，加载 `extension/dist` 或 ZIP 解压后包含 `manifest.json` 的目录。
-2. 复制扩展 ID。首次设置时将 `engine/config/profiles.example.toml` 复制为 `engine/config/profiles.toml`，把 `allowed_origin` 中的占位 ID 换成刚复制的 ID。
-3. 启动本地服务。
+## 3. 配置与启动
 
+1. 在 Chrome 打开 `chrome://extensions`，开启开发者模式，加载 `extension/dist`（或解压后的 ZIP 目录），复制扩展 ID。
+2. 复制 `engine/config/profiles.example.toml` 为 `engine/config/profiles.toml`（gitignored）：
+   - 将 `allowed_origin` 中的 `<extension-id>` 替换为刚复制的扩展 ID；
+   - 按需将 `[profiles.m1-pro-nemo]` / `[profiles.m1-pro-hq]` 的 `enabled` 设为 `true`；
+   - 推荐将 `default_profile_id` 改为 `"m1-pro-nemo"`（仓库示例保留 `"reazon-hy"` 以确保无额外下载即可启动）。
+3. 启动本地服务：
    ```sh
-   uv run --project engine --frozen subtitle-server --config engine/config/profiles.toml
+   engine/.venv/bin/python -m subtitle_service.cli --config engine/config/profiles.toml
    ```
+4. 首次启动会打印令牌文件路径。将令牌填入扩展 Options 页面，点击「刷新配置」确认可用档位后保存。
+5. 播放日语视频并点击工具栏图标即可开启字幕：
+   - 画面底部渲染**双行滚动字幕**（上行历史句 + 下行当前句），按字符数自适应停留 `2.5s – 6.5s`；
+   - 拖动进度条（seek）或暂停时立即中止旧推理并清屏，恢复播放自动重建新会话；
+   - 支持普通网页与播放器容器全屏；若页面直接触发 `<video>` 原生全屏，图标会提示 `!`，退出全屏后恢复。
 
-4. 服务打印令牌文件路径。将文件中的令牌录入扩展 Options，点击「刷新配置」确认连通，再点击「保存」。
-5. 播放日语视频，点击工具栏扩展图标。字幕上屏后继续播放即可。再次点击同一标签页的图标停止。暂停或拖动会清掉旧字幕，恢复播放从当前位置重新识别。
+---
 
-普通网页和播放器容器全屏支持字幕浮层。若网页直接让视频元素进入原生全屏，工具栏图标会显示 `!`，退出全屏后恢复字幕。
+## 4. 可选的 WhisperLiveKit 配置
 
-开发阶段在真实 Chrome 验证用的是独立临时浏览器配置。本地服务在终端前台运行，按 Ctrl-C 停止。
-扩展连接固定的 `127.0.0.1:18765`；新增后端若需要另一个进程，在该后端的配置里填写其独立端口。
-
-## 可选的 WhisperLiveKit 配置
-
-默认配置可以单独运行。要在 Options 启用另一种真实后端，先按原 [P0 安装说明](p0.md#复现)准备 WhisperLiveKit 及模型，使用独立 loopback 端口 18766。保留原 P0 的 PCM、日语、Hy-MT2 和 `--retention-seconds 30` 参数。
-
-从项目根目录开两个终端，各自使用同一个私有的上游令牌文件。以下命令要求原 P0 的 `.venv` 及缓存已就绪。
+仓库保留 `whisperlivekit_ws` 对接能力，使用独立 loopback 端口 `18766`：
 
 ```sh
 umask 077
@@ -77,23 +127,23 @@ export HF_HOME="$PWD/.model-cache" HF_HUB_OFFLINE=1 HF_HUB_DISABLE_IMPLICIT_TOKE
   --max-concurrent-sessions 1 --max-buffered-audio 4 --backpressure-timeout 1 --log-level WARNING
 ```
 
-在本地 `profiles.toml` 的 `profiles.whisper-small` 将 `enabled` 设为 `true`。从另一个终端带同一个上游令牌启动本地服务。
+在本地 `profiles.toml` 中将 `[profiles.whisper-small]` 的 `enabled` 设为 `true`，带同一 `WLK_API_TOKEN` 启动 `subtitle-server` 即可在 Options 中切换。
+
+---
+
+## 5. 验证命令
 
 ```sh
-export WLK_API_TOKEN="$(cat .model-cache/whisper-service.token)"
-uv run --project engine --frozen subtitle-server --config engine/config/profiles.toml
-```
+# 1. 全量单元测试与前端类型检查/构建
+PYTHONPATH=.:engine/src engine/.venv/bin/pytest engine/tests p0/p2/tests p0/local_streaming
+npm --prefix extension run typecheck && npm --prefix extension test && npm --prefix extension run build
 
-刷新 Options 后选择配置并保存。工具栏停止并重新启动字幕时生效。
+# 2. 1× 实速 WebSocket 双档对比（需停止占用 18765 的服务）
+engine/.venv/bin/python p0/perf_probe/verify_step2_3_live.py
 
-## 验证命令
+# 3. Chrome 1080p / 4K 端到端联调（需准备 MEDIA_DIR 测试视频并空出 18765）
+# TEST_PROFILE=m1-pro-nemo MEDIA_DIR=... node p0/tier2_mt/verify_chrome_1080p_4k.mjs
 
-```sh
-uv run --project engine --frozen pytest -q engine/tests
-npm --prefix extension run typecheck
-npm --prefix extension test
-npm --prefix extension run build
+# 4. 基础协议与浏览器冒烟
 node extension/test/chrome-smoke.mjs p0/evidence/v1-chrome-check
 ```
-
-[阶段验收与当前限制](v1-acceptance.md)。浏览器测试使用本机 Chrome、FFmpeg 和现有 CSJ PCM，并自行启动 loopback 服务。请先让出端口 18765，并为每次执行选择一个新证据目录。`--lifecycle` 加测接管、换视频、倍速、播放结束和断线恢复；`--youtube`、`--wikimedia` 加测在线样本。加 `--switch` 前先启动 WhisperLiveKit 18766 并向测试命令导出 `WLK_API_TOKEN`。
