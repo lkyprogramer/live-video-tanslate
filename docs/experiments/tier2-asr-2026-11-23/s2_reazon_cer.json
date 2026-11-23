@@ -1,0 +1,35 @@
+{
+  "asr": "reazon",
+  "d0_cer": {
+    "overall_cer": 0.2092,
+    "total_dist": 272,
+    "total_ref_len": 1300,
+    "non_empty_units": 33,
+    "by_clip": {
+      "csj-reproduction": {
+        "dist": 21,
+        "ref_len": 220,
+        "hyp_len": 208,
+        "cer": 0.0955
+      },
+      "csj-task": {
+        "dist": 69,
+        "ref_len": 134,
+        "hyp_len": 91,
+        "cer": 0.5149
+      },
+      "wmf-04": {
+        "dist": 182,
+        "ref_len": 946,
+        "hyp_len": 903,
+        "cer": 0.1924
+      }
+    }
+  },
+  "d1_cer": {
+    "dist": 238,
+    "ref_len": 334,
+    "hyp_len": 116,
+    "cer": 0.7126
+  }
+}

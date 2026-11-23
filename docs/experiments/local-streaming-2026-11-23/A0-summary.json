@@ -1,0 +1,266 @@
+{
+  "status": "A0_ENGINEERING_READY",
+  "rounds": {
+    "11": {
+      "semantic": 20,
+      "samples": 7616928,
+      "asr_exact": 88,
+      "mt_exact": 62,
+      "max_packet_late_ms": 105.004542,
+      "original_timing": {
+        "denominator": 34,
+        "matched": 20,
+        "within_2s": 18,
+        "within_3s": 19,
+        "within_5s": 19,
+        "within_15s": 20,
+        "matched_p50_ms": -164.47895900000003,
+        "matched_p95_ms": 2241.1993749999965,
+        "all_units_p95_ms": null,
+        "all_units_p95_unbounded": true,
+        "early_units": 10,
+        "late_units": [],
+        "match_window_ms": 15000,
+        "tail_sample_count_sufficient": true,
+        "all_references_human_declared": false,
+        "formal_tail_claim_eligible": false,
+        "evidence_status": "measured",
+        "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+        "release_eligible": false,
+        "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+      },
+      "adjusted_timing": {
+        "denominator": 34,
+        "matched": 20,
+        "within_2s": 19,
+        "within_3s": 20,
+        "within_5s": 20,
+        "within_15s": 20,
+        "matched_p50_ms": -213.80912499999977,
+        "matched_p95_ms": 1989.2261670000007,
+        "all_units_p95_ms": null,
+        "all_units_p95_unbounded": true,
+        "early_units": 11,
+        "late_units": [],
+        "match_window_ms": 15000,
+        "tail_sample_count_sufficient": true,
+        "all_references_human_declared": false,
+        "formal_tail_claim_eligible": false,
+        "evidence_status": "measured",
+        "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+        "release_eligible": false,
+        "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+      },
+      "timings": {
+        "asr_executor_wait": {
+          "count": 2391,
+          "p50": 0.15041697770357132,
+          "p95": 0.6222091615200043,
+          "maximum": 20.028209080919623
+        },
+        "vad_asr_job_total": {
+          "count": 2391,
+          "p50": 1.0263749863952398,
+          "p95": 4.273708909749985,
+          "maximum": 294.37225009314716
+        },
+        "asr_compute": {
+          "count": 88,
+          "p50": 103.2677919138223,
+          "p95": 213.3715827949345,
+          "maximum": 288.74699980951846
+        },
+        "vad_after_audio_end": {
+          "count": 88,
+          "p50": 127.7009159568685,
+          "p95": 627.5912501160059,
+          "maximum": 630.8351670634024
+        },
+        "mt_queue": {
+          "count": 88,
+          "p50": 0.48891687765717506,
+          "p95": 2.6787498500198126,
+          "maximum": 10.218417039141059
+        },
+        "mt_compute": {
+          "count": 88,
+          "p50": 385.7480841688812,
+          "p95": 997.3497081082314,
+          "maximum": 1282.0664159953594
+        }
+      },
+      "cpu_average": 12.63,
+      "cpu_p95": 91.453,
+      "footprint_mib": 1833.38
+    },
+    "29": {
+      "semantic": 18,
+      "samples": 7616928,
+      "asr_exact": 88,
+      "mt_exact": 62,
+      "max_packet_late_ms": 80.327584,
+      "original_timing": {
+        "denominator": 34,
+        "matched": 18,
+        "within_2s": 16,
+        "within_3s": 17,
+        "within_5s": 17,
+        "within_15s": 18,
+        "matched_p50_ms": 392.5244170000078,
+        "matched_p95_ms": 5446.935708999998,
+        "all_units_p95_ms": null,
+        "all_units_p95_unbounded": true,
+        "early_units": 8,
+        "late_units": [],
+        "match_window_ms": 15000,
+        "tail_sample_count_sufficient": false,
+        "all_references_human_declared": false,
+        "formal_tail_claim_eligible": false,
+        "evidence_status": "measured",
+        "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+        "release_eligible": false,
+        "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+      },
+      "adjusted_timing": {
+        "denominator": 34,
+        "matched": 18,
+        "within_2s": 17,
+        "within_3s": 18,
+        "within_5s": 18,
+        "within_15s": 18,
+        "matched_p50_ms": -100.7132500000007,
+        "matched_p95_ms": 2030.5620000000017,
+        "all_units_p95_ms": null,
+        "all_units_p95_unbounded": true,
+        "early_units": 9,
+        "late_units": [],
+        "match_window_ms": 15000,
+        "tail_sample_count_sufficient": false,
+        "all_references_human_declared": false,
+        "formal_tail_claim_eligible": false,
+        "evidence_status": "measured",
+        "quantile_method": "nearest_rank; unmatched=+infinity; early values retained",
+        "release_eligible": false,
+        "scope": "timing arithmetic only; no clock calibration, semantic, runtime or release proof"
+      },
+      "timings": {
+        "asr_executor_wait": {
+          "count": 2391,
+          "p50": 0.14704209752380848,
+          "p95": 0.762708019465208,
+          "maximum": 47.151500126346946
+        },
+        "vad_asr_job_total": {
+          "count": 2391,
+          "p50": 1.0200829710811377,
+          "p95": 4.301540786400437,
+          "maximum": 481.63366597145796
+        },
+        "asr_compute": {
+          "count": 88,
+          "p50": 85.33441717736423,
+          "p95": 196.47133396938443,
+          "maximum": 475.24308296851814
+        },
+        "vad_after_audio_end": {
+          "count": 88,
+          "p50": 127.44158411025808,
+          "p95": 627.4632501192397,
+          "maximum": 665.835084207356
+        },
+        "mt_queue": {
+          "count": 88,
+          "p50": 0.40908390656113625,
+          "p95": 1.912000123411417,
+          "maximum": 6.825624965131283
+        },
+        "mt_compute": {
+          "count": 88,
+          "p50": 321.4155419263989,
+          "p95": 1022.086082957685,
+          "maximum": 1124.9019999522716
+        }
+      },
+      "cpu_average": 11.45,
+      "cpu_p95": 89.597,
+      "footprint_mib": 1869.08
+    }
+  },
+  "file_hashes": {
+    "run-manifest.json": "079cf7d79f7ae0985f9981671ff612280f8be940d3b868843aea85b82517b2fd",
+    "capability/summary.json": "7f0a1e0b495f075f791a73a5e04159966b0cae9de1234d406b09ab7e0268ab9c",
+    "inputs/unit-map.json": "ced0801e3d4d4aa3e1e68fb94ae78c610d54c4f34bd5bcfc2b3732d2993ac588"
+  },
+  "window_capability": {
+    "release_counts": {
+      "length_managed_pause": 57,
+      "eof": 5,
+      "natural_pause": 26
+    },
+    "tick_counts": {
+      "snapshots": 508,
+      "has_sentence_punctuation": 0,
+      "has_stable_prefix": 335,
+      "has_stable_punctuation": 0
+    },
+    "window_ms": {
+      "4": {
+        "count": 12,
+        "p50_ms": 77.916541,
+        "p95_ms": 86.856417,
+        "max_ms": 86.856417
+      },
+      "8": {
+        "count": 12,
+        "p50_ms": 153.728417,
+        "p95_ms": 173.476417,
+        "max_ms": 173.476417
+      },
+      "12": {
+        "count": 12,
+        "p50_ms": 219.51125,
+        "p95_ms": 239.026125,
+        "max_ms": 239.026125
+      }
+    },
+    "overlapping_vad_releases": [],
+    "eof_unclassified_residuals": [
+      {
+        "clip": "csj-reproduction",
+        "samples": 320
+      },
+      {
+        "clip": "csj-task",
+        "samples": 288
+      },
+      {
+        "clip": "first-photo",
+        "samples": 384
+      }
+    ],
+    "release_method": "sherpa-onnx v2.0.1 compiled behavior checked against released ranges and input samples",
+    "timestamp_scope": "token anchors, no word-end claim",
+    "vad_scheduler": "separate VAD lane; preserve current packet granularity and native config"
+  },
+  "classification_counts": {
+    "mt": 4,
+    "boundary_nearby": 2,
+    "in_span_asr": 6,
+    "cross_span": 3,
+    "unclear": 1
+  },
+  "references": {
+    "development_units": 34,
+    "pending_listen": 15,
+    "human_verified": false,
+    "disputed_wmf_end_seconds": [
+      119.6,
+      126.04
+    ]
+  },
+  "paths": {
+    "quality": "Retain VAD releases and prove A1a parity; then test 600ms pause/10s limit separately.",
+    "early": "Check exact stable source against B0 before any MT draft probe."
+  },
+  "caveat": "No DOM timing. Drain worst case remains a measured A1a check."
+}

@@ -1,0 +1,96 @@
+{
+  "engineering_pass": true,
+  "cases": [
+    {
+      "clip": "csj-reproduction",
+      "status": "finished",
+      "samples": 657216,
+      "expected_samples": 657216,
+      "sources": 5,
+      "captions": 5
+    },
+    {
+      "clip": "csj-task",
+      "status": "finished",
+      "samples": 648992,
+      "expected_samples": 648992,
+      "sources": 8,
+      "captions": 8
+    },
+    {
+      "clip": "offsiderule",
+      "status": "finished",
+      "samples": 1558720,
+      "expected_samples": 1558720,
+      "sources": 12,
+      "captions": 12
+    },
+    {
+      "clip": "wmf-04",
+      "status": "finished",
+      "samples": 4112000,
+      "expected_samples": 4112000,
+      "sources": 37,
+      "captions": 37
+    },
+    {
+      "clip": "first-photo",
+      "status": "finished",
+      "samples": 112000,
+      "expected_samples": 112000,
+      "sources": 2,
+      "captions": 2
+    },
+    {
+      "clip": "first-strangers",
+      "status": "finished",
+      "samples": 112000,
+      "expected_samples": 112000,
+      "sources": 1,
+      "captions": 1
+    },
+    {
+      "clip": "first-europe",
+      "status": "finished",
+      "samples": 128000,
+      "expected_samples": 128000,
+      "sources": 2,
+      "captions": 2
+    },
+    {
+      "clip": "first-slides",
+      "status": "finished",
+      "samples": 128000,
+      "expected_samples": 128000,
+      "sources": 2,
+      "captions": 2
+    },
+    {
+      "clip": "silence",
+      "status": "finished",
+      "samples": 160000,
+      "expected_samples": 160000,
+      "sources": 0,
+      "captions": 0
+    }
+  ],
+  "causality_errors": [],
+  "audit_errors": [],
+  "asr_input_hashes_checked": 605,
+  "boundary_counts": {
+    "forced_limit": 27,
+    "eof": 6,
+    "natural_pause": 26,
+    "forced_unstable": 10
+  },
+  "decode_counts": {
+    "rolling": 563,
+    "eof": 6,
+    "natural_pause": 26,
+    "forced_unstable": 10
+  },
+  "total_decoded_audio_seconds": 3385.624,
+  "decode_audio_ratio_to_b0": 9.018999009025329,
+  "max_drain_schedule_ms": 580.607376,
+  "max_drain_wall_ms": 580.809417
+}

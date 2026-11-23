@@ -1,0 +1,41 @@
+{
+  "clips": {
+    "csj-reproduction": {
+      "baseline_silero_count": 6,
+      "baseline_mean_dur_s": 6.54,
+      "hybrid_count": 7,
+      "hybrid_mean_dur_s": 5.48,
+      "hybrid_p95_dur_s": 9.398,
+      "baseline_mid_unit_cuts": 2,
+      "hybrid_mid_unit_cuts": 3
+    },
+    "csj-task": {
+      "baseline_silero_count": 11,
+      "baseline_mean_dur_s": 2.85,
+      "hybrid_count": 7,
+      "hybrid_mean_dur_s": 4.43,
+      "hybrid_p95_dur_s": 8.722,
+      "baseline_mid_unit_cuts": 1,
+      "hybrid_mid_unit_cuts": 1
+    },
+    "wmf-04": {
+      "baseline_silero_count": 45,
+      "baseline_mean_dur_s": 4.52,
+      "hybrid_count": 44,
+      "hybrid_mean_dur_s": 4.46,
+      "hybrid_p95_dur_s": 10.614,
+      "baseline_mid_unit_cuts": 38,
+      "hybrid_mid_unit_cuts": 37
+    },
+    "d1-ep01-45s": {
+      "baseline_silero_count": 3,
+      "baseline_mean_dur_s": 14.56,
+      "hybrid_count": 5,
+      "hybrid_mean_dur_s": 8.55,
+      "hybrid_p95_dur_s": 19.008
+    }
+  },
+  "smart_turn_calls": 71,
+  "smart_turn_p50_ms": 32.95,
+  "smart_turn_p95_ms": 60.4
+}

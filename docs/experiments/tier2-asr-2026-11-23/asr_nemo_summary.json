@@ -1,0 +1,44 @@
+{
+  "repo_id": "reazon-research/reazonspeech-nemo-v2",
+  "device": "cpu",
+  "load_s": 447.0,
+  "slices": 91,
+  "audio_s": 419.06,
+  "decode_p50_s": 2.073,
+  "decode_p95_s": 3.0626,
+  "rtf": 0.4718,
+  "silence_text": "ピッ!",
+  "rss_mib": 5734.28,
+  "d0_cer": {
+    "overall_cer": 0.1546,
+    "total_dist": 201,
+    "total_ref_len": 1300,
+    "non_empty_units": 33,
+    "by_clip": {
+      "csj-reproduction": {
+        "dist": 8,
+        "ref_len": 220,
+        "hyp_len": 222,
+        "cer": 0.0364
+      },
+      "csj-task": {
+        "dist": 60,
+        "ref_len": 134,
+        "hyp_len": 129,
+        "cer": 0.4478
+      },
+      "wmf-04": {
+        "dist": 133,
+        "ref_len": 946,
+        "hyp_len": 986,
+        "cer": 0.1406
+      }
+    }
+  },
+  "d1_cer": {
+    "dist": 96,
+    "ref_len": 334,
+    "hyp_len": 292,
+    "cer": 0.2874
+  }
+}
