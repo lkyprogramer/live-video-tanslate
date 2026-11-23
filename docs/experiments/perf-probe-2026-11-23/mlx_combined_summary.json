@@ -1,0 +1,23 @@
+{
+  "baseline_a0_m0": {
+    "total_s": 106.4501,
+    "p50_s": 1.0939,
+    "p95_s": 1.8842,
+    "gpu_peak_mib": 5814.45,
+    "gpu_active_mib": 4587.92,
+    "gpu_cache_mib": 135.58,
+    "rss_mib": 4449.2
+  },
+  "optimized": {
+    "asr_variant": "A3",
+    "mt_variant": "M1_kv_cache",
+    "total_s": 71.5701,
+    "p50_s": 0.728,
+    "p95_s": 1.5282,
+    "speedup_pct": 32.77,
+    "gpu_peak_mib": 5784.12,
+    "gpu_active_mib": 4591.44,
+    "gpu_cache_mib": 1.06,
+    "rss_mib": 4449.2
+  }
+}
