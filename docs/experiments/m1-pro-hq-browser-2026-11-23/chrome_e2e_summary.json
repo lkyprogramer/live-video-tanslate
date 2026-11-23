@@ -1,0 +1,36 @@
+{
+  "scenarios": {
+    "1080p_core_and_jump": {
+      "width": 1920,
+      "height": 1080,
+      "currentTime": 749.09,
+      "totalFrames": 2171,
+      "droppedFrames": 36,
+      "captions": [],
+      "captions_before_jump": 0,
+      "captions_after_jump": 0,
+      "core_screenshot": false,
+      "jumped_screenshot": false
+    },
+    "4k_2160p": {
+      "width": 3840,
+      "height": 2160,
+      "ended": true,
+      "totalFrames": 1049,
+      "droppedFrames": 0,
+      "captions": [],
+      "screenshot": false
+    }
+  },
+  "chrome": "Chrome/157.0.8103.79",
+  "extension_id": "nibmcpnjgklgkjjeaknihljghmljgohg",
+  "resources": {
+    "samples": 209,
+    "server_peak_rss_mib": 2439.6,
+    "server_mean_cpu_pct": 15.4,
+    "server_peak_cpu_pct": 122.9,
+    "chrome_peak_rss_mib": 4821.4,
+    "chrome_mean_cpu_pct": 52.6,
+    "chrome_peak_cpu_pct": 250.1
+  }
+}
