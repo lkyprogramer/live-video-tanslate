@@ -127,7 +127,7 @@ class Activation {
         if (!current()) return;
         const event = serverEvent(data);
         if (!event) { this.stop('invalid_message'); return; }
-        if (SUBTITLE_DIAGNOSTICS && (event.type === 'ready' || event.type === 'caption' || event.type === 'finished')) {
+        if (SUBTITLE_DIAGNOSTICS && (event.type === 'ready' || event.type === 'caption' || event.type === 'caption_delta' || event.type === 'finished')) {
           console.debug('subtitle-diagnostic', JSON.stringify({ stage: 'ws_received',
             t: performance.timeOrigin + performance.now(), epoch, ...event }));
         }
@@ -154,6 +154,7 @@ class Activation {
           return;
         }
         if (event.session_id !== conn.sessionId) return;
+        if (event.type === 'caption_delta') this.view({ kind: 'caption_delta', cue: event });
         if (event.type === 'caption') this.view({ kind: 'caption', cue: event });
         if (event.type === 'warning') this.view({ kind: 'status', text: displayError(event.code) });
         if (event.type === 'finished') {

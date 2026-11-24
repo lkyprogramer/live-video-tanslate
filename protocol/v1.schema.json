@@ -11,6 +11,9 @@
       "$ref": "#/$defs/caption"
     },
     {
+      "$ref": "#/$defs/caption_delta"
+    },
+    {
       "$ref": "#/$defs/finish"
     },
     {
@@ -93,6 +96,43 @@
       "properties": {
         "type": {
           "const": "caption"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start_sample": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_sample": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "text_zh": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "seq",
+        "start_sample",
+        "end_sample",
+        "text_zh"
+      ],
+      "additionalProperties": false
+    },
+    "caption_delta": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "caption_delta"
         },
         "session_id": {
           "type": "string",

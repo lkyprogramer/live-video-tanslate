@@ -1,7 +1,7 @@
 export const HTTP = 'http://127.0.0.1:18765';
 export const WS = 'ws://127.0.0.1:18765/v1/captions';
 export const MAX_BUFFERED_BYTES = 64_000;
-export const SAMPLES_PER_FRAME = 3200;
+export const SAMPLES_PER_FRAME = 1024;
 
 export interface Profile { id: string; label: string; available: boolean }
 export interface Catalog { default_profile_id: string; profiles: Profile[] }
@@ -10,9 +10,14 @@ export interface Caption {
   type: 'caption'; session_id: string; seq: number; text_zh: string;
   start_sample: number; end_sample: number;
 }
+export interface CaptionDelta {
+  type: 'caption_delta'; session_id: string; seq: number; text_zh: string;
+  start_sample: number; end_sample: number;
+}
 export type ServerEvent =
   | { type: 'ready'; session_id: string; version: 1; profile_id: string; language: 'zh-Hans' }
   | Caption
+  | CaptionDelta
   | { type: 'warning'; session_id: string; code: string }
   | { type: 'finished'; session_id: string; accepted_samples: number }
   | { type: 'error'; session_id?: string; code: string; reason?: string };
@@ -46,6 +51,13 @@ export function serverEvent(raw: unknown): ServerEvent | undefined {
       if (integer(obj.seq) && obj.seq > 0 && integer(obj.start_sample) && integer(obj.end_sample) &&
           obj.end_sample > obj.start_sample && text(obj.text_zh)) {
         return { type: 'caption', session_id, seq: obj.seq, start_sample: obj.start_sample,
+          end_sample: obj.end_sample, text_zh: obj.text_zh };
+      }
+      break;
+    case 'caption_delta':
+      if (integer(obj.seq) && obj.seq > 0 && integer(obj.start_sample) && integer(obj.end_sample) &&
+          obj.end_sample > obj.start_sample && text(obj.text_zh)) {
+        return { type: 'caption_delta', session_id, seq: obj.seq, start_sample: obj.start_sample,
           end_sample: obj.end_sample, text_zh: obj.text_zh };
       }
       break;
