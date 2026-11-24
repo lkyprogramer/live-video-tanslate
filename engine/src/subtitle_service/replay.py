@@ -71,7 +71,7 @@ def launched(config_path, config, output, diagnostics, *, server_command=None):
                     child.wait()
 
 
-async def replay(config, profile, token, clip, audio, trace):
+async def replay(config, profile, token, clip, audio, trace, *, frame_bytes: int = FRAME_BYTES):
     result = {"id": clip, "eof": False, "captions": 0, "warnings": 0, "max_send_late_ms": 0}
     try:
         async with connect(f"ws://127.0.0.1:{config.server.port}/v1/captions",
@@ -87,8 +87,8 @@ async def replay(config, profile, token, clip, audio, trace):
             mark(clip, "start")
 
             async def send():
-                for offset in range(0, len(audio), FRAME_BYTES):
-                    end = min(offset + FRAME_BYTES, len(audio))
+                for offset in range(0, len(audio), frame_bytes):
+                    end = min(offset + frame_bytes, len(audio))
                     due = anchor + end / BYTES_PER_SECOND
                     await asyncio.sleep(max(0, due - time.monotonic()))
                     await ws.send(audio[offset:end])

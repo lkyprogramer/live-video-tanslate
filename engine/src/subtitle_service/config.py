@@ -30,7 +30,10 @@ class AsrConfig(StrictModel):
     vad_pause_ms: int = Field(default=600, ge=100, le=1500)
     max_segment_s: float = Field(default=0.0, ge=0.0, le=30.0)
     overlap_ms: int = Field(default=350, ge=0, le=1000)
+    pad_ms: int = Field(default=350, ge=0, le=1000)
     decoding: Literal["beam", "greedy"] = "beam"
+    device: Literal["cpu", "gpu"] = "cpu"
+    draft_interval_s: float = Field(default=0.0, ge=0.0, le=5.0)
 
     @model_validator(mode="after")
     def check_source(self):
@@ -45,6 +48,7 @@ class AsrConfig(StrictModel):
 class MtConfig(StrictModel):
     type: Literal["hy_mt2_mlx", "qwen3_mt_mlx"]
     model_revision: Revision
+    context_turns: int = Field(default=2, ge=0, le=4)
 
 
 class LocalProfile(StrictModel):

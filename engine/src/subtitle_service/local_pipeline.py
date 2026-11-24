@@ -7,16 +7,18 @@ from dataclasses import dataclass, replace
 import hashlib
 import inspect
 from itertools import count
+import logging
 from pathlib import Path
 import re
 import threading
 
 import numpy as np
 
-from .backend import BackendError, Caption
+from .backend import BackendError, Caption, CaptionDelta
 
+log = logging.getLogger(__name__)
 RATE = 16000
-_KANA = re.compile(r"[\u3040-\u309f\u30a0-\u30ff]")
+_KANA = re.compile(r"[\u3041-\u309f\u30a1-\u30ff\u31f0-\u31ff\uff66-\uff9f]")
 _REPEAT = re.compile(r"(.{2,16}?)\1{3,}")
 _PUNCT_STRIP = re.compile(r"[\s\u3000、。．，？！?!「」『』（）()]+")
 VAD_SHA = "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6"
@@ -61,10 +63,13 @@ def _dedup_boundary_ja(prev_ja: str, curr_ja: str) -> str:
     return curr_ja
 
 
-def _call_with_cancel(fn, *args, cancel_event: threading.Event | None):
-    if cancel_event is not None and "cancel_event" in inspect.signature(fn).parameters:
-        return fn(*args, cancel_event=cancel_event)
-    return fn(*args)
+def _call_with_cancel(fn, *args, cancel_event: threading.Event | None, **kwargs):
+    sig = inspect.signature(fn).parameters
+    has_var_kw = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.values())
+    extra = {k: v for k, v in kwargs.items() if has_var_kw or k in sig}
+    if cancel_event is not None and (has_var_kw or "cancel_event" in sig):
+        extra["cancel_event"] = cancel_event
+    return fn(*args, **extra)
 
 
 @dataclass(frozen=True)
@@ -76,12 +81,48 @@ class RecognizedSegment:
 
 
 @dataclass(frozen=True)
+class _EmittedChunk:
+    start_sample: int
+    samples: np.ndarray
+    dedup_before_sample: int = 0
+    cut_reason: str = "vad_natural"
+
+
+@dataclass(frozen=True)
+class _DraftSnapshot:
+    start_sample: int
+    end_sample: int
+    samples: np.ndarray
+    dedup_before_sample: int = 0
+
+
+_DRAFT_CLAUSE_END = (
+    "、", "。", "？", "！", "?", "!",
+    "けど", "から", "ので", "って", "よね", "ですね",
+    "ます", "です", "した", "ない", "て", "が", "は", "も", "ね", "よ",
+)
+
+
+def _should_emit_draft_ja(prev_ja: str, curr_ja: str) -> bool:
+    if not curr_ja or curr_ja == prev_ja:
+        return False
+    curr_norm = _PUNCT_STRIP.sub("", curr_ja)
+    if len(curr_norm) < 6:
+        return False
+    prev_norm = _PUNCT_STRIP.sub("", prev_ja) if prev_ja else ""
+    if prev_norm and len(curr_norm) < len(prev_norm) + 3:
+        return False
+    return len(curr_norm) >= 12 or curr_ja.endswith(_DRAFT_CLAUSE_END)
+
+
+@dataclass(frozen=True)
 class _PendingAudio:
     segment_id: int
     start_sample: int
     end_sample: int
     samples: np.ndarray
     has_overlap: bool = False
+    dedup_before_sample: int = 0
 
 
 def silero_config(vad_path, pause_ms):
@@ -110,24 +151,54 @@ def vad_segments(vad, frame):
 
 
 class _SmartSegmenter:
-    """Silero VAD wrapper with optional energy-valley forced splitting and left overlap."""
+    """Silero VAD wrapper with absolute-sample ring buffer, zero-loss splitting, and left overlap."""
 
     def __init__(self, vad, *, max_segment_s: float = 0.0, overlap_ms: int = 350):
         self.vad = vad
         self.max_segment_samples = int(round(max_segment_s * RATE)) if max_segment_s > 0 else 0
         self.overlap_samples = int(round(overlap_ms * RATE / 1000.0))
         self.total_samples = 0
-        self.buf: list[np.ndarray] = []
-        self.buf_start_sample: int | None = None
-        self.buf_len = 0
-        self.burst_cut_sample = 0
+        self._pcm_chunks: deque[np.ndarray] = deque()
+        self._buf_origin = 0
+        self._speech_origin: int | None = None
+        self._burst_cut_sample = 0
+        self._last_emitted_end = 0
+        self._last_draft_end = 0
+
+    def _slice_pcm(self, start: int, end: int) -> np.ndarray:
+        lo = max(start, self._buf_origin)
+        hi = min(end, self.total_samples)
+        if lo >= hi:
+            return np.empty(0, dtype=np.float32)
+        parts: list[np.ndarray] = []
+        pos = self._buf_origin
+        for chunk in self._pcm_chunks:
+            chunk_end = pos + len(chunk)
+            if chunk_end > lo and pos < hi:
+                s = max(0, lo - pos)
+                e = min(len(chunk), hi - pos)
+                parts.append(chunk[s:e])
+            pos = chunk_end
+            if pos >= hi:
+                break
+        if not parts:
+            return np.empty(0, dtype=np.float32)
+        return parts[0].copy() if len(parts) == 1 else np.concatenate(parts)
+
+    def _trim_ring(self, keep_from: int) -> None:
+        while self._pcm_chunks and self._buf_origin + len(self._pcm_chunks[0]) <= keep_from:
+            dropped = self._pcm_chunks.popleft()
+            self._buf_origin += len(dropped)
 
     def _find_energy_valley_cut(self, arr: np.ndarray) -> int:
         n = len(arr)
-        search_start = max(int(2.0 * RATE), n - int(1.2 * RATE))
-        search_end = max(search_start + 1, n - int(0.15 * RATE))
-        win = int(0.16 * RATE)
-        step = int(0.02 * RATE)
+        if n <= 1:
+            return n
+        search_end = max(1, n - min(int(0.08 * RATE), n // 4))
+        min_keep = min(int(2.0 * RATE), max(1, search_end // 2))
+        search_start = min(max(min_keep, n - int(0.65 * RATE)), max(0, search_end - 1))
+        win = min(int(0.16 * RATE), max(1, search_end - search_start))
+        step = max(1, min(int(0.02 * RATE), win))
         if search_end - search_start <= win:
             return search_end
         best_pos = search_end - win // 2
@@ -138,19 +209,23 @@ class _SmartSegmenter:
             if energy < best_energy:
                 best_energy = energy
                 best_pos = s + win // 2
-        return best_pos
+        return min(n, max(1, best_pos))
 
-    def push(self, frame: bytes | None) -> list[tuple[int, np.ndarray, bool]]:
+    def push(self, frame: bytes | None) -> list[_EmittedChunk]:
         if self.max_segment_samples <= 0:
-            return [(start, np.asarray(samples, dtype=np.float32), False)
-                    for start, samples in vad_segments(self.vad, frame)]
+            return [
+                _EmittedChunk(int(start), np.asarray(samples, dtype=np.float32), 0, "vad_natural")
+                for start, samples in vad_segments(self.vad, frame)
+            ]
 
-        out: list[tuple[int, np.ndarray, bool]] = []
+        out: list[_EmittedChunk] = []
         if frame is None:
             samples_f32 = np.empty(0, dtype=np.float32)
             self.vad.flush()
         else:
             samples_f32 = np.frombuffer(frame, dtype="<i2").astype(np.float32) / 32768.0
+            self._pcm_chunks.append(samples_f32)
+            self.total_samples += len(samples_f32)
             self.vad.accept_waveform(samples_f32)
 
         while not self.vad.empty():
@@ -159,49 +234,91 @@ class _SmartSegmenter:
             seg_samples = np.asarray(segment.samples, dtype=np.float32)
             self.vad.pop()
             seg_end = seg_start + len(seg_samples)
-            if self.burst_cut_sample > seg_start:
-                if seg_end - self.burst_cut_sample >= int(0.25 * RATE):
-                    tail_start = max(seg_start, self.burst_cut_sample - self.overlap_samples)
-                    out.append((tail_start, seg_samples[tail_start - seg_start :], True))
+            if self._burst_cut_sample > seg_start:
+                if seg_end > self._burst_cut_sample:
+                    tail_start = max(seg_start, self._burst_cut_sample - self.overlap_samples)
+                    out.append(
+                        _EmittedChunk(
+                            tail_start,
+                            seg_samples[tail_start - seg_start :],
+                            dedup_before_sample=self._burst_cut_sample,
+                            cut_reason="vad_tail",
+                        )
+                    )
             elif seg_end > seg_start:
-                out.append((seg_start, seg_samples, False))
-            self.buf.clear()
-            self.buf_start_sample = None
-            self.buf_len = 0
-            self.burst_cut_sample = 0
+                out.append(_EmittedChunk(seg_start, seg_samples, 0, "vad_natural"))
+            self._last_emitted_end = max(self._last_emitted_end, seg_end)
+            self._burst_cut_sample = 0
+            self._speech_origin = None
+            self._last_draft_end = 0
 
         if frame is not None:
             if self.vad.is_speech_detected():
-                if self.buf_start_sample is None:
-                    self.buf_start_sample = self.total_samples
-                self.buf.append(samples_f32)
-                self.buf_len += len(samples_f32)
-                while self.buf_len >= self.max_segment_samples:
-                    arr = np.concatenate(self.buf)
+                frame_start = self.total_samples - len(samples_f32)
+                if self._speech_origin is None:
+                    # Backtrack up to 500ms before onset confirmation frame so delayed VAD never clips speech start.
+                    self._speech_origin = max(
+                        self._buf_origin,
+                        self._last_emitted_end,
+                        frame_start - int(0.5 * RATE),
+                    )
+                active_start = self._burst_cut_sample if self._burst_cut_sample > 0 else self._speech_origin
+                while self.total_samples - active_start >= self.max_segment_samples:
+                    arr = self._slice_pcm(active_start, self.total_samples)
                     cut_idx = self._find_energy_valley_cut(arr)
-                    global_cut = self.buf_start_sample + cut_idx
-                    if cut_idx <= 0 or global_cut <= self.burst_cut_sample:
+                    global_cut = active_start + cut_idx
+                    if cut_idx <= 0 or global_cut <= active_start:
                         break
-                    out.append((self.buf_start_sample, arr[:cut_idx], self.burst_cut_sample > 0))
-                    next_off = max(0, cut_idx - self.overlap_samples)
-                    rem = arr[next_off:]
-                    self.buf = [rem]
-                    self.buf_len = len(rem)
-                    self.buf_start_sample += next_off
-                    self.burst_cut_sample = global_cut
+                    has_overlap = self._burst_cut_sample > 0
+                    emit_start = max(self._buf_origin, active_start - self.overlap_samples) if has_overlap else active_start
+                    seg_pcm = self._slice_pcm(emit_start, global_cut)
+                    dedup_before = self._burst_cut_sample if has_overlap else 0
+                    out.append(_EmittedChunk(emit_start, seg_pcm, dedup_before, "energy_valley"))
+                    self._burst_cut_sample = global_cut
+                    self._last_emitted_end = max(self._last_emitted_end, global_cut)
+                    self._last_draft_end = 0
+                    active_start = global_cut
+                    self._trim_ring(max(0, self._burst_cut_sample - self.overlap_samples))
             else:
-                self.buf.clear()
-                self.buf_start_sample = None
-                self.buf_len = 0
-                self.burst_cut_sample = 0
-            self.total_samples += len(samples_f32)
+                self._speech_origin = None
+                self._burst_cut_sample = 0
+                self._last_draft_end = 0
+                self._trim_ring(max(self._last_emitted_end, self.total_samples - int(1.0 * RATE)))
         else:
-            self.buf.clear()
-            self.buf_start_sample = None
-            self.buf_len = 0
-            self.burst_cut_sample = 0
+            self._speech_origin = None
+            self._burst_cut_sample = 0
+            self._last_draft_end = 0
+            self._pcm_chunks.clear()
+            self._buf_origin = self.total_samples
 
         return out
+
+    def active_preview_snapshot(self, *, min_speech_s: float = 1.5, min_step_s: float = 1.2) -> _DraftSnapshot | None:
+        if self.max_segment_samples <= 0 or self._speech_origin is None or not self.vad.is_speech_detected():
+            return None
+        active_start = self._burst_cut_sample if self._burst_cut_sample > 0 else self._speech_origin
+        if self.total_samples - active_start < int(min_speech_s * RATE):
+            return None
+        if self.total_samples - max(active_start, self._last_draft_end) < int(min_step_s * RATE):
+            return None
+        has_overlap = self._burst_cut_sample > 0
+        emit_start = max(self._buf_origin, active_start - self.overlap_samples) if has_overlap else active_start
+        seg_pcm = self._slice_pcm(emit_start, self.total_samples)
+        if len(seg_pcm) == 0:
+            return None
+        dedup_before = self._burst_cut_sample if has_overlap else 0
+        self._last_draft_end = self.total_samples
+        return _DraftSnapshot(emit_start, self.total_samples, seg_pcm, dedup_before)
+
+    def push_and_preview(self, frame: bytes | None, *, draft_interval_s: float = 0.0) -> tuple[list[_EmittedChunk], _DraftSnapshot | None]:
+        released = self.push(frame)
+        if released or frame is None or draft_interval_s <= 0:
+            return released, None
+        snap = self.active_preview_snapshot(
+            min_speech_s=max(1.4, draft_interval_s),
+            min_step_s=draft_interval_s,
+        )
+        return released, snap
 
 
 class ReazonRecognizer:
@@ -374,11 +491,39 @@ class Qwen3AsrRecognizer:
         return _collapse_repetition(raw)
 
 
+def _filter_tokens_by_sample(
+    tokens: list[tuple[float, float, str]],
+    *,
+    start_sample: int,
+    dedup_before_sample: int,
+    pad_s: float,
+) -> str:
+    """Keep tokens whose midpoint falls at or after dedup_before_sample on the absolute PCM axis."""
+    if dedup_before_sample <= 0 or not tokens:
+        return "".join(t[2] for t in tokens).strip()
+    kept: list[str] = []
+    trimmed_any = False
+    for st, en, txt in tokens:
+        abs_mid = start_sample + int(round(((st + en) * 0.5 - pad_s) * RATE))
+        if abs_mid >= dedup_before_sample:
+            kept.append(txt)
+        else:
+            trimmed_any = True
+    joined = "".join(kept).strip()
+    if trimmed_any:
+        joined = joined.lstrip("、。．，？！?! \u3000")
+    return joined
+
+
 class SpeechCppNeMoRecognizer:
-    """ctypes binding for speech.cpp FastConformer-RNNT running on CPU."""
+    """ctypes binding for speech.cpp FastConformer-RNNT running on CPU or staggered MTL0."""
 
     _PROGRESS_CB = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_double, ctypes.c_void_p)
+    _OPT_TIMESTAMPS = 8
     _OPT_DECODING = 10
+    _OPT_DECODE_ON_CPU = 44
+    _SPEECH_OK = 0
+    _SPEECH_CANCELLED = 1
 
     def __init__(self, dylib_path: Path, model_path: Path, vad_path: Path, config):
         import sherpa_onnx
@@ -386,6 +531,9 @@ class SpeechCppNeMoRecognizer:
         self.sherpa = sherpa_onnx
         self.vad_config = silero_config(vad_path, config.vad_pause_ms)
         self._decoding = config.decoding.encode("utf-8")
+        self._device = getattr(config, "device", "cpu")
+        self._pad_samples = int(round(getattr(config, "pad_ms", 350) * RATE / 1000.0))
+        self._pad_s = self._pad_samples / float(RATE)
 
         lib = ctypes.CDLL(str(dylib_path))
         self._lib = lib
@@ -409,6 +557,8 @@ class SpeechCppNeMoRecognizer:
         lib.speech_request_set_audio.restype = ctypes.c_int
         lib.speech_request_set_string.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
         lib.speech_request_set_string.restype = ctypes.c_int
+        lib.speech_request_set_bool.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+        lib.speech_request_set_bool.restype = ctypes.c_int
         lib.speech_request_set_progress.argtypes = [ctypes.c_void_p, self._PROGRESS_CB, ctypes.c_void_p]
         lib.speech_request_set_progress.restype = ctypes.c_int
         lib.speech_transcribe.argtypes = [ctypes.c_void_p]
@@ -417,6 +567,17 @@ class SpeechCppNeMoRecognizer:
         lib.speech_request_result.restype = ctypes.c_void_p
         lib.speech_result_text.argtypes = [ctypes.c_void_p]
         lib.speech_result_text.restype = ctypes.c_char_p
+        lib.speech_result_token_count.argtypes = [ctypes.c_void_p]
+        lib.speech_result_token_count.restype = ctypes.c_size_t
+        lib.speech_result_token.argtypes = [
+            ctypes.c_void_p, ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_char_p),
+        ]
+        lib.speech_result_token.restype = ctypes.c_int
+        lib.speech_result_untimed.argtypes = [ctypes.c_void_p]
+        lib.speech_result_untimed.restype = ctypes.c_char_p
+        lib.speech_status_name.argtypes = [ctypes.c_int]
+        lib.speech_status_name.restype = ctypes.c_char_p
         lib.speech_last_error.argtypes = []
         lib.speech_last_error.restype = ctypes.c_char_p
 
@@ -425,7 +586,7 @@ class SpeechCppNeMoRecognizer:
         if lib.speech_load_params_new(ctypes.byref(lparams)) != 0:
             raise RuntimeError("speech_load_params_new failed")
         try:
-            lib.speech_load_params_set_device(lparams, b"cpu")
+            lib.speech_load_params_set_device(lparams, self._device.encode("utf-8"))
             lib.speech_load_params_set_threads(lparams, int(config.threads))
             lib.speech_load_params_set_warmup(lparams, 1)
             model = ctypes.c_void_p()
@@ -438,32 +599,86 @@ class SpeechCppNeMoRecognizer:
 
         self.decode(np.zeros(RATE // 2, dtype=np.float32))
 
+    def _check_status(self, op: str, status: int) -> int:
+        if status in (self._SPEECH_OK, self._SPEECH_CANCELLED):
+            return status
+        sname = self._lib.speech_status_name(status)
+        err = self._lib.speech_last_error()
+        log.warning(
+            "speech_cpp_error op=%s status=%s(%d) err=%s",
+            op,
+            sname.decode("utf-8", "replace") if sname else "unknown",
+            status,
+            err.decode("utf-8", "replace") if err else "",
+        )
+        raise BackendError("backend_error")
+
     def new_vad(self):
         return self.sherpa.VoiceActivityDetector(self.vad_config, buffer_size_in_seconds=120)
 
-    def decode(self, samples, *, cancel_event: threading.Event | None = None):
+    def decode(
+        self,
+        samples,
+        *,
+        cancel_event: threading.Event | None = None,
+        start_sample: int = 0,
+        dedup_before_sample: int = 0,
+        decoding_override: str | None = None,
+        pad_ms_override: int | None = None,
+    ):
         if self._model is None or (cancel_event is not None and cancel_event.is_set()):
             return ""
+        pad_samples = (
+            int(round(pad_ms_override * RATE / 1000.0))
+            if pad_ms_override is not None
+            else self._pad_samples
+        )
+        pad_s = pad_samples / float(RATE)
+        decoding_bytes = decoding_override.encode("utf-8") if decoding_override else self._decoding
         audio = np.ascontiguousarray(samples, dtype=np.float32)
+        if pad_samples > 0:
+            pad = np.zeros(pad_samples, dtype=np.float32)
+            audio = np.ascontiguousarray(np.concatenate([pad, audio, pad]), dtype=np.float32)
         req = ctypes.c_void_p()
-        if self._lib.speech_request_new(self._model, ctypes.byref(req)) != 0:
-            return ""
+        self._check_status("speech_request_new", self._lib.speech_request_new(self._model, ctypes.byref(req)))
         try:
             ptr = audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-            self._lib.speech_request_set_audio(req, ptr, audio.size, RATE)
-            self._lib.speech_request_set_string(req, self._OPT_DECODING, self._decoding)
+            self._check_status("set_audio", self._lib.speech_request_set_audio(req, ptr, audio.size, RATE))
+            self._check_status("set_decoding", self._lib.speech_request_set_string(req, self._OPT_DECODING, decoding_bytes))
+            if self._device == "gpu":
+                self._check_status("set_decode_on_cpu", self._lib.speech_request_set_bool(req, self._OPT_DECODE_ON_CPU, 1))
+            if dedup_before_sample > 0:
+                self._check_status("set_timestamps", self._lib.speech_request_set_bool(req, self._OPT_TIMESTAMPS, 1))
             cb = None
             if cancel_event is not None:
                 cb = self._PROGRESS_CB(lambda _done, _ud: 1 if cancel_event.is_set() else 0)
-                self._lib.speech_request_set_progress(req, cb, None)
-            status = self._lib.speech_transcribe(req)
-            if status != 0:
+                self._check_status("set_progress", self._lib.speech_request_set_progress(req, cb, None))
+            status = self._check_status("transcribe", self._lib.speech_transcribe(req))
+            if status == self._SPEECH_CANCELLED or (cancel_event is not None and cancel_event.is_set()):
                 return ""
             res = self._lib.speech_request_result(req)
             if not res:
-                return ""
-            raw = self._lib.speech_result_text(res)
-            text = raw.decode("utf-8", "replace").strip() if raw else ""
+                raise BackendError("backend_error")
+            text = ""
+            if dedup_before_sample > 0 and not self._lib.speech_result_untimed(res):
+                tok_count = int(self._lib.speech_result_token_count(res))
+                if tok_count > 0:
+                    toks: list[tuple[float, float, str]] = []
+                    st = ctypes.c_double()
+                    en = ctypes.c_double()
+                    tp = ctypes.c_char_p()
+                    for idx in range(tok_count):
+                        if self._lib.speech_result_token(res, idx, ctypes.byref(st), ctypes.byref(en), ctypes.byref(tp)) == 0:
+                            toks.append((float(st.value), float(en.value), tp.value.decode("utf-8", "replace") if tp.value else ""))
+                    text = _filter_tokens_by_sample(
+                        toks,
+                        start_sample=start_sample,
+                        dedup_before_sample=dedup_before_sample,
+                        pad_s=pad_s,
+                    )
+            if not text:
+                raw = self._lib.speech_result_text(res)
+                text = raw.decode("utf-8", "replace").strip() if raw else ""
             if text in ("ピッ!", "ピッ", "ピッ。"):
                 return ""
             return _collapse_repetition(text)
@@ -481,6 +696,19 @@ class _NoopSession:
         pass
 
 
+class _Qwen3Session:
+    def __init__(self, translator, max_turns: int):
+        self._translator = translator
+        self.max_turns = max_turns
+        self.turns = 0
+        self.last_end_sample = 0
+
+    def close(self):
+        self.turns = 0
+        self.last_end_sample = 0
+        self._translator._reset_cache()
+
+
 class Qwen3Translator:
     SYSTEM_PROMPT = (
         "你是专业日译中视频字幕翻译。只输出自然流畅的简体中文译文，不要解释，不要输出思考过程。"
@@ -491,7 +719,7 @@ class Qwen3Translator:
         "专有名词音译为中文汉字，外来词译为中文或英文；若原文为残缺句尾也请意译为自然中文短语）：\n"
     )
 
-    def __init__(self, snapshot):
+    def __init__(self, snapshot, *, context_turns: int = 2):
         import mlx.core as mx
         from mlx_lm import generate, load
         from mlx_lm.models.cache import make_prompt_cache, trim_prompt_cache
@@ -501,11 +729,19 @@ class Qwen3Translator:
         self._generate = generate
         self._generate_step = __import__("mlx_lm.generate", fromlist=["generate_step"]).generate_step
         self._trim_prompt_cache = trim_prompt_cache
+        self._context_turns = context_turns
         self.model, self.tokenizer = load(str(snapshot))
         self.sampler = make_sampler(temp=0.0)
-        self.logits_processors = make_logits_processors(
-            repetition_penalty=1.08, repetition_context_size=32,
-        )
+        vocab_n = int(getattr(self.tokenizer, "vocab_size", 0) or len(self.tokenizer._tokenizer))
+        self._kana_token_ids = [
+            tid for tid in range(vocab_n)
+            if _KANA.search(self.tokenizer.decode([tid], skip_special_tokens=False))
+        ]
+        self._kana_bias = None
+        self.logits_processors = [
+            self._make_kana_mask_processor(),
+            *make_logits_processors(repetition_penalty=1.08, repetition_context_size=32),
+        ]
         self._eos_ids = set(self.tokenizer.eos_token_ids)
 
         sentinel = "<<<SPLIT_HERE>>>"
@@ -518,6 +754,7 @@ class Qwen3Translator:
             tokenize=False,
         )
         prefix_str, self._suffix_tail = full_template.split(sentinel, 1)
+        self._next_turn_prefix = "<|im_end|>\n<|im_start|>user\n请翻译以下日语台词为简体中文：\n"
         self._prefix_ids = self.tokenizer.encode(prefix_str, add_special_tokens=False)
         self._prefix_len = len(self._prefix_ids)
         self._prompt_cache = make_prompt_cache(self.model)
@@ -531,8 +768,16 @@ class Qwen3Translator:
         mx.synchronize()
         self.translate(_NoopSession(), "こんにちは")
 
+    def _reset_cache(self):
+        cache = getattr(self, "_prompt_cache", None)
+        if cache:
+            cur_off = cache[0].offset
+            if cur_off > self._prefix_len:
+                self._trim_prompt_cache(cache, cur_off - self._prefix_len)
+
     def new_session(self):
-        return _NoopSession()
+        self._reset_cache()
+        return _Qwen3Session(self, getattr(self, "_context_turns", 0))
 
     @staticmethod
     def _clean_output(raw: str) -> str:
@@ -543,31 +788,89 @@ class Qwen3Translator:
             raw = raw[1:-1].strip()
         return raw
 
-    def _run_prompt(self, messages):
+    def _make_kana_mask_processor(self):
+        mx = self._mx
+
+        def _ban_kana(_tokens, logits):
+            if not self._kana_token_ids:
+                return logits
+            vocab = int(logits.shape[-1])
+            if self._kana_bias is None or int(self._kana_bias.shape[-1]) != vocab:
+                bias = np.zeros((1, vocab), dtype=np.float32)
+                valid = [tid for tid in self._kana_token_ids if 0 <= tid < vocab]
+                if valid:
+                    bias[0, valid] = -1e9
+                self._kana_bias = mx.array(bias, dtype=logits.dtype)
+            return logits + self._kana_bias
+
+        return _ban_kana
+
+    def _run_prompt(self, messages, *, cancel_event: threading.Event | None = None):
+        if cancel_event is not None and cancel_event.is_set():
+            return ""
         prompt = self.tokenizer.apply_chat_template(
             messages, add_generation_prompt=True, tokenize=False,
         )
-        raw = self._generate(
-            self.model, self.tokenizer, prompt=prompt,
-            max_tokens=256, sampler=self.sampler,
-            logits_processors=self.logits_processors, verbose=False,
-        )
-        return self._clean_output(raw)
+        if getattr(self, "_generate_step", None) is None or getattr(self, "_eos_ids", None) is None:
+            raw = self._generate(
+                self.model, self.tokenizer, prompt=prompt,
+                max_tokens=256, sampler=self.sampler,
+                logits_processors=self.logits_processors, verbose=False,
+            )
+            return self._clean_output(raw)
 
-    def _run_cached_prompt(self, suffix_str: str, cancel_event: threading.Event | None = None) -> str:
-        if cancel_event is not None and cancel_event.is_set():
-            return ""
         mx = self._mx
-        suffix_ids = mx.array(self.tokenizer.encode(suffix_str, add_special_tokens=False), dtype=mx.int32)
-        cur_off = self._prompt_cache[0].offset
-        if cur_off > self._prefix_len:
-            self._trim_prompt_cache(self._prompt_cache, cur_off - self._prefix_len)
+        prompt_ids = mx.array(self.tokenizer.encode(prompt, add_special_tokens=False), dtype=mx.int32)
 
         def _check_cancel(_processed, _total):
             if cancel_event is not None and cancel_event.is_set():
                 raise _Cancelled()
 
         tokens: list[int] = []
+        try:
+            for tok, _ in self._generate_step(
+                prompt_ids,
+                self.model,
+                max_tokens=256,
+                sampler=self.sampler,
+                logits_processors=self.logits_processors,
+                prefill_step_size=512,
+                prompt_progress_callback=_check_cancel if cancel_event is not None else None,
+            ):
+                if cancel_event is not None and cancel_event.is_set():
+                    return ""
+                tid = int(tok)
+                if tid in self._eos_ids:
+                    break
+                tokens.append(tid)
+        except _Cancelled:
+            return ""
+        return self._clean_output(self.tokenizer.decode(tokens))
+
+    def _run_cached_prompt(
+        self,
+        suffix_str: str,
+        cancel_event: threading.Event | None = None,
+        *,
+        keep_kv: bool = False,
+        on_delta=None,
+    ) -> str:
+        if cancel_event is not None and cancel_event.is_set():
+            if keep_kv:
+                self._reset_cache()
+            return ""
+        mx = self._mx
+        suffix_ids = mx.array(self.tokenizer.encode(suffix_str, add_special_tokens=False), dtype=mx.int32)
+        if not keep_kv:
+            self._reset_cache()
+
+        def _check_cancel(_processed, _total):
+            if cancel_event is not None and cancel_event.is_set():
+                raise _Cancelled()
+
+        tokens: list[int] = []
+        last_delta = ""
+        completed = False
         try:
             for tok, _ in self._generate_step(
                 suffix_ids,
@@ -583,22 +886,72 @@ class Qwen3Translator:
                     return ""
                 tid = int(tok)
                 if tid in self._eos_ids:
+                    completed = True
                     break
                 tokens.append(tid)
+                if on_delta is not None and (len(tokens) % 4 == 0 or len(tokens) == 2):
+                    partial = self._clean_output(self.tokenizer.decode(tokens))
+                    if partial and len(partial) >= 2 and partial != last_delta and not _KANA.search(partial):
+                        last_delta = partial
+                        on_delta(partial)
+            else:
+                completed = True
         except _Cancelled:
             return ""
         finally:
-            used = self._prompt_cache[0].offset - self._prefix_len
-            if used > 0:
-                self._trim_prompt_cache(self._prompt_cache, used)
+            if not keep_kv or not completed:
+                self._reset_cache()
 
-        return self._clean_output(self.tokenizer.decode(tokens))
+        out = self._clean_output(self.tokenizer.decode(tokens))
+        if keep_kv and (not out or _KANA.search(out)):
+            self._reset_cache()
+        return out
 
-    def translate(self, session, text_ja, *, cancel_event: threading.Event | None = None):
+    def translate(
+        self,
+        session,
+        text_ja,
+        *,
+        cancel_event: threading.Event | None = None,
+        start_sample: int | None = None,
+        end_sample: int | None = None,
+        on_delta=None,
+    ):
         if cancel_event is not None and cancel_event.is_set():
             return ""
-        if getattr(self, "_prompt_cache", None) is not None:
-            raw = self._run_cached_prompt(text_ja + self._suffix_tail, cancel_event=cancel_event)
+        has_cache = getattr(self, "_prompt_cache", None) is not None
+        is_rolling = has_cache and isinstance(session, _Qwen3Session) and session.max_turns > 0
+        if is_rolling:
+            cache_extra = self._prompt_cache[0].offset - self._prefix_len
+            gap_exceeded = (
+                start_sample is not None
+                and session.last_end_sample > 0
+                and (start_sample - session.last_end_sample) > int(5.0 * RATE)
+            )
+            if session.turns == 0 or session.turns >= session.max_turns or cache_extra > 180 or gap_exceeded:
+                self._reset_cache()
+                session.turns = 0
+            turn_prefix = self._next_turn_prefix if session.turns > 0 else ""
+            raw = self._run_cached_prompt(
+                turn_prefix + text_ja + self._suffix_tail,
+                cancel_event=cancel_event,
+                keep_kv=True,
+                on_delta=on_delta,
+            )
+            if raw and not (cancel_event is not None and cancel_event.is_set()) and not _KANA.search(raw):
+                session.turns += 1
+                if end_sample is not None:
+                    session.last_end_sample = end_sample
+            else:
+                self._reset_cache()
+                session.turns = 0
+        elif has_cache:
+            raw = self._run_cached_prompt(
+                text_ja + self._suffix_tail,
+                cancel_event=cancel_event,
+                keep_kv=False,
+                on_delta=on_delta,
+            )
         else:
             raw = self._run_prompt([
                 {"role": "system", "content": self.SYSTEM_PROMPT},
@@ -607,13 +960,63 @@ class Qwen3Translator:
         if cancel_event is not None and cancel_event.is_set():
             return ""
         if raw and _KANA.search(raw):
-            repaired = self._run_prompt([
-                {"role": "system", "content": self.SYSTEM_PROMPT},
-                {"role": "user", "content": f"{self.REPAIR_PROMPT}原文：{text_ja}\n上次含假名草稿：{raw}"},
-            ])
+            repaired = self._run_prompt(
+                [
+                    {"role": "system", "content": self.SYSTEM_PROMPT},
+                    {"role": "user", "content": f"{self.REPAIR_PROMPT}原文：{text_ja}\n上次含假名草稿：{raw}"},
+                ],
+                cancel_event=cancel_event,
+            )
             if repaired:
                 return repaired
         return raw
+
+    def translate_draft(self, session, text_ja: str, *, cancel_event: threading.Event | None = None) -> str:
+        """Non-mutating KV cache peek for streaming draft previews."""
+        if not text_ja or (cancel_event is not None and cancel_event.is_set()):
+            return ""
+        cache = getattr(self, "_prompt_cache", None)
+        if cache is None:
+            return ""
+        mx = self._mx
+        saved_offset = cache[0].offset
+        turn_prefix = self._next_turn_prefix if saved_offset > self._prefix_len else ""
+        suffix_ids = mx.array(
+            self.tokenizer.encode(turn_prefix + text_ja + self._suffix_tail, add_special_tokens=False),
+            dtype=mx.int32,
+        )
+
+        def _check_cancel(_processed, _total):
+            if cancel_event is not None and cancel_event.is_set():
+                raise _Cancelled()
+
+        tokens: list[int] = []
+        try:
+            for tok, _ in self._generate_step(
+                suffix_ids,
+                self.model,
+                max_tokens=96,
+                sampler=self.sampler,
+                logits_processors=self.logits_processors,
+                prompt_cache=cache,
+                prefill_step_size=512,
+                prompt_progress_callback=_check_cancel if cancel_event is not None else None,
+            ):
+                if cancel_event is not None and cancel_event.is_set():
+                    return ""
+                tid = int(tok)
+                if tid in self._eos_ids:
+                    break
+                tokens.append(tid)
+        except _Cancelled:
+            return ""
+        finally:
+            extra = cache[0].offset - saved_offset
+            if extra > 0:
+                self._trim_prompt_cache(cache, extra)
+
+        out = self._clean_output(self.tokenizer.decode(tokens))
+        return "" if not out or _KANA.search(out) else out
 
 
 class HyTranslator:
@@ -639,6 +1042,8 @@ class LocalBackend:
         self.profile = profile
         self.uses_mlx_asr = profile.asr.type == "qwen3_asr_mlx"
         self.uses_speech_cpp_asr = profile.asr.type == "speech_cpp_nemo"
+        self.uses_gpu_speech_cpp = self.uses_speech_cpp_asr and getattr(profile.asr, "device", "cpu") == "gpu"
+        self.uses_gpu_scheduler = self.uses_mlx_asr or self.uses_gpu_speech_cpp
         self.vad_path = cache / "reazonspeech-assets/silero_vad.onnx"
 
         if self.uses_mlx_asr:
@@ -703,8 +1108,16 @@ class LocalBackend:
                 else:
                     self.recognizer = await loop.run_in_executor(
                         self.asr_pool, ReazonRecognizer, self.asr_path, self.vad_path, self.profile.asr)
-            mt_cls = Qwen3Translator if self.profile.mt.type == "qwen3_mt_mlx" else HyTranslator
-            self.translator = await loop.run_in_executor(self.mt_pool, mt_cls, self.mt_path)
+            if self.profile.mt.type == "qwen3_mt_mlx":
+                ctx_turns = getattr(self.profile.mt, "context_turns", 2)
+                self.translator = await loop.run_in_executor(
+                    self.mt_pool,
+                    lambda: _call_with_cancel(
+                        Qwen3Translator, self.mt_path, cancel_event=None, context_turns=ctx_turns
+                    ),
+                )
+            else:
+                self.translator = await loop.run_in_executor(self.mt_pool, HyTranslator, self.mt_path)
 
     async def open(self, emit, *, record=None):
         await self.warmup()
@@ -741,8 +1154,13 @@ class LocalSession:
         self.record = record
         self.segment_ids = count(1)
         self._last_ja = ""
+        self._delta_tasks: set[asyncio.Task] = set()
+        self._draft_interval_s = float(getattr(backend.profile.asr, "draft_interval_s", 0.0))
+        self._pending_draft: _DraftSnapshot | None = None
+        self._draft_cancel = threading.Event()
+        self._last_draft_ja = ""
 
-        if self.backend.uses_mlx_asr:
+        if self.backend.uses_gpu_scheduler:
             self._asr_queue: deque[_PendingAudio] = deque()
             self._mt_queue: deque[RecognizedSegment] = deque()
             self._queued_audio_s = 0.0
@@ -758,14 +1176,36 @@ class LocalSession:
             self._cpp_asr_task = None
             self.mt_task = asyncio.create_task(self.run_translation())
 
-    def translate(self, segment):
+    def _schedule_delta(self, segment: RecognizedSegment, partial: str):
+        if self.cancelled.is_set() or not partial:
+            return
+        task = asyncio.create_task(
+            self.emit(CaptionDelta(segment.start_sample, segment.end_sample, partial, segment.segment_id))
+        )
+        self._delta_tasks.add(task)
+        task.add_done_callback(self._delta_tasks.discard)
+
+    async def _drain_deltas(self):
+        await asyncio.sleep(0)
+        if self._delta_tasks:
+            await asyncio.gather(*list(self._delta_tasks), return_exceptions=True)
+
+    def translate(self, segment, loop: asyncio.AbstractEventLoop | None = None):
         if self.record:
             self.record("mt_start", **vars(segment))
+        on_delta = None
+        if loop is not None:
+            on_delta = lambda partial: None if self.cancelled.is_set() else loop.call_soon_threadsafe(
+                self._schedule_delta, segment, partial
+            )
         text = _call_with_cancel(
             self.backend.translator.translate,
             self.translation,
             segment.text_ja,
             cancel_event=self.cancelled,
+            start_sample=segment.start_sample,
+            end_sample=segment.end_sample,
+            on_delta=on_delta,
         )
         if self.record:
             self.record("mt_end", text_zh=text, **vars(segment))
@@ -777,8 +1217,9 @@ class LocalSession:
             while (segment := await self.pending.get()) is not None:
                 if self.cancelled.is_set():
                     break
-                self.mt_work = loop.run_in_executor(self.backend.mt_pool, self.translate, segment)
+                self.mt_work = loop.run_in_executor(self.backend.mt_pool, self.translate, segment, loop)
                 translated = await asyncio.shield(self.mt_work)
+                await self._drain_deltas()
                 if not self.cancelled.is_set() and translated:
                     await self.emit(Caption(segment.start_sample, segment.end_sample, translated, segment.segment_id))
         except Exception:
@@ -796,15 +1237,17 @@ class LocalSession:
                     self.record("asr_start", **span)
                 self.asr_work = loop.run_in_executor(
                     self.backend.asr_pool,
-                    lambda s=item.samples: _call_with_cancel(
-                        self.backend.recognizer.decode, s, cancel_event=self.cancelled
+                    lambda s=item: _call_with_cancel(
+                        self.backend.recognizer.decode,
+                        s.samples,
+                        cancel_event=self.cancelled,
+                        start_sample=s.start_sample,
+                        dedup_before_sample=s.dedup_before_sample,
                     ),
                 )
                 text = await asyncio.shield(self.asr_work)
                 if self.cancelled.is_set():
                     break
-                if item.has_overlap and self._last_ja and text:
-                    text = _dedup_boundary_ja(self._last_ja, text)
                 if text:
                     self._last_ja = text
                 if self.record:
@@ -823,8 +1266,9 @@ class LocalSession:
             while not self.cancelled.is_set():
                 if self._mt_queue:
                     segment = self._mt_queue.popleft()
-                    self.mt_work = loop.run_in_executor(self.backend.mt_pool, self.translate, segment)
+                    self.mt_work = loop.run_in_executor(self.backend.mt_pool, self.translate, segment, loop)
                     translated = await asyncio.shield(self.mt_work)
+                    await self._drain_deltas()
                     if not self.cancelled.is_set() and translated:
                         await self.emit(Caption(segment.start_sample, segment.end_sample, translated, segment.segment_id))
                     continue
@@ -834,16 +1278,28 @@ class LocalSession:
                     span = {"segment_id": item.segment_id, "start_sample": item.start_sample, "end_sample": item.end_sample}
                     if self.record:
                         self.record("asr_start", **span)
-                    self.asr_work = loop.run_in_executor(
-                        self.backend.mt_pool,
-                        lambda s=item.samples: _call_with_cancel(
-                            self.backend.recognizer.decode, s, cancel_event=self.cancelled
-                        ),
-                    )
+                    if self.backend.uses_speech_cpp_asr:
+                        self.asr_work = loop.run_in_executor(
+                            self.backend.asr_pool,
+                            lambda s=item: _call_with_cancel(
+                                self.backend.recognizer.decode,
+                                s.samples,
+                                cancel_event=self.cancelled,
+                                start_sample=s.start_sample,
+                                dedup_before_sample=s.dedup_before_sample,
+                            ),
+                        )
+                    else:
+                        self.asr_work = loop.run_in_executor(
+                            self.backend.mt_pool,
+                            lambda s=item.samples: _call_with_cancel(
+                                self.backend.recognizer.decode, s, cancel_event=self.cancelled
+                            ),
+                        )
                     text = await asyncio.shield(self.asr_work)
                     if self.cancelled.is_set():
                         break
-                    if item.has_overlap and self._last_ja and text:
+                    if not self.backend.uses_speech_cpp_asr and item.has_overlap and self._last_ja and text:
                         text = _dedup_boundary_ja(self._last_ja, text)
                     if text:
                         self._last_ja = text
@@ -854,6 +1310,63 @@ class LocalSession:
                         self._mt_queue.append(seg)
                         if self.record:
                             self.record("mt_enqueued", **vars(seg))
+                    continue
+                if self._pending_draft is not None:
+                    snap = self._pending_draft
+                    self._pending_draft = None
+                    if self.cancelled.is_set():
+                        break
+                    self._draft_cancel.clear()
+                    self.asr_work = loop.run_in_executor(
+                        self.backend.asr_pool,
+                        lambda s=snap: _call_with_cancel(
+                            self.backend.recognizer.decode,
+                            s.samples,
+                            cancel_event=self._draft_cancel,
+                            start_sample=s.start_sample,
+                            dedup_before_sample=s.dedup_before_sample,
+                            decoding_override="greedy",
+                            pad_ms_override=150,
+                        ),
+                    )
+                    draft_ja = await asyncio.shield(self.asr_work)
+                    if (
+                        self.cancelled.is_set()
+                        or self._draft_cancel.is_set()
+                        or self._asr_queue
+                        or self._mt_queue
+                        or not draft_ja
+                    ):
+                        continue
+                    if not _should_emit_draft_ja(self._last_draft_ja, draft_ja):
+                        continue
+                    self.mt_work = loop.run_in_executor(
+                        self.backend.mt_pool,
+                        lambda ja=draft_ja: _call_with_cancel(
+                            self.backend.translator.translate_draft,
+                            self.translation,
+                            ja,
+                            cancel_event=self._draft_cancel,
+                        ),
+                    )
+                    draft_zh = await asyncio.shield(self.mt_work)
+                    if (
+                        not self.cancelled.is_set()
+                        and not self._draft_cancel.is_set()
+                        and not self._asr_queue
+                        and not self._mt_queue
+                        and draft_zh
+                    ):
+                        self._last_draft_ja = draft_ja
+                        if self.record:
+                            self.record(
+                                "draft_sent",
+                                start_sample=snap.start_sample,
+                                end_sample=snap.end_sample,
+                                text_ja=draft_ja,
+                                text_zh=draft_zh,
+                            )
+                        await self.emit(CaptionDelta(snap.start_sample, snap.end_sample, draft_zh))
                     continue
                 if self._input_done:
                     break
@@ -882,14 +1395,47 @@ class LocalSession:
             return
 
         vad_pool = self.backend.vad_pool if self.backend.uses_speech_cpp_asr else self.backend.asr_pool
-        released = await loop.run_in_executor(vad_pool, self.segmenter.push, frame)
-        for start, samples, has_overlap in released:
+        if self.backend.uses_gpu_speech_cpp and self._draft_interval_s > 0:
+            released, snap = await loop.run_in_executor(
+                vad_pool,
+                lambda: self.segmenter.push_and_preview(frame, draft_interval_s=self._draft_interval_s),
+            )
+        else:
+            released = await loop.run_in_executor(vad_pool, self.segmenter.push, frame)
+            snap = None
+
+        if self.backend.uses_gpu_scheduler:
+            if released:
+                self._draft_cancel.set()
+                self._pending_draft = None
+                self._last_draft_ja = ""
+            elif snap is not None and not self._asr_queue and not self._mt_queue:
+                self._pending_draft = snap
+                self._work_ready.set()
+
+        for chunk in released:
             segment_id = next(self.segment_ids)
+            start = chunk.start_sample
+            samples = chunk.samples
             end = start + len(samples)
             if self.record:
-                self.record("vad_released", segment_id=segment_id, start_sample=start, end_sample=end)
-            item = _PendingAudio(segment_id, start, end, samples, has_overlap)
-            if self.backend.uses_mlx_asr:
+                self.record(
+                    "vad_released",
+                    segment_id=segment_id,
+                    start_sample=start,
+                    end_sample=end,
+                    cut_reason=chunk.cut_reason,
+                    dedup_before_sample=chunk.dedup_before_sample,
+                )
+            item = _PendingAudio(
+                segment_id,
+                start,
+                end,
+                samples,
+                chunk.dedup_before_sample > 0,
+                chunk.dedup_before_sample,
+            )
+            if self.backend.uses_gpu_scheduler:
                 dur = len(samples) / RATE
                 if self._queued_audio_s + dur > self.MAX_QUEUED_AUDIO_S:
                     raise BackendError("overloaded")
@@ -903,8 +1449,10 @@ class LocalSession:
                     raise BackendError("overloaded") from None
 
     async def finish(self):
+        self._draft_cancel.set()
+        self._pending_draft = None
         await self.accept_pcm(None)
-        if self.backend.uses_mlx_asr:
+        if self.backend.uses_gpu_scheduler:
             self._input_done = True
             self._work_ready.set()
             await asyncio.shield(self.mt_task)
@@ -921,7 +1469,9 @@ class LocalSession:
             return
         self.closed = True
         self.cancelled.set()
-        if self.backend.uses_mlx_asr:
+        self._draft_cancel.set()
+        self._pending_draft = None
+        if self.backend.uses_gpu_scheduler:
             self._work_ready.set()
         self.translation.close()
         for task in (self._cpp_asr_task, self.mt_task):
@@ -932,3 +1482,7 @@ class LocalSession:
             if work is not None:
                 with suppress(Exception):
                     await asyncio.shield(work)
+        for dt in list(self._delta_tasks):
+            dt.cancel()
+        if self._delta_tasks:
+            await asyncio.gather(*list(self._delta_tasks), return_exceptions=True)

@@ -266,17 +266,543 @@ def test_smart_segmenter_and_dedup():
     emitted.extend(seg.push(None))
 
     assert len(emitted) >= 2
-    assert emitted[0][2] is False
-    assert emitted[1][2] is True
+    assert emitted[0].dedup_before_sample == 0
+    assert emitted[0].cut_reason == "energy_valley"
+    assert emitted[1].dedup_before_sample > 0
     prev_end = 0
-    for start, arr, _ in emitted:
-        end = start + len(arr)
-        assert start < end
+    for chunk in emitted:
+        end = chunk.start_sample + len(chunk.samples)
+        assert chunk.start_sample < end
         assert end > prev_end
         prev_end = end
 
     assert lp._dedup_boundary_ja("そういえば保育士さんって", "保育士さんって大変だよね。") == "大変だよね。"
     assert lp._dedup_boundary_ja("こんにちは", "今日はいい天気。") == "今日はいい天気。"
+
+
+def test_smart_segmenter_audio_conservation_and_bounds():
+    class DelayedVad:
+        def __init__(self, speech_start: int, speech_end: int, confirm_after: int):
+            self.speech_start = speech_start
+            self.speech_end = speech_end
+            self.confirm_after = confirm_after
+            self._total = 0
+            self._queue = []
+            self._speaking = False
+
+        def accept_waveform(self, arr):
+            self._total += len(arr)
+            if self._total >= self.confirm_after and self._total <= self.speech_end:
+                self._speaking = True
+            if self._total >= self.speech_end and self._speaking:
+                self._speaking = False
+                self._queue.append(type("Seg", (), {
+                    "start": self.speech_start,
+                    "samples": np.ones(self.speech_end - self.speech_start, dtype=np.float32) * 0.2,
+                })())
+
+        def is_speech_detected(self):
+            return self._speaking
+
+        def empty(self):
+            return not self._queue
+
+        @property
+        def front(self):
+            return self._queue[0]
+
+        def pop(self):
+            self._queue.pop(0)
+
+        def flush(self):
+            if self._speaking:
+                self._speaking = False
+                self._queue.append(type("Seg", (), {
+                    "start": self.speech_start,
+                    "samples": np.ones(self._total - self.speech_start, dtype=np.float32) * 0.2,
+                })())
+
+    def _check_conservation(speech_end: int, max_s: float):
+        vad = DelayedVad(speech_start=0, speech_end=speech_end, confirm_after=3200)
+        seg = lp._SmartSegmenter(vad, max_segment_s=max_s, overlap_ms=350)
+        chunks = []
+        for off in range(0, speech_end, 3200):
+            n = min(3200, speech_end - off)
+            frame = (np.ones(n, dtype=np.float32) * 0.2 * 32767.0).astype("<i2").tobytes()
+            chunks.extend(seg.push(frame))
+        chunks.extend(seg.push(None))
+
+        covered = np.zeros(speech_end, dtype=bool)
+        for c in chunks:
+            assert 0 <= c.start_sample
+            end = c.start_sample + len(c.samples)
+            assert end <= speech_end
+            covered[c.start_sample:end] = True
+        assert covered.all(), f"Missing samples: {np.where(~covered)[0][:10]}"
+        return chunks
+
+    # 1. Delayed onset (first 3200 samples before VAD confirms) must be conserved in [0, 96000)
+    c1 = _check_conservation(96000, 4.5)
+    assert c1[0].start_sample == 0
+
+    # 2. Short tail (<250ms past burst_cut) must be emitted rather than dropped
+    c2 = _check_conservation(60480, 3.6)
+    assert len(c2) >= 2 and c2[-1].cut_reason == "vad_tail"
+
+    # 3. max_segment_s = 1.0s (<2.0s) must never overflow array bounds
+    c3 = _check_conservation(48000, 1.0)
+    assert len(c3) >= 2
+
+
+def test_speech_cpp_token_dedup_and_error_check():
+    # Preserves legitimate semantic repetition ("はいはい" followed by "はい、次に行きます")
+    toks = [
+        (0.40, 0.50, "は"),
+        (0.50, 0.60, "い"),
+        (0.65, 0.80, "、次"),
+        (0.80, 1.00, "に行きます"),
+    ]
+    # Suppose overlap starts at sample 8000, dedup_before_sample is 8800 (+0.05s), pad_s = 0.35s
+    # Midpoint of "は" (0.45s - 0.35s = 0.10s -> 8000 + 1600 = 9600 >= 8800), so "はい、次に行きます" is kept!
+    kept = lp._filter_tokens_by_sample(toks, start_sample=8000, dedup_before_sample=8800, pad_s=0.35)
+    assert kept == "はい、次に行きます"
+    # If dedup_before_sample is 12800 (+0.30s), tokens before 0.65s are trimmed
+    trimmed = lp._filter_tokens_by_sample(toks, start_sample=8000, dedup_before_sample=12800, pad_s=0.35)
+    assert trimmed == "次に行きます"
+
+    # Non-zero negative C API status must raise BackendError instead of returning ""
+    rec = lp.SpeechCppNeMoRecognizer.__new__(lp.SpeechCppNeMoRecognizer)
+
+    class FakeLib:
+        def speech_status_name(self, st):
+            return b"device"
+
+        def speech_last_error(self):
+            return b"mock failure"
+
+    rec._lib = FakeLib()
+    rec._SPEECH_OK = 0
+    rec._SPEECH_CANCELLED = 1
+    assert rec._check_status("ok", 0) == 0
+    assert rec._check_status("cancel", 1) == 1
+    with pytest.raises(lp.BackendError):
+        rec._check_status("transcribe", -5)
+
+
+def test_qwen3_kana_mask_and_cancellable_repair():
+    import mlx.core as mx
+
+    class FakeTok:
+        def apply_chat_template(self, messages, add_generation_prompt=True, tokenize=False):
+            return messages[-1]["content"]
+
+        def encode(self, text, add_special_tokens=False):
+            return [1, 2, 3]
+
+        def decode(self, ids, skip_special_tokens=False):
+            return "不会执行"
+
+    tr = lp.Qwen3Translator.__new__(lp.Qwen3Translator)
+    tr._mx = mx
+    tr.tokenizer = FakeTok()
+    tr.model = object()
+    tr.sampler = object()
+    tr._kana_token_ids = [2, 4]
+    tr._kana_bias = None
+    tr._eos_ids = {99}
+    tr._prompt_cache = None
+
+    proc = tr._make_kana_mask_processor()
+    tr.logits_processors = [proc]
+    logits = mx.zeros((1, 6), dtype=mx.float32)
+    masked = np.array(proc([], logits))[0]
+    assert masked[2] < -1e6 and masked[4] < -1e6
+    assert masked[0] == 0.0 and masked[1] == 0.0 and masked[3] == 0.0
+
+    step_calls = 0
+
+    def fake_gen_step(*args, **kwargs):
+        nonlocal step_calls
+        step_calls += 1
+        cb = kwargs.get("prompt_progress_callback")
+        if cb:
+            cb(1, 2)
+        yield mx.array(10), None
+
+    tr._generate_step = fake_gen_step
+    ev = threading.Event()
+    ev.set()
+    assert tr._run_prompt([{"role": "user", "content": "hi"}], cancel_event=ev) == ""
+    assert step_calls == 0
+
+    ev2 = threading.Event()
+    def fake_gen_step_mid(*args, **kwargs):
+        cb = kwargs.get("prompt_progress_callback")
+        ev2.set()
+        if cb:
+            cb(1, 2)
+        yield mx.array(10), None
+    tr._generate_step = fake_gen_step_mid
+    assert tr._run_prompt([{"role": "user", "content": "hi"}], cancel_event=ev2) == ""
+
+
+def test_qwen3_rolling_kv_and_streaming_delta_order(tmp_path, monkeypatch):
+    import mlx.core as mx
+
+    class FakeCacheSlot:
+        def __init__(self, offset):
+            self.offset = offset
+
+    class FakeTok:
+        def encode(self, text, add_special_tokens=False):
+            return [10] * max(1, len(text))
+
+        def decode(self, ids):
+            return "你好世界"
+
+    tr = lp.Qwen3Translator.__new__(lp.Qwen3Translator)
+    tr._mx = mx
+    tr.tokenizer = FakeTok()
+    tr.model = object()
+    tr.sampler = object()
+    tr.logits_processors = []
+    tr._eos_ids = {99}
+    tr._prefix_len = 90
+    tr._suffix_tail = "<TAIL>"
+    tr._next_turn_prefix = "<NEXT>"
+    tr._context_turns = 2
+    tr._prompt_cache = [FakeCacheSlot(90)]
+    tr._trim_prompt_cache = lambda cache, n: setattr(cache[0], "offset", cache[0].offset - n)
+
+    seen_prompts = []
+    def fake_step(suffix_ids, *args, **kwargs):
+        seen_prompts.append(len(suffix_ids))
+        tr._prompt_cache[0].offset += len(suffix_ids) + 4
+        for tid in (1, 2, 3, 4, 99):
+            yield mx.array(tid), None
+
+    tr._generate_step = fake_step
+    sess = tr.new_session()
+    deltas = []
+    out1 = tr.translate(sess, "A", start_sample=0, end_sample=16000, on_delta=deltas.append)
+    assert out1 == "你好世界" and len(deltas) >= 1
+    assert sess.turns == 1 and tr._prompt_cache[0].offset > 90
+
+    # Turn 2 keeps KV from turn 1 and prepends _next_turn_prefix
+    out2 = tr.translate(sess, "B", start_sample=16000, end_sample=32000)
+    assert out2 == "你好世界" and sess.turns == 2
+    assert seen_prompts[1] > seen_prompts[0]
+
+    # Turn 3 hits max_turns=2 -> resets cache back to prefix_len before running!
+    out3 = tr.translate(sess, "C", start_sample=32000, end_sample=48000)
+    assert out3 == "你好世界" and sess.turns == 1
+    assert seen_prompts[2] == seen_prompts[0]
+
+    # >5.0s audio gap resets cache
+    _ = tr.translate(sess, "D", start_sample=48000 + 6 * lp.RATE, end_sample=48000 + 7 * lp.RATE)
+    assert sess.turns == 1 and seen_prompts[3] == seen_prompts[0]
+
+    # session.close() resets cache strictly to prefix_len
+    sess.close()
+    assert tr._prompt_cache[0].offset == 90
+
+    # Cancel and exception reset cache strictly to prefix_len
+    ev = threading.Event()
+    ev.set()
+    assert tr.translate(sess, "E", cancel_event=ev) == ""
+    assert tr._prompt_cache[0].offset == 90 and sess.turns == 0
+
+    def boom_step(*args, **kwargs):
+        tr._prompt_cache[0].offset += 10
+        raise RuntimeError("boom")
+    tr._generate_step = boom_step
+    with pytest.raises(RuntimeError):
+        tr.translate(sess, "F")
+    assert tr._prompt_cache[0].offset == 90
+
+    # LocalSession streaming delta strictly ordered before Caption
+    settings = load_settings(_write_hq_config(tmp_path))
+    cache = Path(settings.cache_root)
+    vad = cache / "reazonspeech-assets/silero_vad.onnx"
+    vad.parent.mkdir(parents=True, exist_ok=True)
+    vad.write_bytes(b"vad")
+    monkeypatch.setattr(lp, "VAD_SHA", hashlib.sha256(b"vad").hexdigest())
+    for p in (
+        cache / f"hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/{REV_A}/config.json",
+        cache / f"hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/{REV_A}/model.safetensors",
+        cache / f"hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/{REV_A}/tokenizer_config.json",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/config.json",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/model.safetensors",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/tokenizer.json",
+    ):
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(b"{}")
+
+    class FakeAsr:
+        def __init__(self, *a): pass
+        def new_vad(self): return object()
+        def decode(self, samples, *, cancel_event=None): return "こんにちは"
+
+    class FakeMt:
+        def __init__(self, *a): pass
+        def new_session(self): return lp._NoopSession()
+        @staticmethod
+        def translate(session, text_ja, *, cancel_event=None, start_sample=None, end_sample=None, on_delta=None):
+            if on_delta:
+                on_delta("你好")
+            return "你好。"
+
+    monkeypatch.setattr(lp, "Qwen3AsrRecognizer", FakeAsr)
+    monkeypatch.setattr(lp, "Qwen3Translator", FakeMt)
+    called = 0
+    def one_seg(vad_obj, frame):
+        nonlocal called
+        called += 1
+        if frame is not None and called == 1:
+            yield 0, np.zeros(1600, dtype=np.float32)
+    monkeypatch.setattr(lp, "vad_segments", one_seg)
+
+    async def run_delta_order():
+        backend = lp.LocalBackend(cache, settings.profiles["m1-pro-hq"])
+        emitted = []
+        session = await backend.open(lambda item: emitted.append(item) or asyncio.sleep(0))
+        await session.accept_pcm(b"\x00\x00" * 1600)
+        await session.finish()
+        await session.aclose()
+        await backend.aclose()
+        return emitted
+
+    emitted = asyncio.run(run_delta_order())
+    assert len(emitted) == 2
+    assert isinstance(emitted[0], lp.CaptionDelta) and emitted[0].text_zh == "你好"
+    assert isinstance(emitted[1], lp.Caption) and emitted[1].text_zh == "你好。"
+
+
+def test_speech_cpp_gpu_staggered_priority_scheduler(tmp_path, monkeypatch):
+    cfg = tmp_path / "profiles.toml"
+    cfg.write_text(
+        f"""
+schema_version = 1
+default_profile_id = "m1-pro-nemo"
+cache_root = "{tmp_path / 'cache'}"
+
+[server]
+port = 18765
+allowed_origin = "chrome-extension://{'a' * 32}"
+
+[profiles.m1-pro-nemo]
+label = "NeMo-v2 GPU Staggered"
+type = "local_pipeline"
+enabled = true
+
+[profiles.m1-pro-nemo.asr]
+type = "speech_cpp_nemo"
+model_file = "reazonspeech-nemo-619M-v2-Q8_0.gguf"
+threads = 6
+decoding = "beam"
+device = "gpu"
+
+[profiles.m1-pro-nemo.mt]
+type = "qwen3_mt_mlx"
+model_revision = "{REV_B}"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    settings = load_settings(cfg)
+    cache = Path(settings.cache_root)
+    vad = cache / "reazonspeech-assets/silero_vad.onnx"
+    vad.parent.mkdir(parents=True, exist_ok=True)
+    vad.write_bytes(b"vad")
+    monkeypatch.setattr(lp, "VAD_SHA", hashlib.sha256(b"vad").hexdigest())
+    for p in (
+        cache / "speech-cpp/libspeech.dylib",
+        cache / "speech-cpp/reazonspeech-nemo-619M-v2-Q8_0.gguf",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/config.json",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/model.safetensors",
+        cache / f"hub/models--mlx-community--Qwen3-4B-Instruct-2507-4bit/snapshots/{REV_B}/tokenizer.json",
+    ):
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(b"{}")
+
+    active = 0
+    max_concurrent = 0
+    events = []
+
+    class FakeNeMoGpu:
+        def __init__(self, *a):
+            pass
+
+        def new_vad(self):
+            return object()
+
+        def decode(self, samples, *, cancel_event=None, start_sample=0, dedup_before_sample=0):
+            nonlocal active, max_concurrent
+            active += 1
+            max_concurrent = max(max_concurrent, active)
+            events.append(("asr", threading.get_ident()))
+            active -= 1
+            return "こんにちは"
+
+    class FakeMt:
+        def __init__(self, *a, **kw):
+            pass
+
+        def new_session(self):
+            return lp._NoopSession()
+
+        @staticmethod
+        def translate(session, text_ja, *, cancel_event=None, start_sample=None, end_sample=None, on_delta=None):
+            nonlocal active, max_concurrent
+            active += 1
+            max_concurrent = max(max_concurrent, active)
+            events.append(("mt", threading.get_ident()))
+            active -= 1
+            return "你好。"
+
+    monkeypatch.setattr(lp, "SpeechCppNeMoRecognizer", FakeNeMoGpu)
+    monkeypatch.setattr(lp, "Qwen3Translator", FakeMt)
+    calls = 0
+    def two_segs(vad_obj, frame):
+        nonlocal calls
+        calls += 1
+        if frame is not None and calls <= 2:
+            yield (calls - 1) * 1600, np.zeros(1600, dtype=np.float32)
+    monkeypatch.setattr(lp, "vad_segments", two_segs)
+
+    async def scenario():
+        backend = lp.LocalBackend(cache, settings.profiles["m1-pro-nemo"])
+        assert backend.uses_gpu_speech_cpp is True
+        assert backend.uses_gpu_scheduler is True
+        emitted = []
+        session = await backend.open(lambda item: emitted.append(item) or asyncio.sleep(0))
+        await session.accept_pcm(b"\x00\x00" * 1600)
+        await session.accept_pcm(b"\x00\x00" * 1600)
+        await session.finish()
+        await session.aclose()
+        await backend.aclose()
+        return emitted
+
+    emitted = asyncio.run(scenario())
+    assert len(emitted) == 2
+    assert max_concurrent == 1
+    assert [op for op, _ in events] == ["asr", "mt", "asr", "mt"]
+    # Isolated threads: asr_pool != mt_pool
+    assert events[0][1] != events[1][1]
+
+
+def test_stage4_draft_preview_clause_gate_kv_peek_and_preemption(tmp_path, monkeypatch):
+    import mlx.core as mx
+
+    # 1. _SmartSegmenter.active_preview_snapshot non-destructive audio conservation
+    class SpeakVad:
+        def __init__(self, speech_end: int):
+            self._total = 0
+            self._end = speech_end
+            self._speaking = False
+            self._q = []
+
+        def accept_waveform(self, arr):
+            self._total += len(arr)
+            if self._total < self._end:
+                self._speaking = True
+            elif self._speaking:
+                self._speaking = False
+                self._q.append(type("Seg", (), {
+                    "start": 0,
+                    "samples": np.ones(self._end, dtype=np.float32) * 0.2,
+                })())
+
+        def is_speech_detected(self):
+            return self._speaking
+
+        def empty(self):
+            return not self._q
+
+        @property
+        def front(self):
+            return self._q[0]
+
+        def pop(self):
+            self._q.pop(0)
+
+        def flush(self):
+            if self._speaking:
+                self._speaking = False
+                self._q.append(type("Seg", (), {
+                    "start": 0,
+                    "samples": np.ones(self._total, dtype=np.float32) * 0.2,
+                })())
+
+    vad = SpeakVad(48000)
+    seg = lp._SmartSegmenter(vad, max_segment_s=4.5, overlap_ms=350)
+    snaps, finals = [], []
+    for off in range(0, 48000, 1024):
+        n = min(1024, 48000 - off)
+        frame = (np.ones(n, dtype=np.float32) * 0.2 * 32767.0).astype("<i2").tobytes()
+        rel, snap = seg.push_and_preview(frame, draft_interval_s=1.2)
+        finals.extend(rel)
+        if snap is not None:
+            snaps.append(snap)
+    rel, _ = seg.push_and_preview(None, draft_interval_s=1.2)
+    finals.extend(rel)
+    assert len(snaps) >= 1 and snaps[0].start_sample == 0 and snaps[0].end_sample >= int(1.4 * lp.RATE)
+    assert len(finals) == 1 and finals[0].start_sample == 0 and len(finals[0].samples) == 48000
+
+    # 2. _should_emit_draft_ja SOV clause gate
+    assert lp._should_emit_draft_ja("", "これ") is False
+    assert lp._should_emit_draft_ja("", "私、こんにちはって") is True
+    assert lp._should_emit_draft_ja("私、こんにちはって", "私、こんにちはって言") is False
+    assert lp._should_emit_draft_ja("私、こんにちはって", "私、こんにちはって言ってたんだよね。") is True
+
+    # 3. Qwen3Translator.translate_draft non-mutating KV cache invariant
+    class FakeSlot:
+        def __init__(self, off):
+            self.offset = off
+
+    class FakeTok:
+        def encode(self, text, add_special_tokens=False):
+            return [10] * max(1, len(text))
+
+        def decode(self, ids):
+            return "草稿"
+
+    tr = lp.Qwen3Translator.__new__(lp.Qwen3Translator)
+    tr._mx = mx
+    tr.tokenizer = FakeTok()
+    tr.model = object()
+    tr.sampler = object()
+    tr.logits_processors = []
+    tr._eos_ids = {99}
+    tr._prefix_len = 90
+    tr._suffix_tail = "<TAIL>"
+    tr._next_turn_prefix = "<NEXT>"
+    tr._prompt_cache = [FakeSlot(120)]
+    tr._trim_prompt_cache = lambda cache, n: setattr(cache[0], "offset", cache[0].offset - n)
+
+    def ok_step(suffix_ids, *a, **kw):
+        tr._prompt_cache[0].offset += len(suffix_ids) + 2
+        yield mx.array(1), None
+        yield mx.array(99), None
+
+    tr._generate_step = ok_step
+    sess = lp._Qwen3Session(tr, max_turns=2)
+    sess.turns = 1
+    assert tr.translate_draft(sess, "こんにちはって言ってた") == "草稿"
+    assert tr._prompt_cache[0].offset == 120 and sess.turns == 1
+
+    ev = threading.Event()
+    ev.set()
+    assert tr.translate_draft(sess, "こんにちは", cancel_event=ev) == ""
+    assert tr._prompt_cache[0].offset == 120 and sess.turns == 1
+
+    def err_step(*a, **kw):
+        tr._prompt_cache[0].offset += 7
+        raise RuntimeError("boom")
+    tr._generate_step = err_step
+    with pytest.raises(RuntimeError):
+        tr.translate_draft(sess, "こんにちは")
+    assert tr._prompt_cache[0].offset == 120 and sess.turns == 1
 
 
 def test_mlx_priority_scheduler_mt_over_asr_and_cancel(tmp_path, monkeypatch):

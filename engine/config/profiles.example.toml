@@ -39,7 +39,7 @@ enabled = false
 type = "qwen3_asr_mlx"
 model_revision = "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
 threads = 2
-vad_pause_ms = 600
+vad_pause_ms = 350
 max_segment_s = 4.5
 overlap_ms = 350
 
@@ -57,9 +57,12 @@ type = "speech_cpp_nemo"
 model_file = "reazonspeech-nemo-619M-v2-Q8_0.gguf"
 threads = 6
 decoding = "beam"
-vad_pause_ms = 600
+device = "gpu"
+draft_interval_s = 1.2
+vad_pause_ms = 350
 max_segment_s = 4.5
 overlap_ms = 350
+pad_ms = 350
 
 [profiles.m1-pro-nemo.mt]
 type = "qwen3_mt_mlx"

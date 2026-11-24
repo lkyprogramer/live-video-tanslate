@@ -15,12 +15,14 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import Response
 
-from .backend import BackendError, Caption, SubtitleBackend, Warning
+from .backend import BackendError, Caption, CaptionDelta, SubtitleBackend, Warning
 from .config import Settings
 
 log = logging.getLogger(__name__)
 FRAME_BYTES = 6400
+ALLOWED_FULL_FRAMES = frozenset({2048, FRAME_BYTES})
 QUEUE_FRAMES = 20
+QUEUE_MAX_BYTES = QUEUE_FRAMES * FRAME_BYTES
 QUEUE_TIMEOUT = 1
 DRAIN_TIMEOUT = 8
 CLOSE_CODES = {
@@ -58,7 +60,7 @@ def chinese(text):
 
 
 class Connection:
-    _FLUSH_STAGES = frozenset({"ready", "ws_sent", "gateway_filtered", "asr_end", "mt_end"})
+    _FLUSH_STAGES = frozenset({"ready", "ws_sent", "ws_delta_sent", "gateway_filtered", "asr_end", "mt_end"})
 
     def __init__(self, ws, trace_path):
         self.ws = ws
@@ -109,6 +111,18 @@ class Connection:
             if isinstance(item, Warning):
                 await self.send("warning", code=item.code)
                 return
+            if isinstance(item, CaptionDelta):
+                text = chinese(item.text_zh)
+                if text is None:
+                    return
+                if not (0 <= item.start_sample < item.end_sample <= self.accepted):
+                    return
+                await self.send("caption_delta", seq=self.seq + 1, start_sample=item.start_sample,
+                                end_sample=item.end_sample, text_zh=text)
+                if self.trace_path:
+                    self.record("ws_delta_sent", seq=self.seq + 1, segment_id=item.segment_id,
+                                start_sample=item.start_sample, end_sample=item.end_sample)
+                return
             text = chinese(item.text_zh)
             span = {"segment_id": item.segment_id, "start_sample": item.start_sample,
                     "end_sample": item.end_sample} if self.trace_path else None
@@ -130,11 +144,21 @@ class Connection:
                 self.record("ws_sent", seq=self.seq, **span)
 
     async def stream(self, session):
-        queue = asyncio.Queue(maxsize=QUEUE_FRAMES)
+        queue = asyncio.Queue()
+        queue_bytes = 0
+        space_available = asyncio.Event()
+        space_available.set()
         finishing = asyncio.Event()
 
         async def admit(frame):
-            await queue.put(frame)
+            nonlocal queue_bytes
+            while queue_bytes + len(frame) > QUEUE_MAX_BYTES:
+                space_available.clear()
+                await space_available.wait()
+            queue_bytes += len(frame)
+            queue.put_nowait(frame)
+            if queue_bytes >= QUEUE_MAX_BYTES:
+                space_available.clear()
             self.accepted += len(frame) // 2
             if self.trace_path:
                 self.record("pcm_accepted", end_sample=self.accepted)
@@ -160,8 +184,8 @@ class Connection:
                         continue
                     if short_tail or not 2 <= len(frame) <= FRAME_BYTES or len(frame) % 2:
                         raise BackendError("invalid_audio")
-                    short_tail = len(frame) < FRAME_BYTES
-                    if not queue.full():
+                    short_tail = len(frame) not in ALLOWED_FULL_FRAMES
+                    if queue_bytes + len(frame) <= QUEUE_MAX_BYTES:
                         await admit(frame)
                         continue
                     # Keep receiving close notifications even while admission is blocked.
@@ -185,11 +209,15 @@ class Connection:
                     await asyncio.gather(following, return_exceptions=True)
 
         async def process():
+            nonlocal queue_bytes
             consumed = 0
             while not (finishing.is_set() and queue.empty()):
                 frame = await queue.get()
                 if frame is None:
                     break
+                queue_bytes = max(0, queue_bytes - len(frame))
+                if queue_bytes < QUEUE_MAX_BYTES:
+                    space_available.set()
                 await session.accept_pcm(frame)
                 if self.trace_path:
                     consumed += len(frame) // 2

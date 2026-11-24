@@ -16,7 +16,7 @@ import pytest
 from starlette.websockets import WebSocketDisconnect
 
 from subtitle_service import app
-from subtitle_service.backend import Caption
+from subtitle_service.backend import Caption, CaptionDelta
 from subtitle_service.config import load_settings, load_token
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -253,3 +253,46 @@ def test_private_token(tmp_path):
     path.chmod(0o644)
     with pytest.raises(ValueError, match="private"):
         load_token(path, create=False)
+
+
+def test_64ms_frames_and_caption_delta_contract(config):
+    class DeltaSession:
+        def __init__(self, emit):
+            self.emit = emit
+            self.samples = 0
+
+        async def accept_pcm(self, frame):
+            self.samples += len(frame) // 2
+
+        async def finish(self):
+            await self.emit(CaptionDelta(0, self.samples, "これは仮名"))  # skipped silently
+            await self.emit(CaptionDelta(0, self.samples, "先看"))
+            await self.emit(Caption(0, self.samples, "先看这个。"))
+
+        async def aclose(self):
+            pass
+
+    class DeltaBackend(Fake):
+        async def open(self, emit, *, record=None):
+            return DeltaSession(emit)
+
+    with client(config, DeltaBackend()) as (c, _), websocket(c) as ws:
+        sid = start(ws)["session_id"]
+        ws.send_bytes(bytes(2048))
+        ws.send_bytes(bytes(2048))
+        ws.send_json(FIXTURE["finish"])
+        d1 = ws.receive_json()
+        jsonschema.validate(d1, SCHEMA)
+        assert d1 == {
+            "type": "caption_delta",
+            "session_id": sid,
+            "seq": 1,
+            "start_sample": 0,
+            "end_sample": 2048,
+            "text_zh": "先看",
+        }
+        c1 = ws.receive_json()
+        jsonschema.validate(c1, SCHEMA)
+        assert c1["type"] == "caption" and c1["seq"] == 1 and c1["text_zh"] == "先看这个。"
+        fin = ws.receive_json()
+        assert fin["type"] == "finished" and fin["accepted_samples"] == 2048
