@@ -1,6 +1,6 @@
 # Chrome 日语语音实时中文字幕方案
 
-> **历史基线提示**：本文档记录的是 **2026-11-06 P0/v0 阶段的 WhisperLiveKit 初始架构基线**。当前生产引擎已演进为自研异步解耦流水线（支持 `m1-pro-nemo` CPU/GPU 异构、`m1-pro-hq` 全 MLX GPU 及 `reazon-hy` 三档，含 KV Cache 复用、能量谷 4.5s 短切分、协作式取消与双行自适应字幕）。最新架构与实测现状请参见 [README.md](../README.md)、[本机配置与模型下载](local-setup.md)、[极致优化方案](m1-pro-extreme-optimization-plan-2026-11-23.md) 与 [Step 2–3 端到端验收报告](step2-3-optimization-verification-2026-11-23.md)。
+> **历史基线提示**：本文档记录的是 **2026-11-06 P0/v0 阶段的 WhisperLiveKit 初始架构基线**。当前生产引擎已演进为自研异步解耦流水线（`m1-pro-nemo` 启用 MTL0 GPU 交错调度、1.2s Draft-and-Commit、2 轮滚动 KV Cache、假名硬掩码、`4.5s` 能量谷短切分、`64ms` 收音与 `caption_delta` 流式双行字幕）。最新架构路线与 Stage 0–4 实测现状请参见 [README.md](../README.md)、[M1 Pro 架构上限优化路线图](m1-pro-architecture-ceiling-roadmap-2026-11-23.md)、[Stage 0–4 全量实测验收报告](stage0-4-architecture-ceiling-verification-2026-11-24.md) 与 [本机配置与模型下载](local-setup.md)。
 
 **开发入口**　实现扩展、切换后端或执行验收时，使用新版开发方案与 v1 合同。[可执行开发方案](development-plan.md) · [字幕协议与后端合同](subtitle-backend-contract.md)
 

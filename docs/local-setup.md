@@ -8,11 +8,11 @@
 
 ### 1.1 Python 引擎环境（`engine/.venv`）
 
-基础环境可通过 `uv` 创建，而启用 `m1-pro-hq` / `m1-pro-nemo` 所需的 `mlx==0.32.4` 与 `mlx-audio==0.6.7` 因受上游 `whisperlivekit` 元数据（`mlx<0.32`）约束，实际以 `engine/.venv/bin/python` 直接运行并按需补装 `mlx==0.32.4` / `mlx-audio==0.6.7`：
+[engine/pyproject.toml](../engine/pyproject.toml) 已通过 `override-dependencies = ["mlx==0.32.4"]` 锁定 `mlx==0.32.4` 与 `mlx-audio==0.6.7`，可直接使用 `uv` 同步环境：
 
 ```sh
+uv lock --check --directory engine
 uv sync --project engine --frozen
-# 若需运行 m1-pro-hq / m1-pro-nemo，确保 venv 内已安装 mlx==0.32.4 与 mlx-audio==0.6.7
 ```
 
 ### 1.2 构建 Chrome 扩展
@@ -41,13 +41,13 @@ curl -fLsS https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/si
   -o .model-cache/reazonspeech-assets/silero_vad.onnx
 ```
 
-### 2.2 `m1-pro-nemo`（推荐 M1 Pro 主力 · 异构极速高精档）
+### 2.2 `m1-pro-nemo`（推荐 M1 Pro 主力 · MTL0 GPU 交错 + Draft-and-Commit）
 
-1. **编译 `speech.cpp` 并下载 `reazonspeech-nemo-619M-v2-Q8_0.gguf`**（需 `cmake`、`ninja`、`clang++`）：
+1. **编译 `speech.cpp` 并下载/校验 `reazonspeech-nemo-619M-v2-Q8_0.gguf`**（需 `cmake`、`ninja`、`clang++`）：
    ```sh
    ./scripts/setup_speech_cpp_nemo.sh
    ```
-   产物会安装到 `.model-cache/speech-cpp/`（`libspeech.4.dylib`、`libspeech.dylib` 与 `Q8_0` GGUF 模型）。
+   脚本会自动校验 `Q8_0` GGUF 的 SHA256（`944411cb...e54a3`）并打印 `libspeech.dylib` 校验和，产物安装在 `.model-cache/speech-cpp/`。本机 `profiles.toml` 中该档位默认配置 `device = "gpu"`、`draft_interval_s = 1.2`、`vad_pause_ms = 350`、`pad_ms = 350`。
 2. **下载 `Qwen3-4B-Instruct-2507-4bit`**：见下方第 2.3 节共用命令。
 
 ### 2.3 `m1-pro-hq`（全 MLX GPU 档）与 `reazon-hy`（轻量基线档）
@@ -134,12 +134,16 @@ export HF_HOME="$PWD/.model-cache" HF_HUB_OFFLINE=1 HF_HUB_DISABLE_IMPLICIT_TOKE
 ## 5. 验证命令
 
 ```sh
-# 1. 全量单元测试与前端类型检查/构建
+# 1. 依赖锁、全量单元测试与前端类型检查/构建
+uv lock --check --directory engine
 PYTHONPATH=.:engine/src engine/.venv/bin/pytest engine/tests p0/p2/tests p0/local_streaming
 npm --prefix extension run typecheck && npm --prefix extension test && npm --prefix extension run build
 
-# 2. 1× 实速 WebSocket 双档对比（需停止占用 18765 的服务）
-engine/.venv/bin/python p0/perf_probe/verify_step2_3_live.py
+# 2. Stage 0–4 硬件探针与 1× 实速 WebSocket 对比（需停止占用 18765 的服务）
+engine/.venv/bin/python p0/perf_probe/verify_stage0_1.py
+engine/.venv/bin/python p0/perf_probe/verify_stage2.py
+engine/.venv/bin/python p0/perf_probe/verify_stage3.py
+engine/.venv/bin/python p0/perf_probe/verify_stage4.py
 
 # 3. Chrome 1080p / 4K 端到端联调（需准备 MEDIA_DIR 测试视频并空出 18765）
 # TEST_PROFILE=m1-pro-nemo MEDIA_DIR=... node p0/tier2_mt/verify_chrome_1080p_4k.mjs
