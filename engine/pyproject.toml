@@ -24,6 +24,7 @@ where = ["src"]
 
 [tool.uv]
 environments = ["sys_platform == 'darwin' and platform_machine == 'arm64'"]
+override-dependencies = ["mlx==0.32.4"]
 
 [tool.uv.sources]
 whisperlivekit = { git = "https://github.com/QuentinFuxa/WhisperLiveKit.git", rev = "13ee8515f136e0fd0bf31fb8ab0b63ab10670fa2" }
