@@ -18,8 +18,8 @@ Stage 5 的核心目标是在 Apple Silicon M1 Pro（32 GiB）上打破 Stage 0�
 
 ## 2. Stage 5A-1：CoreML ANE 静态桶原型与精度修复（GO）
 
-- **复现脚本**：[verify_stage5a_ane.py](file:///Users/luo/Documents/github/jp-live-video-tanslate/p0/perf_probe/verify_stage5a_ane.py)
-- **原始证据**：[stage5a_ane_probe.json](file:///Users/luo/Documents/github/jp-live-video-tanslate/docs/experiments/stage5a-2026-11-24/stage5a_ane_probe.json)
+- **复现脚本**：[verify_stage5a_ane.py](../p0/perf_probe/verify_stage5a_ane.py)
+- **原始证据**：[stage5a_ane_probe.json](experiments/stage5a-2026-11-24/stage5a_ane_probe.json)
 
 ### 2.1 ANE 数值稳定性与排布关键修复
 1. **FP16 溢出防护**：ANE 仅以 FP16 执行激活计算，`FastConformer` 的 `LayerNorm` 平方和及注意力 `Q * K^T` 易上溢；导出前对 `LayerNorm` 输入实施 `1/16` 缩放并在 Attention 对 `Q` 预乘 `1/sqrt(128)`。
@@ -45,8 +45,8 @@ Stage 5 的核心目标是在 Apple Silicon M1 Pro（32 GiB）上打破 Stage 0�
 
 ## 3. Stage 5B-1 & 5B-2：`kapitsa` `Qwen3.5-4B` / `KFlash` 评估（NO-GO）
 
-- **复现脚本**：[verify_stage5b_kapitsa_mt.py](file:///Users/luo/Documents/github/jp-live-video-tanslate/p0/perf_probe/verify_stage5b_kapitsa_mt.py)
-- **原始证据**：[stage5b_kapitsa_mt_probe.json](file:///Users/luo/Documents/github/jp-live-video-tanslate/docs/experiments/stage5b-2026-11-24/stage5b_kapitsa_mt_probe.json)
+- **复现脚本**：[verify_stage5b_kapitsa_mt.py](../p0/perf_probe/verify_stage5b_kapitsa_mt.py)
+- **原始证据**：[stage5b_kapitsa_mt_probe.json](experiments/stage5b-2026-11-24/stage5b_kapitsa_mt_probe.json)
 
 | 91 条生产日语短句对比 | `mlx_qwen3_4b`（现网基线） | `kapitsa_qwen35_4b_kflash` | `kapitsa_qwen35_4b_plain` |
 | :--- | :---: | :---: | :---: |
@@ -61,10 +61,10 @@ Stage 5 的核心目标是在 Apple Silicon M1 Pro（32 GiB）上打破 Stage 0�
 
 ## 4. Stage 5A-2：原生 `libnemo_ane.dylib` 与 1× 实时 WebSocket 端到端实测（GO）
 
-- **原生实现**：[nemo_ane.mm](file:///Users/luo/Documents/github/jp-live-video-tanslate/engine/native/nemo_ane.mm) · [setup_nemo_ane.sh](file:///Users/luo/Documents/github/jp-live-video-tanslate/scripts/setup_nemo_ane.sh)
-- **引擎调度**：[config.py](file:///Users/luo/Documents/github/jp-live-video-tanslate/engine/src/subtitle_service/config.py) · [local_pipeline.py](file:///Users/luo/Documents/github/jp-live-video-tanslate/engine/src/subtitle_service/local_pipeline.py)
-- **复现脚本**：[verify_stage5a2_live.py](file:///Users/luo/Documents/github/jp-live-video-tanslate/p0/perf_probe/verify_stage5a2_live.py)
-- **原始证据**：[stage5a2_live_verification.json](file:///Users/luo/Documents/github/jp-live-video-tanslate/docs/experiments/stage5a2-2026-11-24/stage5a2_live_verification.json)
+- **原生实现**：[nemo_ane.mm](../engine/native/nemo_ane.mm) · [setup_nemo_ane.sh](../scripts/setup_nemo_ane.sh)
+- **引擎调度**：[config.py](../engine/src/subtitle_service/config.py) · [local_pipeline.py](../engine/src/subtitle_service/local_pipeline.py)
+- **复现脚本**：[verify_stage5a2_live.py](../p0/perf_probe/verify_stage5a2_live.py)
+- **原始证据**：[stage5a2_live_verification.json](experiments/stage5a2-2026-11-24/stage5a2_live_verification.json)
 
 ### 4.1 架构与优雅回退设计
 - **三生产桶**：`fc_S256_w8a16.mlmodelc`（`<= 2.56s`）、`fc_M560_w8a16.mlmodelc`（`<= 5.60s`，精确覆盖 `4.5s + 2×0.35s = 5.20s` 生产切片）、`fc_L1024_w8a16.mlmodelc`（`<= 10.24s`）。

@@ -17,7 +17,7 @@
 ### 从连接到结束
 
 1. 客户端连接后 2 秒内发一条 `start`。服务验证 token、版本、配置和格式。服务全局最多一个活动或清理中的会话。可用时初始化所选策略，再发 `ready`。客户端等 `ready` 最多 20 秒，等待时保留原声播放并跳过尚未开始送入的 PCM。
-2. 客户端从 `ready` 后的第一帧开始计时。每 200 ms 发 3,200 个单声道 s16le 采样，即 6,400 字节。静音照常送入以保持音频时钟。正常末尾可发一帧 2–6,398 字节的偶数长度 PCM，随后只允许 `finish`。空帧、过长帧、奇数字节或短帧后继续送音频视为协议错误。
+2. 客户端从 `ready` 后的第一帧开始计时。当前扩展默认每 64 ms 发 1,024 个单声道 s16le 采样，即 2,048 字节（服务端 `ALLOWED_FULL_FRAMES` 同时兼容 2,048 字节 / 64 ms 与历史 6,400 字节 / 200 ms 两种标准帧长）。静音照常送入以保持音频时钟。正常末尾可发一帧 2–6,398 字节的偶数长度 PCM，随后只允许 `finish`。空帧、过长帧、奇数字节或短帧后继续送音频视为协议错误。
 3. 正常结束发 `finish`。服务停止接收新音频，处理所有已接纳帧，依次 flush VAD、ASR、MT，然后发 `finished`，关闭码 1000。单会话 drain 最多 8 秒。用户停止、暂停、拖动或断连时客户端关闭 WS 并取消，服务停止提交新字幕，释放队列及引擎会话。
 
 以下为同一连接的消息示例。ID 与令牌都是示例值。
@@ -25,6 +25,7 @@
 ```jsonl
 {"type":"start","version":1,"profile_id":"reazon-hy","token":"<token>","audio":{"format":"s16le","sample_rate":16000,"channels":1}}
 {"type":"ready","version":1,"session_id":"s-1","profile_id":"reazon-hy","language":"zh-Hans"}
+{"type":"caption_delta","session_id":"s-1","seq":1,"start_sample":63520,"end_sample":87040,"text_zh":"我这边"}
 {"type":"caption","session_id":"s-1","seq":1,"start_sample":63520,"end_sample":87040,"text_zh":"我这边有照片。"}
 {"type":"finish"}
 {"type":"finished","session_id":"s-1","accepted_samples":96000}
@@ -33,7 +34,7 @@
 | 字段或事件 | 语义 |
 | --- | --- |
 | `session_id` | 服务生成，绑定到当前连接。通过 `ready` 建立关联，之后的服务端事件携带同一值。 |
-| `seq` | 字幕从 1 开始逐条递增，与 `session_id` 一起唯一标识字幕。每条字幕只发一次。渲染器忽略已显示序号及失效会话的消息。 |
+| `seq` | 终版 `caption` 从 1 开始逐条递增，与 `session_id` 一起唯一标识字幕。每条终版字幕只发一次。`caption_delta` 为当前未定稿片段的流式预览，携带即将提交的下一条序号（`seq + 1`），经 `chinese()` 校验和范围检查后发送，不递增 `seq` 也不触发 `warning`；最终仍以同范围 `caption` 定稿。渲染器忽略已显示序号及失效会话的消息。 |
 | `start_sample`、`end_sample` | 该段在会话 PCM 里的半开范围。首个接纳样本位置为 0，满足 `0 ≤ start_sample < end_sample ≤ 已接纳样本数`。提交的 `end_sample` 非递减。适配器可报告近似范围，多个字幕可共享相同末点。 |
 | `text_zh` | 完成翻译的简体中文，允许中文句中的拉丁字母、数字、标点和专名。ASR 日文及未完成的译文留在服务内部。 |
 | `warning` | 可继续播放。例如 `{"type":"warning","session_id":"s-1","code":"translation_invalid"}`。无效译文和无法安全对齐的上游快照记为丢失，仍处理后续音频。 |
@@ -76,7 +77,7 @@ class SubtitleSession(Protocol):
 
 - `open` 只建立会话状态。默认模型在服务启动时加载、预热，后续会话复用权重。网关持有受限音频队列，一个消费者顺序调用 `accept_pcm`。后端可在内部并行推理与接收，并通过异步 `emit` 提交中文及样本范围。网关独占 WebSocket 写入、编号、认证和跨会话检查。
 - `finish` 在最后一次 `accept_pcm` 返回后调用，返回前提交所有完成的字幕。`aclose` 可重复调用，负责取消和关闭引擎资源。取消时先关闭 sink。服务等待同步推理 worker 安全退出或其当前调用安全返回后再释放会话占用。
-- `local_pipeline` 组合 ASR 和 MT。ASR 接收 PCM 并提交 `RecognizedSegment(start_sample, end_sample, text_ja)`，自带 VAD 或原生端点。MT 接收日文段，固定目标 `zh-Hans`，输出中文文本。默认 Hy-MT2 adapter 把 `zh-Hans` 映射为 `zh-cn`，使用已锁定版本的 `MlxLlmTranslation`。每会话用 `new_session`，私有的 `_translate_text` 只在一个 adapter 调用并加回归测试。ASR 与 MT 分别在受限的 worker 执行，避免同步推理阻塞 WS 事件循环。[现有 ReazonSpeech 与 Hy-MT2 验证](p0-asr-selection.md) · [Hy-MT2 调用源码](https://github.com/QuentinFuxa/WhisperLiveKit/blob/13ee8515f136e0fd0bf31fb8ab0b63ab10670fa2/whisperlivekit/translation_mlx_llm_mt.py)
+- `local_pipeline` 组合 ASR 和 MT。ASR 接收 PCM 并提交 `RecognizedSegment(start_sample, end_sample, text_ja)`，自带 VAD 或原生端点，支持 `reazon_sherpa`、`qwen3_asr_mlx` 与 `speech_cpp_nemo`（`device` 可取 `"cpu" | "gpu" | "ane"`，`decoding` 可取 `"beam" | "greedy"`，支持 `draft_interval_s`、`max_segment_s`、`overlap_ms`、`pad_ms`）。MT 接收日文段，固定目标 `zh-Hans`，支持 `hy_mt2_mlx` 与 `qwen3_mt_mlx`（支持 `context_turns` 滚动上下文及 `generate_step` 流式 `CaptionDelta` 推送）。默认 Hy-MT2 adapter 把 `zh-Hans` 映射为 `zh-cn`，使用已锁定版本的 `MlxLlmTranslation`。每会话用 `new_session`，私有的 `_translate_text` 只在一个 adapter 调用并加回归测试。ASR 与 MT 分别在受限的 worker 执行，避免同步推理阻塞 WS 事件循环（`device="ane"` 时 ASR 走 CoreML ANE + AMX、MT 走 Metal GPU 实现物理异构并行，缺失 ANE 资产或超长切片自动回退 `speech.cpp`）。[现有 ReazonSpeech 与 Hy-MT2 验证](p0-asr-selection.md) · [Hy-MT2 调用源码](https://github.com/QuentinFuxa/WhisperLiveKit/blob/13ee8515f136e0fd0bf31fb8ab0b63ab10670fa2/whisperlivekit/translation_mlx_llm_mt.py)
 - 已内置翻译的外部后端实现 `SubtitleBackend`，在 adapter 内固定目标简中。它直接提交其中文字段，按相同协议上送。内部 ASR/MT 策略只用于可拆开的后端。
 - 统一输出入口 trim 文本并拒绝空白、占位符残留、无汉字或带平假名/片假名的译文，发 `translation_invalid` 并计入漏错。输出只能来自已配置的翻译步骤。汉字检查只拦截明显异常，中文语义和简繁以模型目标、中文测试样例与逐句验收为准。合法拉丁专名可保留。发生错误时显示状态，字幕字段始终只承载译文。短测中曾计为可用的「ショー将解释越位规则」会在 v1 被过滤，D2 与 D5 以 v1 实际输出重算。
 
@@ -114,6 +115,44 @@ type = "whisperlivekit_ws"
 enabled = false
 url = "ws://127.0.0.1:18766/asr"
 token_env = "WLK_API_TOKEN"
+
+[profiles.m1-pro-hq]
+label = "Qwen3 · M1 Pro 高精度"
+type = "local_pipeline"
+enabled = false
+
+[profiles.m1-pro-hq.asr]
+type = "qwen3_asr_mlx"
+model_revision = "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+threads = 2
+vad_pause_ms = 350
+max_segment_s = 4.5
+overlap_ms = 350
+
+[profiles.m1-pro-hq.mt]
+type = "qwen3_mt_mlx"
+model_revision = "50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b"
+
+[profiles.m1-pro-nemo]
+label = "NeMo-v2(ANE) + Qwen3(GPU) · 异构极速高精"
+type = "local_pipeline"
+enabled = false
+
+[profiles.m1-pro-nemo.asr]
+type = "speech_cpp_nemo"
+model_file = "reazonspeech-nemo-619M-v2-Q8_0.gguf"
+threads = 6
+decoding = "greedy"
+device = "ane"
+draft_interval_s = 1.2
+vad_pause_ms = 350
+max_segment_s = 4.5
+overlap_ms = 350
+pad_ms = 350
+
+[profiles.m1-pro-nemo.mt]
+type = "qwen3_mt_mlx"
+model_revision = "50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b"
 ```
 
 启动时拒绝未知类型、类型不对应的字段、无效来源、未启用的默认配置和缺失的默认模型。外部服务 URL 首版只接受 `ws://127.0.0.1:<独立端口>/asr`。选择只传 profile ID，网页和浏览器均无权指定外部 URL、模型路径和语言参数。

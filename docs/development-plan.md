@@ -1,5 +1,7 @@
 # Chrome 日语视频实时中文字幕开发方案
 
+> **历史基线提示**：本文档记录的是 **v1（D1–D5）初始开发方案**。当前生产引擎已演进至 Stage 5（`m1-pro-nemo` 主力档采用 ANE `w8a16` + AMX `greedy` RNNT ‖ Metal GPU `Qwen3-4B` 物理异构真并行，`64ms` 收音、`caption_delta` 流式字幕与 1.2s Draft-and-Commit）。最新现状与接口合同请查阅 [README.md](../README.md)、[本地字幕服务 v1 合同](subtitle-backend-contract.md)、[本机配置与模型下载](local-setup.md) 及 [Stage 5 ANE 物理异构并行实测验收报告](stage5-ane-heterogeneous-verification-2026-11-24.md)。
+
 ## 实施入口
 
 从仓库根目录按 D1–D5 执行。每阶段完成交付和验收后进入下一阶段，失败保留证据并修复当前阶段。实现前读取对应章节的合同。运行和复测前读[本机使用说明](local-setup.md)。阶段完成状态见[本机验收记录](v1-acceptance.md)。

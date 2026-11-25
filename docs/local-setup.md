@@ -48,7 +48,7 @@ curl -fLsS https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/si
    ./scripts/setup_speech_cpp_nemo.sh
    ```
    脚本会自动校验 `Q8_0` GGUF 的 SHA256（`944411cb...e54a3`）并打印 `libspeech.dylib` 校验和，产物安装在 `.model-cache/speech-cpp/`。
-2. **编译 `libnemo_ane.dylib` 并准备 CoreML ANE 静态桶**（启用 `device = "ane"`、`decoding = "greedy"`）：
+2. **编译 `libnemo_ane.dylib` 并准备 CoreML ANE 静态桶**（启用默认 `device = "ane"`、`decoding = "greedy"`、`draft_interval_s = 1.2`、`vad_pause_ms = 350`、`max_segment_s = 4.5`、`overlap_ms = 350`、`pad_ms = 350`，需 Xcode Command Line Tools 提供 `CoreML` / `Accelerate`）：
    ```sh
    ./scripts/setup_nemo_ane.sh
    ```
@@ -148,13 +148,18 @@ uv lock --check --directory engine
 PYTHONPATH=.:engine/src engine/.venv/bin/pytest engine/tests p0/p2/tests p0/local_streaming
 npm --prefix extension run typecheck && npm --prefix extension test && npm --prefix extension run build
 
-# 2. Stage 0–4 硬件探针与 1× 实速 WebSocket 对比（需停止占用 18765 的服务）
+# 2. Stage 0–5 硬件探针与 1× 实速 WebSocket 对比（需停止占用 18765 的服务）
 engine/.venv/bin/python p0/perf_probe/verify_stage0_1.py
 engine/.venv/bin/python p0/perf_probe/verify_stage2.py
 engine/.venv/bin/python p0/perf_probe/verify_stage3.py
 engine/.venv/bin/python p0/perf_probe/verify_stage4.py
+engine/.venv/bin/python p0/perf_probe/verify_stage5a2_live.py
+# 可选离线探针（Stage 5A-1 CoreML 导出需含 coremltools==9.0 与 torch==2.5.1 的隔离 venv；Stage 5B 需 kapitsa）
+# python p0/perf_probe/verify_stage5a_ane.py --export-prod-only --out-dir .model-cache/nemo-ane
+# engine/.venv/bin/python p0/perf_probe/verify_stage5b_kapitsa_mt.py
 
-# 3. Chrome 1080p / 4K 端到端联调（需准备 MEDIA_DIR 测试视频并空出 18765）
+# 3. Chrome 1080p / 4K 端到端联调 & Stage 5D 30–60 分钟热稳定性压测（需准备 MEDIA_DIR 视频并空出 18765）
+# sudo powermetrics --samplers gpu_power,ane_power,cpu_power,thermal -i 5000 -n 360 -o /tmp/stage5d_powermetrics.txt
 # TEST_PROFILE=m1-pro-nemo MEDIA_DIR=... node p0/tier2_mt/verify_chrome_1080p_4k.mjs
 
 # 4. 基础协议与浏览器冒烟

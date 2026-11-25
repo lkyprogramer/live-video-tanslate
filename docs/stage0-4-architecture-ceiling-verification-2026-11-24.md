@@ -2,7 +2,9 @@
 
 > **结论**：在 Apple M1 Pro（10 核 CPU / 16 核 GPU `applegpu_g13s` 200 GB/s / 32 GiB RAM / macOS 26.7.2）上完成了 [M1 Pro 架构上限优化路线图](m1-pro-architecture-ceiling-roadmap-2026-11-23.md) 的 **Stage 0–4 全部改造与硬件实测**。生产主力档 `m1-pro-nemo` 通过 **MTL0 GPU 交错调度 + 64ms 收音帧 + 350ms 能量谷短切分 + 2 轮滚动 KV Cache + 2154-token 假名硬掩码 + 1.2s Draft-and-Commit**，将 D1 高语速日剧的 `final_e2e P50` 压至 **0.604s（P95 1.008s）**，`first_delta_e2e P50` 压至 **0.508s（P95 0.883s）**，说话起音至首字预览中位延迟 **下降 54.4%（4.873s → 2.224s）**，且保持 **100%（121/121）终版字幕精确一致**。
 >
-> **未在本轮重跑的项**：Chrome 1080p/4K MP4 实际播放端到端联调（因上一轮清理已删除本地测试 MP4 文件，本轮仅完成 1× 实速 WebSocket 回放与前端单测/构建，Chrome 4K 长时间联调顺延至 **Stage 5C**）。
+> **未在本轮重跑的项**：Chrome 1080p/4K MP4 实际播放端到端联调（因上一轮清理已删除本地测试 MP4 文件，本轮仅完成 1× 实速 WebSocket 回放与前端单测/构建，Chrome 4K 长时间联调顺延至 **Stage 5**）。
+>
+> **后续演进（Stage 5 更新）**：在 Stage 5 中，`m1-pro-nemo` 已进一步升级为 **ANE `w8a16` + AMX `greedy` ‖ Metal GPU `Qwen3-4B` 物理异构真并行**（`device="ane"`, `decoding="greedy"`），D1 `final_e2e P50` 降至 **0.491s**、峰值 CPU 降至 **48.2%**；Chrome 4K 长时间压测归口至 **Stage 5D**。详见 [Stage 5 ANE 物理异构并行实测验收报告](stage5-ane-heterogeneous-verification-2026-11-24.md)。
 
 ---
 

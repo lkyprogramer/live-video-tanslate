@@ -15,7 +15,7 @@
 ## 核心架构特性
 
 - **ANE ‖ Metal GPU 物理异构并行与优雅回退**：收音（`64ms` 帧）与 Silero VAD（`vad_pause_ms=350`）完全解耦；`m1-pro-nemo` 默认将 FastConformer Encoder（`w8a16`）与 `greedy` RNNT 解码卸载至 ANE + AMX，与 Metal GPU `Qwen3-4B` 真并行（525 次并发解码下 GPU MT 仅膨胀 `+7.76%`，峰值 CPU 降至 `48.2%`）；缺少 ANE 资产或超长切片时自动无感回退至 `speech.cpp` MTL0 GPU。
-- **1.2s Draft-and-Commit 与毫秒级取消**：SOV 从句门控驱动 `greedy + pad=150ms` 快速预览与只读 KV 翻译，终版 `beam + pad=350ms` 原地覆盖且保持 `121/121` 零漂移；`generate_step` 与 C++ 进度回调支持毫秒级协作式取消。
+- **1.2s Draft-and-Commit 与毫秒级取消**：SOV 从句门控驱动 `pad=150ms` 快速预览与只读 KV 翻译，终版 `pad=350ms` 原地覆盖定稿（`m1-pro-nemo` 默认在 ANE `w8a16` + AMX `greedy` 上完成预览与定稿，并保留 `device="gpu"` / `decoding="beam"` 可配置回退；Stage 4 已验证 `121/121` 终版零漂移）；`generate_step` 与 C++/Objective-C++ 进度回调均支持毫秒级协作式取消。
 - **能量谷短切分、边界去重与零假名泄漏**：长语音 `4.5s` 内回溯 `[n-0.65s, n-0.08s]` 局部最低能量谷强切并保留 `350ms` 重叠区（`timestamps=8` token 去重）；`Qwen3-4B` 对 2154 个假名 token 实施 `-1e9` 硬掩码实现 `0/91` 假名泄漏。
 - **双行流式自适应字幕**：Shadow DOM 浮层支持 `caption_delta` 流式上屏与原地定稿，展示上一句（`<span data-prev>`）与当前句（`<span data-current>`），停留时间按字数自适应（`2.5s – 6.5s`）。
 
@@ -30,9 +30,10 @@
    ```
    在 Chrome 打开 `chrome://extensions`，开启开发者模式，加载 `extension/dist`（或解压后的 ZIP 目录），复制扩展 ID。
 2. **准备 Python 环境与模型**：
-   按 [本机配置与模型下载](docs/local-setup.md) 准备模型缓存；若启用 **`m1-pro-nemo`**，运行一键脚本编译 `speech.cpp` 共享库并拉取 `Q8_0` 权重：
+   按 [本机配置与模型下载](docs/local-setup.md) 准备模型缓存；若启用 **`m1-pro-nemo`**，先编译 `speech.cpp` 共享库并拉取 `Q8_0` 权重，再编译 `libnemo_ane.dylib` 启用 ANE 异构加速（缺失 `.mlmodelc` 桶时自动无感回退至 `speech.cpp` MTL0 GPU）：
    ```sh
    ./scripts/setup_speech_cpp_nemo.sh
+   ./scripts/setup_nemo_ane.sh
    ```
 3. **生成本机配置并启动服务**：
    复制 `engine/config/profiles.example.toml` 为 `engine/config/profiles.toml`，将 `allowed_origin` 替换为扩展 ID（如需设为默认档，将 `default_profile_id` 改为 `"m1-pro-nemo"` 并启用对应 profile）：
@@ -51,7 +52,7 @@ npm --prefix extension run typecheck && npm --prefix extension test
 
 ## 文档索引
 
-### 最新演进与优化验证（2026-11-24）
+### 最新演进与优化验证（2026-11-25）
 
 - **架构与配置**：[本机配置与模型下载](docs/local-setup.md) · [M1 Pro 架构上限优化路线图（Stage 0–5）](docs/m1-pro-architecture-ceiling-roadmap-2026-11-23.md) · [M1 Pro 极致优化五层方案](docs/m1-pro-extreme-optimization-plan-2026-11-23.md) · [M1 Pro 性能上限与底层评估](docs/M1%20Pro%20实时日语字幕的性能上限与底层优化评估.md)
 - **实测与验收**：[Stage 5 ANE 物理异构并行实测验收报告](docs/stage5-ane-heterogeneous-verification-2026-11-24.md) · [Stage 0–4 架构上限全量实测验收报告](docs/stage0-4-architecture-ceiling-verification-2026-11-24.md) · [GPT Pro 性能评审与实验建议](docs/M1%20Pro%20实时日语字幕本轮优化后的性能评审与后续实验.md) · [Step 2–3 联调报告](docs/step2-3-optimization-verification-2026-11-23.md)
