@@ -1,0 +1,1286 @@
+{
+  "quantitative_full_episode": {
+    "cues": {
+      "jp_total_0_44_50": 736,
+      "jp_dialogue": 654,
+      "jp_sfx_only": 55,
+      "jp_pure_music": 27,
+      "gold_zh_dialogue_cues": 783,
+      "gold_zh_stripped_screen_notes": 13,
+      "run_a_ws_captions": 617
+    },
+    "asr_accuracy": {
+      "overall": {
+        "dist": 4520,
+        "ref_len": 9937,
+        "hyp_len": 6992,
+        "cer": 0.4549
+      },
+      "by_15m": {
+        "0-15m": {
+          "dist": 1861,
+          "ref_len": 4062,
+          "hyp_len": 2792,
+          "cer": 0.4581
+        },
+        "15-30m": {
+          "dist": 1709,
+          "ref_len": 3876,
+          "hyp_len": 2479,
+          "cer": 0.4409
+        },
+        "30-45m": {
+          "dist": 950,
+          "ref_len": 1999,
+          "hyp_len": 1721,
+          "cer": 0.4752
+        }
+      },
+      "missed_dialogue_cues": 10,
+      "missed_dialogue_pct": 1.53,
+      "missed_short_interjection_count": 5,
+      "missed_substantive_pct": 0.76
+    },
+    "mt_accuracy": {
+      "arm_b_stats": {
+        "cues": 654,
+        "wall_s": 207.2,
+        "mt_p50_ms": 301.4,
+        "mt_p95_ms": 444.0,
+        "kana_leaks": 0
+      },
+      "chrf_30s_blocks_mean": {
+        "arm_a_vs_gold": 0.1543,
+        "arm_b_oracle_vs_gold": 0.1974,
+        "asr_vad_gap_points": 0.0431
+      },
+      "chrf_full_concat": {
+        "arm_a_vs_gold": 0.2476,
+        "arm_b_oracle_vs_gold": 0.3083
+      },
+      "chrf_by_15m": {
+        "0-15m": {
+          "arm_a_vs_gold": 0.1567,
+          "arm_b_oracle_vs_gold": 0.2122
+        },
+        "15-30m": {
+          "arm_a_vs_gold": 0.1292,
+          "arm_b_oracle_vs_gold": 0.1861
+        },
+        "30-45m": {
+          "arm_a_vs_gold": 0.1779,
+          "arm_b_oracle_vs_gold": 0.1939
+        }
+      }
+    },
+    "stratified_audit_exported": {
+      "count": 120,
+      "by_category": {
+        "family_banter": 24,
+        "workplace_banter": 24,
+        "multi_speaker_karaoke": 24,
+        "monologue_bgm": 24,
+        "proper_nouns": 24
+      }
+    }
+  },
+  "stratified_120_audit_summary": {
+    "total_cues": 120,
+    "overall_counts": {
+      "E1": 56,
+      "E4": 3,
+      "OK": 33,
+      "MINOR": 4,
+      "E3": 15,
+      "E2": 7,
+      "E5": 2
+    },
+    "overall_pct": {
+      "E1": 46.7,
+      "E4": 2.5,
+      "OK": 27.5,
+      "MINOR": 3.3,
+      "E3": 12.5,
+      "E2": 5.8,
+      "E5": 1.7
+    },
+    "error_cues_total": 83,
+    "error_share_among_errors_pct": {
+      "E1": 67.5,
+      "E2": 8.4,
+      "E3": 18.1,
+      "E4": 3.6,
+      "E5": 2.4
+    },
+    "e6_draft_regression_cues": 25,
+    "e6_draft_regression_pct": 20.8,
+    "by_category": {
+      "family_banter": {
+        "E1": 13,
+        "E6_draft_regression": 5,
+        "E4": 2,
+        "OK": 4,
+        "MINOR": 1,
+        "E3": 1,
+        "E2": 2,
+        "E5": 1
+      },
+      "workplace_banter": {
+        "E1": 12,
+        "E6_draft_regression": 5,
+        "OK": 5,
+        "E3": 6,
+        "E2": 1
+      },
+      "multi_speaker_karaoke": {
+        "OK": 5,
+        "E1": 13,
+        "E6_draft_regression": 7,
+        "E3": 4,
+        "MINOR": 1,
+        "E4": 1
+      },
+      "monologue_bgm": {
+        "OK": 11,
+        "E2": 2,
+        "E3": 3,
+        "MINOR": 1,
+        "E1": 6,
+        "E5": 1,
+        "E6_draft_regression": 1
+      },
+      "proper_nouns": {
+        "OK": 8,
+        "E3": 1,
+        "E1": 12,
+        "E2": 2,
+        "E6_draft_regression": 7,
+        "MINOR": 1
+      }
+    }
+  },
+  "top20_failure_cases": [
+    {
+      "cue_idx": 1,
+      "category": "family_banter",
+      "time_s": "13.95-16.88",
+      "error_tag": "E1",
+      "e6_draft_regression": true,
+      "jp_srt": "麻美 来週末どうするの おばあちゃん家｡",
+      "asr_ja": "どうするのかな?",
+      "live_zh": "该怎么办呢？",
+      "arm_b_oracle_zh": "麻美：下周周末去奶奶家怎么样？",
+      "gold_zh": "麻美 你下周末有要去阿嬷家吗",
+      "draft_sample": "麻美，这个周末你打算怎么办啊，奶奶。",
+      "note": "Draft heard full clause; greedy M560 Final dropped first clause to 'どうするのかな?'"
+    },
+    {
+      "cue_idx": 640,
+      "category": "family_banter",
+      "time_s": "2191.52-2192.96",
+      "error_tag": "E3",
+      "e6_draft_regression": false,
+      "jp_srt": "ポケベルだ",
+      "asr_ja": "ポケベルだ!",
+      "live_zh": "宝可梦！",
+      "arm_b_oracle_zh": "手机啊",
+      "gold_zh": "应该是在我们上托儿所时流行的吧？ / 呼叫器",
+      "draft_sample": "",
+      "note": "ASR exact ('ポケベルだ!'), Qwen3 mistranslated BP机 as '宝可梦!' (Arm B: '手机啊')"
+    },
+    {
+      "cue_idx": 645,
+      "category": "family_banter",
+      "time_s": "2209.54-2211.98",
+      "error_tag": "E1",
+      "e6_draft_regression": true,
+      "jp_srt": "麻美 もうそろそろ寝なさい｡",
+      "asr_ja": "はい。",
+      "live_zh": "好的。",
+      "arm_b_oracle_zh": "麻美：该睡觉了。",
+      "gold_zh": "麻美 你该上床睡觉罗 / 好",
+      "draft_sample": "麻美，该睡觉了。",
+      "note": "Draft heard '麻美もうそろそろ寝なさい', Final dropped quiet speaker to 'はい。'"
+    },
+    {
+      "cue_idx": 643,
+      "category": "family_banter",
+      "time_s": "2201.03-2204.47",
+      "error_tag": "E2",
+      "e6_draft_regression": false,
+      "jp_srt": "最初に｢＊２＊２｣を押します〕",
+      "asr_ja": "例えば夏樹って送りたかったら最初に米に。 | めにおします。",
+      "live_zh": "比如，如果想送夏树的话，最先考虑的是米。 | 麻烦一下。",
+      "arm_b_oracle_zh": "首先按下「*2*2」。",
+      "gold_zh": "例如你想传送 夏希的话 / 要先按＊2＊2",
+      "draft_sample": "比如，如果想送夏树的话，那可就完美了。",
+      "note": "Cut mid-word across seg 572/573 ('めにおします' -> '麻烦一下')"
+    },
+    {
+      "cue_idx": 78,
+      "category": "workplace_banter",
+      "time_s": "281.15-284.08",
+      "error_tag": "E1",
+      "e6_draft_regression": false,
+      "jp_srt": "一回キレられたんだよね なれなれしいっつって｡",
+      "asr_ja": "なれなれしいって普通に挨拶でしょ?",
+      "live_zh": "“亲切”这玩意儿不就是普通的打招呼吗？",
+      "arm_b_oracle_zh": "果然被气了一次呢，真是亲热得不得了啊。",
+      "gold_zh": "我之前也都是说\"你好\" / 但有一次被骂说\"少跟我装熟\" / 哪里装熟了 这就一般的打招呼啊 对嘛 是不是很莫名其妙？",
+      "draft_sample": "亲切得就像老朋友一样。",
+      "note": "'一回キレられたんだよね' dropped; 'なれなれしい' mistranslated '亲切'"
+    },
+    {
+      "cue_idx": 81,
+      "category": "workplace_banter",
+      "time_s": "289.16-292.09",
+      "error_tag": "E3",
+      "e6_draft_regression": false,
+      "jp_srt": "そういえば 保育士さんって 子供迎えに来た親に",
+      "asr_ja": "そういえば保育士さんって子ども迎えに来た親にお帰りなさい。 | うん。",
+      "live_zh": "对了，保育员阿姨要告诉来接孩子的家长：你们回家吧。 | 嗯。",
+      "arm_b_oracle_zh": "对了，保育员阿姨是让来接孩子的家长",
+      "gold_zh": "这么说来 听说保育员 / 都会对来接小孩的家长说 \"欢迎回来\"",
+      "draft_sample": "对了，幼儿园老师啊。",
+      "note": "ASR merged 'おかえりなさい', MT lost 'って言う' and flipped to '你们回家吧'"
+    },
+    {
+      "cue_idx": 83,
+      "category": "workplace_banter",
+      "time_s": "295.16-298.10",
+      "error_tag": "E1",
+      "e6_draft_regression": true,
+      "jp_srt": "仕事帰りの人が多いからだ｡ そうそう で 朝は",
+      "asr_ja": "朝はいってらっしゃい。",
+      "live_zh": "早上再见。",
+      "arm_b_oracle_zh": "下班高峰期人很多。没错，早上则……",
+      "gold_zh": "因为很多家长是下班回去接小孩 没错 / 然后早上好像会说\"路上小心\" 送家长离开",
+      "draft_sample": "下班回家的人。",
+      "note": "Draft heard '仕事帰りの人が多いからだ', Final dropped clause completely"
+    },
+    {
+      "cue_idx": 85,
+      "category": "workplace_banter",
+      "time_s": "300.17-302.10",
+      "error_tag": "E1",
+      "e6_draft_regression": true,
+      "jp_srt": "そのまんま仕事に行くからだ｡",
+      "asr_ja": "いやうちらも帰りな",
+      "live_zh": "不，我们也要回家了。",
+      "arm_b_oracle_zh": "就这样直接去上班了。",
+      "gold_zh": "因为他们会直接去上班 / 那我们也要改说\"欢迎回来\"吗",
+      "draft_sample": "就这样工作。",
+      "note": "Draft got 'そのまま仕事に行くからだ', Final flipped to 'いやうちらも帰りな'"
+    },
+    {
+      "cue_idx": 89,
+      "category": "workplace_banter",
+      "time_s": "310.61-313.55",
+      "error_tag": "E3",
+      "e6_draft_regression": false,
+      "jp_srt": "だって ｢ありがとうございました｣ じゃないもんね｡ そう｡",
+      "asr_ja": "分かるよ、だってありがとうございましたじゃないもん。 | お疲れさまでしたあとの日ですよね",
+      "live_zh": "明白啊，毕竟谢谢你们不是吗。 | 这是感谢你们辛苦之后的日子呢。",
+      "arm_b_oracle_zh": "毕竟不是说“谢谢”，对吧？是的。",
+      "gold_zh": "我懂 毕竟也不能说\"谢谢惠顾\"嘛 / 对 说\"辛苦了\"也很奇怪",
+      "draft_sample": "我懂的，谢谢您。",
+      "note": "ASR exact 'だってありがとうございましたじゃないもんね', MT mistranslated '毕竟谢谢你们不是吗'"
+    },
+    {
+      "cue_idx": 92,
+      "category": "workplace_banter",
+      "time_s": "318.12-320.05",
+      "error_tag": "E3",
+      "e6_draft_regression": false,
+      "jp_srt": "じゃあ ｢いってらっしゃい｣にする？",
+      "asr_ja": "じゃあいってらっしゃいにする? | 対決められる。",
+      "live_zh": "那我先走了吗？ | 已经决定了。",
+      "arm_b_oracle_zh": "那我们说“再见”吧？",
+      "gold_zh": "那要改说\"路上小心\"吗 / 铁定会被骂",
+      "draft_sample": "那我就先告辞了。",
+      "note": "ASR exact 'じゃあいってらっしゃいにする?', MT mistranslated '那我先走了吗？'"
+    },
+    {
+      "cue_idx": 97,
+      "category": "workplace_banter",
+      "time_s": "333.13-337.07",
+      "error_tag": "E2",
+      "e6_draft_regression": false,
+      "jp_srt": "何をするにも いちいち決裁を 取らなければいけないこと",
+      "asr_ja": "この仕事でめんどくさいことといえば何をするにもいちいち消す | を取らなければいけないこと",
+      "live_zh": "这份工作最麻烦的地方就是，无论做什么都得一遍遍地删除。 | 必须得把它拿走。",
+      "arm_b_oracle_zh": "无论做什么，都必须一一经过审批。",
+      "gold_zh": "那就是不管做什么 都必须获得批准 / 比方说 连要买一枝自动铅笔",
+      "draft_sample": "这份工作中最麻烦的是什么？",
+      "note": "Energy-valley cut split '決裁を取らなければ'; '決裁' misheard '消す' + tail 'を取らなければ' -> '把它拿走'"
+    },
+    {
+      "cue_idx": 216,
+      "category": "multi_speaker_karaoke",
+      "time_s": "702.17-706.61",
+      "error_tag": "E1",
+      "e6_draft_regression": true,
+      "jp_srt": "あっ まだ こんな時間なんだ｡ え～ あした 休みだしなぁ｡",
+      "asr_ja": "このあとどうする? | 明日休みないしな。 | 行こうよ。",
+      "live_zh": "接下来怎么办？ | 明天没休息。 | 我们走吧。",
+      "arm_b_oracle_zh": "啊，还这么晚啊。要不，明天放假呢。",
+      "gold_zh": "接下来怎么办？ / 时间还早耶 / 而且明天放假 / 要去唱歌吗 唱歌好耶 走啊",
+      "draft_sample": "居然这么晚了。",
+      "note": "'まだこんな時間なんだ' in Draft dropped in Final; '休みだしなぁ' misheard as '休みないしな' (negation flip)"
+    },
+    {
+      "cue_idx": 219,
+      "category": "multi_speaker_karaoke",
+      "time_s": "711.18-715.18",
+      "error_tag": "E1",
+      "e6_draft_regression": true,
+      "jp_srt": "プリクラ撮ってカラオケ｡ 久しぶり｡",
+      "asr_ja": "お年寄り。 | フー。",
+      "live_zh": "老头儿。 | 呼——。",
+      "arm_b_oracle_zh": "拍张普丽克拉，去唱卡拉ok。好久不见。",
+      "gold_zh": "走吧 / 拍了大头贴 又要去唱歌 太棒了 / 好久没这样了",
+      "draft_sample": "拍张普丽克拉，去唱卡拉OK。",
+      "note": "Draft got 'プリクラ撮ってカラオケ久しぶり', Final misheard whole 4.7s segment as 'お年寄り' ('老头儿')"
+    },
+    {
+      "cue_idx": 220,
+      "category": "multi_speaker_karaoke",
+      "time_s": "718.18-720.62",
+      "error_tag": "E3",
+      "e6_draft_regression": false,
+      "jp_srt": "いらっしゃいませ 何名様ですか？",
+      "asr_ja": "いらっしゃいませ何名様ですか? | 3人です。",
+      "live_zh": "欢迎光临，您是哪位？ | 三人。",
+      "arm_b_oracle_zh": "欢迎光临，您是哪位？",
+      "gold_zh": "欢迎光临 请问几位？ / 总共三位",
+      "draft_sample": "那玩意儿真的很多。",
+      "note": "ASR exact '何名様ですか?', Qwen3 mistranslated as '您是哪位?' instead of '几位?' (Arm B identical)"
+    },
+    {
+      "cue_idx": 222,
+      "category": "multi_speaker_karaoke",
+      "time_s": "725.12-730.06",
+      "error_tag": "E1",
+      "e6_draft_regression": false,
+      "jp_srt": "福ちゃん？ 福ちゃんじゃない？ お～ お～ お～！",
+      "asr_ja": "スイッチ | うわ!",
+      "live_zh": "开关 | 哇！",
+      "arm_b_oracle_zh": "福-chan？ 不是福-chan吗？ 哦～ 哦～ 哦～！",
+      "gold_zh": "小福？ / 他是小福吧？",
+      "draft_sample": "你吗。",
+      "note": "'福ちゃんじゃない?' misheard as 'スイッチ うわ!' ('开关 哇!')"
+    },
+    {
+      "cue_idx": 111,
+      "category": "monologue_bgm",
+      "time_s": "379.61-384.62",
+      "error_tag": "E3",
+      "e6_draft_regression": false,
+      "jp_srt": "ちなみに彼女は今 他人の湯飲み を無許可で使っている",
+      "asr_ja": "ちなみに彼女は今他人の湯飲みを無許可で使う。",
+      "live_zh": "顺便说一下，她现在正擅自使用别人的汤瓶。",
+      "arm_b_oracle_zh": "顺便说一下，她现在正擅自使用别人的汤瓶。",
+      "gold_zh": "是说 她现在就未经许可 擅用别人的茶杯",
+      "draft_sample": "顺便说一下，她呢。",
+      "note": "ASR exact '湯飲み', Qwen3 mistranslated as '汤瓶' instead of '茶杯' (Arm B identical)"
+    },
+    {
+      "cue_idx": 421,
+      "category": "monologue_bgm",
+      "time_s": "1342.64-1345.58",
+      "error_tag": "E3",
+      "e6_draft_regression": false,
+      "jp_srt": "人生の 30分の１でしかないじゃん｡",
+      "asr_ja": "でも30歳にとっての1年って。 | 人生の30分の1でしかないじゃん。 | そうやって1年の相対的な長さがどんどん短くなるにつれて。",
+      "live_zh": "但对于30岁的人来说，一年呢。 | 人生的三分之一而已。 | 就这样，随着一年的相对长度不断缩短。",
+      "arm_b_oracle_zh": "人生的三分之一而已啊。",
+      "gold_zh": "但对三十岁的人来说 一年不就只是人生的三十分之一吗 / 就是因为一年的相对长度 会这样越来越短",
+      "draft_sample": "人生的三分之一。",
+      "note": "ASR exact '人生の30分の1でしかないじゃん', Qwen3 mistranslated '30分の1' as '三分之一' (Arm B identical!)"
+    },
+    {
+      "cue_idx": 21,
+      "category": "proper_nouns",
+      "time_s": "90.66-93.16",
+      "error_tag": "E3",
+      "e6_draft_regression": false,
+      "jp_srt": "いいなぁ 運んでもらえて｡",
+      "asr_ja": "いいな運んでもらえて。",
+      "live_zh": "太好了，让我来帮你搬运。",
+      "arm_b_oracle_zh": "真不错，能让我顺顺利利地得到呢。",
+      "gold_zh": "嗯 没有耶 / 真好 都有人载",
+      "draft_sample": "挺好的，能帮忙搬运。",
+      "note": "ASR exact 'いいな運んでもらえて', Qwen3 flipped passive to '让我来帮你搬运'"
+    },
+    {
+      "cue_idx": 56,
+      "category": "proper_nouns",
+      "time_s": "214.15-217.08",
+      "error_tag": "E1",
+      "e6_draft_regression": true,
+      "jp_srt": "規則なのでね 支払っていただくしか｡",
+      "asr_ja": "そうなんだ。",
+      "live_zh": "原来是这样。",
+      "arm_b_oracle_zh": "这是规定，只能付款。",
+      "gold_zh": "规定就是这样 所以还是得请你付款",
+      "draft_sample": "这是规定，所以得关上 shutter。",
+      "note": "Draft heard '規則なのでね支払っていただくしか', Final dropped entire utterance to 'そうなんだ'"
+    },
+    {
+      "cue_idx": 59,
+      "category": "proper_nouns",
+      "time_s": "223.66-225.59",
+      "error_tag": "E1",
+      "e6_draft_regression": true,
+      "jp_srt": "少々お待ちください｡",
+      "asr_ja": "毎日とにかく怒られる。",
+      "live_zh": "每天无端被怒骂。",
+      "arm_b_oracle_zh": "请稍等一下。",
+      "gold_zh": "算了 叫你们主管来 / 请稍候 / 反正每天就是疯狂挨骂",
+      "draft_sample": "请稍等一下。",
+      "note": "Draft heard '少々お待ちください', Final dropped entire utterance"
+    }
+  ],
+  "per_cue_labels": [
+    {
+      "cue_idx": 1,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard full clause; greedy M560 Final dropped first clause to 'どうするのかな?'"
+    },
+    {
+      "cue_idx": 2,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "Short reply merged/distorted inside greedy segment 2/3"
+    },
+    {
+      "cue_idx": 3,
+      "category": "family_banter",
+      "primary_tag": "E4",
+      "e6_draft_regression": false,
+      "note": "Target omitted object coreference (translated 顔見せてあげな as '看看你' instead of '去看看奶奶')"
+    },
+    {
+      "cue_idx": 4,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "Short ack '分かった' swallowed across segments 3/4"
+    },
+    {
+      "cue_idx": 5,
+      "category": "family_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Core meaning ('一起去爷爷的墓地扫墓') preserved despite overlap"
+    },
+    {
+      "cue_idx": 6,
+      "category": "family_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Core meaning ('我去，我来开车') preserved"
+    },
+    {
+      "cue_idx": 7,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft captured 'ごちそうさま', Final greedy dropped entire cue"
+    },
+    {
+      "cue_idx": 8,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'仕事が入っちゃってんだよ' dropped by ASR; '行くの' stiffly translated"
+    },
+    {
+      "cue_idx": 9,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft captured 'もう5時2分だけど大丈夫間に合う?', Final dropped to 'やばい5時2分'"
+    },
+    {
+      "cue_idx": 10,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "52分 misheard as 5時2分 ('5点2分'); '間に合うの?' dropped"
+    },
+    {
+      "cue_idx": 11,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard 'ごめんはるか', Final dropped first speaker completely"
+    },
+    {
+      "cue_idx": 12,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'ダッシュで食べる あと何分?' dropped in Final (Draft misheard '出して食べる')"
+    },
+    {
+      "cue_idx": 13,
+      "category": "family_banter",
+      "primary_tag": "MINOR",
+      "e6_draft_regression": false,
+      "note": "Main 'あと10分後ぐらい?' OK; 'OK!' misheard as '君'"
+    },
+    {
+      "cue_idx": 14,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'寿命かな?' misheard as 'よかな' ('你好啊')"
+    },
+    {
+      "cue_idx": 15,
+      "category": "family_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration translated accurately"
+    },
+    {
+      "cue_idx": 640,
+      "category": "family_banter",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR exact ('ポケベルだ!'), Qwen3 mistranslated BP机 as '宝可梦!' (Arm B: '手机啊')"
+    },
+    {
+      "cue_idx": 642,
+      "category": "family_banter",
+      "primary_tag": "E2",
+      "e6_draft_regression": false,
+      "note": "'＊2' ('コメ2') cut/misread mid-phrase across energy_valley -> '最先考虑的是米'"
+    },
+    {
+      "cue_idx": 643,
+      "category": "family_banter",
+      "primary_tag": "E2",
+      "e6_draft_regression": false,
+      "note": "Cut mid-word across seg 572/573 ('めにおします' -> '麻烦一下')"
+    },
+    {
+      "cue_idx": 644,
+      "category": "family_banter",
+      "primary_tag": "E4",
+      "e6_draft_regression": false,
+      "note": "'51でな' without pager context translated literally as '五十一啊'"
+    },
+    {
+      "cue_idx": 645,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard '麻美もうそろそろ寝なさい', Final dropped quiet speaker to 'はい。'"
+    },
+    {
+      "cue_idx": 646,
+      "category": "family_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'は～い' -> '好的'"
+    },
+    {
+      "cue_idx": 647,
+      "category": "family_banter",
+      "primary_tag": "E5",
+      "e6_draft_regression": false,
+      "note": "Quiet inner monologue 'よし' completely missed by VAD/ASR"
+    },
+    {
+      "cue_idx": 648,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "Leading syllable of 'ポケベル' clipped ('ケベル' -> '凯贝尔')"
+    },
+    {
+      "cue_idx": 649,
+      "category": "family_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'あれ? 麻美?' misheard as '遊び?' ('开玩笑?')"
+    },
+    {
+      "cue_idx": 75,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'別に間違ってはないもんね' misheard as '中学級はないもんね'"
+    },
+    {
+      "cue_idx": 76,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard 'こんにちはって言ってる', Final dropped line into next speaker"
+    },
+    {
+      "cue_idx": 77,
+      "category": "workplace_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'我以前也是会说“你好”的。' accurate"
+    },
+    {
+      "cue_idx": 78,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'一回キレられたんだよね' dropped; 'なれなれしい' mistranslated '亲切'"
+    },
+    {
+      "cue_idx": 79,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "'意味分かんなくない?' appeared in Draft, dropped from Final"
+    },
+    {
+      "cue_idx": 80,
+      "category": "workplace_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'それはひどいね' -> '这太糟糕了'"
+    },
+    {
+      "cue_idx": 81,
+      "category": "workplace_banter",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR merged 'おかえりなさい', MT lost 'って言う' and flipped to '你们回家吧'"
+    },
+    {
+      "cue_idx": 82,
+      "category": "workplace_banter",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "Mistranslated quoted greeting 'おかえりなさい' as imperative '你们回家吧'"
+    },
+    {
+      "cue_idx": 83,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard '仕事帰りの人が多いからだ', Final dropped clause completely"
+    },
+    {
+      "cue_idx": 84,
+      "category": "workplace_banter",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR '朝はいってらっしゃい' mistranslated as '早上再见' instead of '早上说路上小心'"
+    },
+    {
+      "cue_idx": 85,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft got 'そのまま仕事に行くからだ', Final flipped to 'いやうちらも帰りな'"
+    },
+    {
+      "cue_idx": 86,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'じゃあうちらも「おかえりなさい」にする?' misheard/dropped"
+    },
+    {
+      "cue_idx": 87,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'絶対キレられる' misheard as '絶対相手になられる' ('成为对方的对手')"
+    },
+    {
+      "cue_idx": 88,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'窓口の締めの挨拶ってムズくない?' dropped before '分かるよ'"
+    },
+    {
+      "cue_idx": 89,
+      "category": "workplace_banter",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR exact 'だってありがとうございましたじゃないもんね', MT mistranslated '毕竟谢谢你们不是吗'"
+    },
+    {
+      "cue_idx": 90,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'言うのも変だしね' misheard as 'あとの日ですよね' ('辛苦之后的日子')"
+    },
+    {
+      "cue_idx": 91,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard 'しっくりくるのないよ', Final dropped it completely"
+    },
+    {
+      "cue_idx": 92,
+      "category": "workplace_banter",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR exact 'じゃあいってらっしゃいにする?', MT mistranslated '那我先走了吗？'"
+    },
+    {
+      "cue_idx": 93,
+      "category": "workplace_banter",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'絶対キレられる' misheard as '対決められる' ('已经决定了')"
+    },
+    {
+      "cue_idx": 94,
+      "category": "workplace_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration translated accurately"
+    },
+    {
+      "cue_idx": 95,
+      "category": "workplace_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration translated accurately"
+    },
+    {
+      "cue_idx": 96,
+      "category": "workplace_banter",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Intro clause preserved"
+    },
+    {
+      "cue_idx": 97,
+      "category": "workplace_banter",
+      "primary_tag": "E2",
+      "e6_draft_regression": false,
+      "note": "Energy-valley cut split '決裁を取らなければ'; '決裁' misheard '消す' + tail 'を取らなければ' -> '把它拿走'"
+    },
+    {
+      "cue_idx": 98,
+      "category": "workplace_banter",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR exact 'シャーペン', MT transliterated as '莎佩恩' instead of 自动铅笔"
+    },
+    {
+      "cue_idx": 215,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'接下来怎么办？' exact"
+    },
+    {
+      "cue_idx": 216,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "'まだこんな時間なんだ' in Draft dropped in Final; '休みだしなぁ' misheard as '休みないしな' (negation flip)"
+    },
+    {
+      "cue_idx": 217,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard 'あっいいねカラオケ行く!', Final dropped everything except '行こうよ'"
+    },
+    {
+      "cue_idx": 218,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'行こうよ' -> '我们走吧'"
+    },
+    {
+      "cue_idx": 219,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft got 'プリクラ撮ってカラオケ久しぶり', Final misheard whole 4.7s segment as 'お年寄り' ('老头儿')"
+    },
+    {
+      "cue_idx": 220,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR exact '何名様ですか?', Qwen3 mistranslated as '您是哪位?' instead of '几位?' (Arm B identical)"
+    },
+    {
+      "cue_idx": 221,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'三人。' exact"
+    },
+    {
+      "cue_idx": 222,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'福ちゃんじゃない?' misheard as 'スイッチ うわ!' ('开关 哇!')"
+    },
+    {
+      "cue_idx": 223,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'誰かと思った～ めっちゃ久しぶり' completely dropped"
+    },
+    {
+      "cue_idx": 224,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "MINOR",
+      "e6_draft_regression": false,
+      "note": "'3人いつ以来だっけ?' preserved; '久しぶり' dropped"
+    },
+    {
+      "cue_idx": 225,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'成人式が最後じゃない?' compressed to '成人式だし'"
+    },
+    {
+      "cue_idx": 226,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'だから13年ぶりか' completely dropped"
+    },
+    {
+      "cue_idx": 227,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR 'そんなたつか' mistranslated as '难道是这样吗？' (instead of '已经过了那么久了吗')"
+    },
+    {
+      "cue_idx": 228,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard '今日は何の集まりなの?', Final dropped question"
+    },
+    {
+      "cue_idx": 229,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard 'モンターナでごはん食べて', Final dropped clause completely"
+    },
+    {
+      "cue_idx": 230,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'そうなんだ' dropped"
+    },
+    {
+      "cue_idx": 231,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "'時間どうする?' mistranslated as '打算怎么度过这时间' instead of '唱多久'"
+    },
+    {
+      "cue_idx": 232,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "ASR dropped '2' -> 'とりあえずに?' ('先不说?'), Draft had 'だね2時間で'"
+    },
+    {
+      "cue_idx": 233,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'现在空着，就弄个大房间吧。' accurate"
+    },
+    {
+      "cue_idx": 234,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'谢谢。' exact"
+    },
+    {
+      "cue_idx": 235,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'わっ広っ! ホントだ' completely dropped"
+    },
+    {
+      "cue_idx": 236,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft caught 'ここ来なかった', Final dropped '成人式の後もここ来なかったっけ?'"
+    },
+    {
+      "cue_idx": 237,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "'何なら部屋もここだった' -> '那么，房间也在这儿' (missed '甚至连包厢也是这间')"
+    },
+    {
+      "cue_idx": 238,
+      "category": "multi_speaker_karaoke",
+      "primary_tag": "E4",
+      "e6_draft_regression": false,
+      "note": "Male nickname '福ちゃん' mistranslated feminine '福子' without speaker/character context"
+    },
+    {
+      "cue_idx": 45,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration exact"
+    },
+    {
+      "cue_idx": 46,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration accurate"
+    },
+    {
+      "cue_idx": 49,
+      "category": "monologue_bgm",
+      "primary_tag": "E2",
+      "e6_draft_regression": false,
+      "note": "VAD cut across 'とはいえ / 国保年金課で', turning 'とはいえ' -> 'はいえ' ('是的') and '課' -> '化'"
+    },
+    {
+      "cue_idx": 51,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration accurate"
+    },
+    {
+      "cue_idx": 63,
+      "category": "monologue_bgm",
+      "primary_tag": "E2",
+      "e6_draft_regression": false,
+      "note": "VAD cut mid-phrase across seg 54/55; '胸ぐらをつかまれて' dropped, tail 'まれてシャツ...' kept"
+    },
+    {
+      "cue_idx": 68,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration accurate ('市公所/政府机关' equivalent)"
+    },
+    {
+      "cue_idx": 72,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration accurate"
+    },
+    {
+      "cue_idx": 111,
+      "category": "monologue_bgm",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR exact '湯飲み', Qwen3 mistranslated as '汤瓶' instead of '茶杯' (Arm B identical)"
+    },
+    {
+      "cue_idx": 112,
+      "category": "monologue_bgm",
+      "primary_tag": "MINOR",
+      "e6_draft_regression": false,
+      "note": "Meaning preserved; nicknames transliterated '奈缔和美伊邦'"
+    },
+    {
+      "cue_idx": 342,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration accurate"
+    },
+    {
+      "cue_idx": 348,
+      "category": "monologue_bgm",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "Leading '懐かしい' clipped to 'しい曲合戦になった' ('成了激烈的对决', opposite tone)"
+    },
+    {
+      "cue_idx": 369,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Narration meaning captured"
+    },
+    {
+      "cue_idx": 412,
+      "category": "monologue_bgm",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "Short reaction '怖っ!' swallowed"
+    },
+    {
+      "cue_idx": 413,
+      "category": "monologue_bgm",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'時間経つの早過ぎじゃない?' dropped by Final -> '30岁以后才开始有时间?'"
+    },
+    {
+      "cue_idx": 414,
+      "category": "monologue_bgm",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'早い!' swallowed"
+    },
+    {
+      "cue_idx": 415,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'书上看到的' accurate"
+    },
+    {
+      "cue_idx": 416,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'一年的相对时长变短了' accurate"
+    },
+    {
+      "cue_idx": 417,
+      "category": "monologue_bgm",
+      "primary_tag": "E5",
+      "e6_draft_regression": false,
+      "note": "Soft reactions 'ふ～ん へぇ～' completely missed"
+    },
+    {
+      "cue_idx": 418,
+      "category": "monologue_bgm",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'ごめんへぇって言ったけど' clipped from start"
+    },
+    {
+      "cue_idx": 419,
+      "category": "monologue_bgm",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard '1年って人生の3分の1じゃん', Final dropped entire clause"
+    },
+    {
+      "cue_idx": 420,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'但对于30岁的人来说，一年呢。' accurate"
+    },
+    {
+      "cue_idx": 421,
+      "category": "monologue_bgm",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR exact '人生の30分の1でしかないじゃん', Qwen3 mistranslated '30分の1' as '三分之一' (Arm B identical!)"
+    },
+    {
+      "cue_idx": 422,
+      "category": "monologue_bgm",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'随着一年的相对长度不断缩短' exact"
+    },
+    {
+      "cue_idx": 423,
+      "category": "monologue_bgm",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR dropped 'って', MT mistranslated '早く感じるようになるんだ' as '会越来越快了'"
+    },
+    {
+      "cue_idx": 18,
+      "category": "proper_nouns",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'あれってさくら保育園?' -> '那是不是樱花幼儿园?' accurate"
+    },
+    {
+      "cue_idx": 19,
+      "category": "proper_nouns",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'我们那时候可没有那种推车啊。' exact"
+    },
+    {
+      "cue_idx": 21,
+      "category": "proper_nouns",
+      "primary_tag": "E3",
+      "e6_draft_regression": false,
+      "note": "ASR exact 'いいな運んでもらえて', Qwen3 flipped passive to '让我来帮你搬运'"
+    },
+    {
+      "cue_idx": 23,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'あ… そっか' misheard as 'これ' ('这个')"
+    },
+    {
+      "cue_idx": 25,
+      "category": "proper_nouns",
+      "primary_tag": "E2",
+      "e6_draft_regression": false,
+      "note": "Energy-valley cut truncated 'あったっけ?' mid-sentence"
+    },
+    {
+      "cue_idx": 27,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'今使わないもんね' misheard as 'でも使わないわね' -> flipped to '我不会用呢'"
+    },
+    {
+      "cue_idx": 29,
+      "category": "proper_nouns",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "Main dialogue 'お姉ちゃん結婚しないの?' captured"
+    },
+    {
+      "cue_idx": 30,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "'まあ今特に不自由もないしね' captured in Draft, dropped completely in Final"
+    },
+    {
+      "cue_idx": 34,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard 'お父さんへそくりしたよ', Final dropped the entire question cue"
+    },
+    {
+      "cue_idx": 36,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard '知らなかった', Final dropped line completely"
+    },
+    {
+      "cue_idx": 38,
+      "category": "proper_nouns",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'这不暴露了吗？' accurate"
+    },
+    {
+      "cue_idx": 39,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'ありがとう は～い 帰りは?' completely dropped"
+    },
+    {
+      "cue_idx": 40,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'今日ねみーぽんたちとごはん食べるから' dropped '食べるから' & past-shifted '吃了饭'; name '米浦'"
+    },
+    {
+      "cue_idx": 42,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": false,
+      "note": "'じゃあね!' misheard as 'えっ?'"
+    },
+    {
+      "cue_idx": 44,
+      "category": "proper_nouns",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'おはようございます' -> '早上好'"
+    },
+    {
+      "cue_idx": 56,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard '規則なのでね支払っていただくしか', Final dropped entire utterance to 'そうなんだ'"
+    },
+    {
+      "cue_idx": 59,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard '少々お待ちください', Final dropped entire utterance"
+    },
+    {
+      "cue_idx": 104,
+      "category": "proper_nouns",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'其实根本没用啊。是的。' accurate"
+    },
+    {
+      "cue_idx": 106,
+      "category": "proper_nouns",
+      "primary_tag": "E2",
+      "e6_draft_regression": false,
+      "note": "VAD cut truncated '似たものがありますよね' -> 'たものがありますよね' and dropped 'トイレ?'"
+    },
+    {
+      "cue_idx": 109,
+      "category": "proper_nouns",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'厕所很快就能借到。' exact"
+    },
+    {
+      "cue_idx": 114,
+      "category": "proper_nouns",
+      "primary_tag": "MINOR",
+      "e6_draft_regression": false,
+      "note": "Meaning preserved; 'みーぽん' -> '米波恩'"
+    },
+    {
+      "cue_idx": 115,
+      "category": "proper_nouns",
+      "primary_tag": "OK",
+      "e6_draft_regression": false,
+      "note": "'祝你生日快乐' preserved"
+    },
+    {
+      "cue_idx": 116,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard 'これうちら2人から', Final dropped entire cue"
+    },
+    {
+      "cue_idx": 117,
+      "category": "proper_nouns",
+      "primary_tag": "E1",
+      "e6_draft_regression": true,
+      "note": "Draft heard 'やったありがとう開けていい?', Final dropped 'やったありがとう'"
+    }
+  ]
+}
