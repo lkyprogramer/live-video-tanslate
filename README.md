@@ -55,6 +55,6 @@ npm --prefix extension run typecheck && npm --prefix extension test
 ### 核心文档与实测验收（2026-11-25）
 
 - **配置与契约**：[本机配置与模型下载](docs/local-setup.md) · [本地字幕服务 v1 合同](docs/subtitle-backend-contract.md)
-- **架构路线与实测**：[Stage 5 ANE 物理异构并行实测验收报告](docs/stage5-ane-heterogeneous-verification-2026-11-24.md) · [Stage 0–4 架构上限全量实测验收报告](docs/stage0-4-architecture-ceiling-verification-2026-11-24.md) · [M1 Pro 架构上限优化路线图（Stage 0–5）](docs/m1-pro-architecture-ceiling-roadmap-2026-11-23.md)
+- **架构路线与实测**：[Stage 6 全集日剧真浏览器深度验证方案](docs/stage6-full-episode-verification-plan-2026-11-25.md) · [Stage 5 ANE 物理异构并行实测验收报告](docs/stage5-ane-heterogeneous-verification-2026-11-24.md) · [Stage 0–4 架构上限全量实测验收报告](docs/stage0-4-architecture-ceiling-verification-2026-11-24.md) · [M1 Pro 架构上限优化路线图（Stage 0–5）](docs/m1-pro-architecture-ceiling-roadmap-2026-11-23.md)
 
 > 注：早期 P0 / P2 / P3 调研草稿、过渡期实验记录与阶段执行包已从工作树精简移除，完整记录保留在 Git 历史中。
