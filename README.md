@@ -52,13 +52,9 @@ npm --prefix extension run typecheck && npm --prefix extension test
 
 ## 文档索引
 
-### 最新演进与优化验证（2026-11-25）
+### 核心文档与实测验收（2026-11-25）
 
-- **架构与配置**：[本机配置与模型下载](docs/local-setup.md) · [M1 Pro 架构上限优化路线图（Stage 0–5）](docs/m1-pro-architecture-ceiling-roadmap-2026-11-23.md) · [M1 Pro 极致优化五层方案](docs/m1-pro-extreme-optimization-plan-2026-11-23.md) · [M1 Pro 性能上限与底层评估](docs/M1%20Pro%20实时日语字幕的性能上限与底层优化评估.md)
-- **实测与验收**：[Stage 5 ANE 物理异构并行实测验收报告](docs/stage5-ane-heterogeneous-verification-2026-11-24.md) · [Stage 0–4 架构上限全量实测验收报告](docs/stage0-4-architecture-ceiling-verification-2026-11-24.md) · [GPT Pro 性能评审与实验建议](docs/M1%20Pro%20实时日语字幕本轮优化后的性能评审与后续实验.md) · [Step 2–3 联调报告](docs/step2-3-optimization-verification-2026-11-23.md)
-- **模型选型盲测**：[M1 Pro 升级调研](docs/m1-pro-upgrade-research-2026-11-23.md) · [Tier 2A ASR 与 Smart Turn 盲测](docs/tier2-asr-smart-turn-results-2026-11-23.md) · [Tier 2B 4B–8B MT 盲测](docs/tier2b-mt-results-2026-11-23.md) · [全 MLX GPU 初版接入验证](docs/m1-pro-hq-verification-2026-11-23.md)
+- **配置与契约**：[本机配置与模型下载](docs/local-setup.md) · [本地字幕服务 v1 合同](docs/subtitle-backend-contract.md)
+- **架构路线与实测**：[Stage 5 ANE 物理异构并行实测验收报告](docs/stage5-ane-heterogeneous-verification-2026-11-24.md) · [Stage 0–4 架构上限全量实测验收报告](docs/stage0-4-architecture-ceiling-verification-2026-11-24.md) · [M1 Pro 架构上限优化路线图（Stage 0–5）](docs/m1-pro-architecture-ceiling-roadmap-2026-11-23.md)
 
-### 协议契约与历史基线
-
-- **契约与基线**：[v1 接口合同](docs/subtitle-backend-contract.md) · [开发方案](docs/development-plan.md) · [P0/v0 架构基线](docs/architecture.md) · [v1 验收报告](docs/v1-acceptance.md)
-- **历史阶段记录**：[流式验证记录（11-19 / 11-23）](docs/local-streaming-validation-2026-11-23.md) · [P3 执行包](docs/live-video-translate-p3-2026-11-10/README.md) · [P2 执行包](docs/live-video-translate-p2-2026-11-07/README.md) · [B0](docs/p2-b0-results-2026-11-08.md) / [B1](docs/p2-b1-results-2026-11-08.md) / [B2](docs/p2-b2-results-2026-11-09.md) / [B3](docs/p2-b3-results-2026-11-09.md) / [B4](docs/p2-b4-gemma-zh-results-2026-11-09.md)
+> 注：早期 P0 / P2 / P3 调研草稿、过渡期实验记录与阶段执行包已从工作树精简移除，完整记录保留在 Git 历史中。

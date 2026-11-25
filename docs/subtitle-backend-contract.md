@@ -1,6 +1,6 @@
 # 本地字幕服务 v1 合同
 
-按[开发方案](development-plan.md)执行。实现服务和浏览器时读取「浏览器协议」与「播放生命周期」。接入或替换引擎时读取「后端策略」与「新增后端」。
+按 [本机配置与模型下载](local-setup.md) 启动与配置。实现服务和浏览器时读取「浏览器协议」与「播放生命周期」。接入或替换引擎时读取「后端策略」与「新增后端」。
 
 ## 浏览器协议
 
@@ -77,7 +77,7 @@ class SubtitleSession(Protocol):
 
 - `open` 只建立会话状态。默认模型在服务启动时加载、预热，后续会话复用权重。网关持有受限音频队列，一个消费者顺序调用 `accept_pcm`。后端可在内部并行推理与接收，并通过异步 `emit` 提交中文及样本范围。网关独占 WebSocket 写入、编号、认证和跨会话检查。
 - `finish` 在最后一次 `accept_pcm` 返回后调用，返回前提交所有完成的字幕。`aclose` 可重复调用，负责取消和关闭引擎资源。取消时先关闭 sink。服务等待同步推理 worker 安全退出或其当前调用安全返回后再释放会话占用。
-- `local_pipeline` 组合 ASR 和 MT。ASR 接收 PCM 并提交 `RecognizedSegment(start_sample, end_sample, text_ja)`，自带 VAD 或原生端点，支持 `reazon_sherpa`、`qwen3_asr_mlx` 与 `speech_cpp_nemo`（`device` 可取 `"cpu" | "gpu" | "ane"`，`decoding` 可取 `"beam" | "greedy"`，支持 `draft_interval_s`、`max_segment_s`、`overlap_ms`、`pad_ms`）。MT 接收日文段，固定目标 `zh-Hans`，支持 `hy_mt2_mlx` 与 `qwen3_mt_mlx`（支持 `context_turns` 滚动上下文及 `generate_step` 流式 `CaptionDelta` 推送）。默认 Hy-MT2 adapter 把 `zh-Hans` 映射为 `zh-cn`，使用已锁定版本的 `MlxLlmTranslation`。每会话用 `new_session`，私有的 `_translate_text` 只在一个 adapter 调用并加回归测试。ASR 与 MT 分别在受限的 worker 执行，避免同步推理阻塞 WS 事件循环（`device="ane"` 时 ASR 走 CoreML ANE + AMX、MT 走 Metal GPU 实现物理异构并行，缺失 ANE 资产或超长切片自动回退 `speech.cpp`）。[现有 ReazonSpeech 与 Hy-MT2 验证](p0-asr-selection.md) · [Hy-MT2 调用源码](https://github.com/QuentinFuxa/WhisperLiveKit/blob/13ee8515f136e0fd0bf31fb8ab0b63ab10670fa2/whisperlivekit/translation_mlx_llm_mt.py)
+- `local_pipeline` 组合 ASR 和 MT。ASR 接收 PCM 并提交 `RecognizedSegment(start_sample, end_sample, text_ja)`，自带 VAD 或原生端点，支持 `reazon_sherpa`、`qwen3_asr_mlx` 与 `speech_cpp_nemo`（`device` 可取 `"cpu" | "gpu" | "ane"`，`decoding` 可取 `"beam" | "greedy"`，支持 `draft_interval_s`、`max_segment_s`、`overlap_ms`、`pad_ms`）。MT 接收日文段，固定目标 `zh-Hans`，支持 `hy_mt2_mlx` 与 `qwen3_mt_mlx`（支持 `context_turns` 滚动上下文及 `generate_step` 流式 `CaptionDelta` 推送）。默认 Hy-MT2 adapter 把 `zh-Hans` 映射为 `zh-cn`，使用已锁定版本的 `MlxLlmTranslation`。每会话用 `new_session`，私有的 `_translate_text` 只在一个 adapter 调用并加回归测试。ASR 与 MT 分别在受限的 worker 执行，避免同步推理阻塞 WS 事件循环（`device="ane"` 时 ASR 走 CoreML ANE + AMX、MT 走 Metal GPU 实现物理异构并行，缺失 ANE 资产或超长切片自动回退 `speech.cpp`）。（早期 `p0-asr-selection.md` 验证见 git 历史）· [Hy-MT2 调用源码](https://github.com/QuentinFuxa/WhisperLiveKit/blob/13ee8515f136e0fd0bf31fb8ab0b63ab10670fa2/whisperlivekit/translation_mlx_llm_mt.py)
 - 已内置翻译的外部后端实现 `SubtitleBackend`，在 adapter 内固定目标简中。它直接提交其中文字段，按相同协议上送。内部 ASR/MT 策略只用于可拆开的后端。
 - 统一输出入口 trim 文本并拒绝空白、占位符残留、无汉字或带平假名/片假名的译文，发 `translation_invalid` 并计入漏错。输出只能来自已配置的翻译步骤。汉字检查只拦截明显异常，中文语义和简繁以模型目标、中文测试样例与逐句验收为准。合法拉丁专名可保留。发生错误时显示状态，字幕字段始终只承载译文。短测中曾计为可用的「ショー将解释越位规则」会在 v1 被过滤，D2 与 D5 以 v1 实际输出重算。
 
@@ -174,4 +174,4 @@ model_revision = "50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b"
 3. 如果整批新行都在已提交末点之后，视为新批次提交。
 4. 无法对齐或已有译文被改写时发 `adapter_unaligned`，保留最后可确认的进度，等待下一个可对齐快照。对端滚动裁剪会改变行的 `start`，该值只能作为对齐线索。
 
-至少用已录的快照覆盖前缀增长、裁剪后重复、迟到的旧行、两段相同台词但时间不同、回写旧译文和多行增长。确保每条已确认译文只发一次，且旧范围无法覆盖当前字幕。若仍有歧义，将该 profile 保持为实验配置并报告丢失，后续可用上游稳定句段事件替换适配逻辑。[原 P0 的快照与裁剪证据](p0.md#计分)
+至少用已录的快照覆盖前缀增长、裁剪后重复、迟到的旧行、两段相同台词但时间不同、回写旧译文和多行增长。确保每条已确认译文只发一次，且旧范围无法覆盖当前字幕。若仍有歧义，将该 profile 保持为实验配置并报告丢失，后续可用上游稳定句段事件替换适配逻辑（早期 `p0.md` 快照与裁剪证据见 git 历史）。

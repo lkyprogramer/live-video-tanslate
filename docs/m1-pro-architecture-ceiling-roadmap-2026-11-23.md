@@ -3,9 +3,9 @@
 - **编写日期**：2026-11-23
 - **基线提交**：`3e506514a6d36780100dc2e8fa1de1a2897b1b51`（`main`）
 - **硬件与运行时**：Apple M1 Pro（10 核 CPU `8P+2E` / 16 核 GPU `applegpu_g13s` `200 GB/s` / 16 核 ANE `11 TOPS` / 32 GiB 统一内存 / macOS 26.7.2），`engine/.venv`（`mlx==0.32.4`、`mlx-lm==0.31.3`、`mlx-audio==0.6.7`、`sherpa-onnx==2.0.1`、`speech.cpp v0.11.2 / cc16a71`）
-- **参考与合并来源**：
-  - 前序改造总纲与验证：[m1-pro-extreme-optimization-plan-2026-11-23.md](m1-pro-extreme-optimization-plan-2026-11-23.md)、[perf-probe-results-2026-11-23.md](perf-probe-results-2026-11-23.md)、[step2-3-optimization-verification-2026-11-23.md](step2-3-optimization-verification-2026-11-23.md)
-  - GPT Pro 评审文档：[M1 Pro 实时日语字幕本轮优化后的性能评审与后续实验.md](M1%20Pro%20实时日语字幕本轮优化后的性能评审与后续实验.md)
+- **参考与合并来源**（以下 2026-11-23 过渡期调研与评审原文已精简归档，见 git 历史）：
+  - 前序改造总纲与验证：`m1-pro-extreme-optimization-plan-2026-11-23.md`、`perf-probe-results-2026-11-23.md`、`step2-3-optimization-verification-2026-11-23.md`
+  - GPT Pro 评审文档：`M1 Pro 实时日语字幕本轮优化后的性能评审与后续实验.md`
 
 > **执行闭环状态（2026-11-25 更新）**：
 > - **Stage 0–4（DONE）**：已全量落地并完成 1× 实时 WebSocket 验收，详见 [Stage 0–4 全量实测验收报告](stage0-4-architecture-ceiling-verification-2026-11-24.md)。
@@ -19,7 +19,7 @@
 
 1. **当前并未达到 M1 Pro 的整体性能或准确度天花板，但各层距上限的余量极度不均**：
    - **【已实测】单句 MT 算子层已逼近 4B 稠密模型物理墙**：`Qwen3-4B-4bit`（`2263.0 MB`）在开启 `SYSTEM_PROMPT` KV Cache（`prefix_len=90`）后，单句 decode 实测 **`55.1–55.9 tok/s`**（单步 `18.31 ms`），对应有效显存带宽 **`~124.7 GB/s`**（达 M1 Pro `200 GB/s` 理论总线带宽的 `62.3%`）。继续在 `Qwen3-4B-4bit` 胶水上抠优化，极限只剩约 `15%–20%`（`~40–60ms`）。
-   - **【已实测】端到端延迟的一半以上是纯软件等待而非算力消耗**：`m1-pro-nemo`（`CPU 6T beam`）当前 D1 45s 服务端分段末 P50 为 **`0.954s`**（[nemo_fixes_verification.json](experiments/step2-3-e2e-2026-11-23/nemo_fixes_verification.json)），其中计算仅占 `~450–510ms`（ASR `~210–260ms` + MT `~290ms`），而 **`200ms` 音频攒帧（`SAMPLES_PER_FRAME=3200`）+ `600ms` 静音尾等待 / 能量谷回看** 占了 `~45%–55%`。
+   - **【已实测】端到端延迟的一半以上是纯软件等待而非算力消耗**：`m1-pro-nemo`（`CPU 6T beam`）当前 D1 45s 服务端分段末 P50 为 **`0.954s`**（`nemo_fixes_verification.json`，见 git 历史），其中计算仅占 `~450–510ms`（ASR `~210–260ms` + MT `~290ms`），而 **`200ms` 音频攒帧（`SAMPLES_PER_FRAME=3200`）+ `600ms` 静音尾等待 / 能量谷回看** 占了 `~45%–55%`。
    - **【已实测】M1 Pro 硬件资源整体严重未饱和**：16 核 **ANE（11 TOPS）** 利用率 **`0%`**；16 核 GPU 占空比 **`< 10%`**；CPU 均值 **`13.0%`**（峰值 `214.0%`）；统一内存 `32 GiB` 仅用 `3.45 GiB`。
    - **【硬件/算子推导】批处理范式天花板**：只要仍沿用“等角色说完 4.5s + 停顿 0.6s 再统一 ASR+MT”的批处理范式，即使把全部计算压到 `0ms`，观众“听到开口到看到中文字幕”的体感延迟仍高达 **`3.5–5.5s`**。
 2. **冲击真正架构上限的终极北极星指标**：
