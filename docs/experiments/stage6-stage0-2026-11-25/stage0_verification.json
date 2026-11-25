@@ -1,0 +1,900 @@
+{
+  "offline_ablation": {
+    "gpu_beam": {
+      "slices": 122,
+      "asr_p50_ms": 80.53,
+      "asr_p95_ms": 108.97,
+      "d1_cer": {
+        "dist": 191,
+        "ref_len": 315,
+        "hyp_len": 151,
+        "cer": 0.6063
+      },
+      "silence_text": "はい。",
+      "fallback_count": 0
+    },
+    "gpu_greedy": {
+      "slices": 122,
+      "asr_p50_ms": 56.4,
+      "asr_p95_ms": 70.37,
+      "d1_cer": {
+        "dist": 193,
+        "ref_len": 315,
+        "hyp_len": 147,
+        "cer": 0.6127
+      },
+      "silence_text": "",
+      "fallback_count": 0
+    },
+    "ane_greedy": {
+      "slices": 122,
+      "asr_p50_ms": 41.22,
+      "asr_p95_ms": 58.53,
+      "d1_cer": {
+        "dist": 193,
+        "ref_len": 315,
+        "hyp_len": 147,
+        "cer": 0.6127
+      },
+      "silence_text": "",
+      "fallback_count": 0,
+      "ane_timings_summary": {
+        "frontend_ms": {
+          "p50_ms": 1.19,
+          "p95_ms": 2.15
+        },
+        "predict_ms": {
+          "p50_ms": 22.03,
+          "p95_ms": 24.47
+        },
+        "output_copy_ms": {
+          "p50_ms": 0.04,
+          "p95_ms": 0.07
+        },
+        "decode_ms": {
+          "p50_ms": 16.75,
+          "p95_ms": 34.47
+        },
+        "total_ms": {
+          "p50_ms": 41.11,
+          "p95_ms": 58.31
+        }
+      }
+    }
+  },
+  "idle_check": {
+    "eval_count_after_init": 1,
+    "eval_count_after_3_5s_idle": 1,
+    "idle_eval_delta": 0,
+    "passed": true
+  },
+  "live_ab": {
+    "gpu_greedy": {
+      "results": {
+        "csj-reproduction": {
+          "id": "csj-reproduction",
+          "eof": true,
+          "captions": 14,
+          "warnings": 0,
+          "max_send_late_ms": 17.77,
+          "drain_seconds": 0.2645736249987962,
+          "deltas": 57,
+          "asr_p50_s": 0.0776,
+          "asr_p95_s": 0.1261,
+          "mt_p50_s": 0.2566,
+          "mt_p95_s": 0.419,
+          "first_delta_e2e_p50_s": 0.518,
+          "first_delta_e2e_p95_s": 0.745,
+          "final_e2e_p50_s": 0.699,
+          "final_e2e_p95_s": 0.88,
+          "texts": [
+            "所谓副语言信息，简单来说是",
+            "我想先来复习一下。",
+            "我们这样交谈当然也是可以的。",
+            "传递语言信息是其中一个重要的目的。",
+            "不过呢。",
+            "同时，语调信息以及非语言信息也正在传递。",
+            "对。",
+            "这种散文法是藤崎先生所编的。",
+            "编程语言信息是指。",
+            "关键在于可以被有意地控制。",
+            "马车正被妥善控制着出发呢。",
+            "因为语言信息会持续变化，所以无法归类。",
+            "有点麻烦。",
+            "也就是说，这些资料。"
+          ],
+          "draft_sent_count": 22,
+          "onset_to_first_delta_p50_s": 2.048,
+          "onset_to_first_delta_p95_s": 3.046,
+          "draft_samples": [
+            {
+              "start_s": 0.01,
+              "end_s": 2.69,
+              "text_ja": "パラ言語情報ということなんですが",
+              "text_zh": "所谓的声音语言信息是指"
+            },
+            {
+              "start_s": 0.01,
+              "end_s": 3.9,
+              "text_ja": "パラ言語情報ということなんですが簡単に。",
+              "text_zh": "所谓言语外信息，简单来说。"
+            },
+            {
+              "start_s": 3.76,
+              "end_s": 5.57,
+              "text_ja": "最初に復習をして、",
+              "text_zh": "首先来复习一下。"
+            },
+            {
+              "start_s": 7.12,
+              "end_s": 9.79,
+              "text_ja": "こうやって話して。",
+              "text_zh": "就这样来聊一聊。"
+            },
+            {
+              "start_s": 7.12,
+              "end_s": 11.01,
+              "text_ja": "こうやって話しておりますとそれはもちろん",
+              "text_zh": "我们这样交谈当然也是可以的。"
+            },
+            {
+              "start_s": 11.07,
+              "end_s": 12.86,
+              "text_ja": "言語情報を伝えると、",
+              "text_zh": "一旦传达语言信息的话，"
+            },
+            {
+              "start_s": 11.07,
+              "end_s": 14.08,
+              "text_ja": "言語情報を伝えるということが1つ。",
+              "text_zh": "传递语言信息这一点。"
+            },
+            {
+              "start_s": 11.07,
+              "end_s": 15.3,
+              "text_ja": "ん言語情報を伝えるということが一つの重要な目的と",
+              "text_zh": "传达语言信息本身是一项重要目的。"
+            },
+            {
+              "start_s": 15.12,
+              "end_s": 16.9,
+              "text_ja": "なんでありますが。",
+              "text_zh": "不过呢。"
+            },
+            {
+              "start_s": 17.12,
+              "end_s": 18.56,
+              "text_ja": "同時にパラゲン語城。",
+              "text_zh": "同时，帕拉根语城。"
+            },
+            {
+              "start_s": 17.12,
+              "end_s": 19.78,
+              "text_ja": "同時にパラ言語情報そして非現",
+              "text_zh": "同时，副语言信息以及非现实"
+            },
+            {
+              "start_s": 17.12,
+              "end_s": 20.99,
+              "text_ja": "同時にパラ言語情報そして非言語情報が伝わった。",
+              "text_zh": "同时，副语言信息和非语言信息也传递了过来。"
+            }
+          ],
+          "asr_backends": {
+            "speech_cpp_gpu": 14
+          },
+          "fallback_count": 0
+        },
+        "csj-task": {
+          "id": "csj-task",
+          "eof": true,
+          "captions": 15,
+          "warnings": 0,
+          "max_send_late_ms": 33.84,
+          "drain_seconds": 0.3949983340006753,
+          "deltas": 42,
+          "asr_p50_s": 0.0755,
+          "asr_p95_s": 0.0966,
+          "mt_p50_s": 0.2321,
+          "mt_p95_s": 0.3144,
+          "first_delta_e2e_p50_s": 0.55,
+          "first_delta_e2e_p95_s": 0.637,
+          "final_e2e_p50_s": 0.608,
+          "final_e2e_p95_s": 0.732,
+          "texts": [
+            "好的。",
+            "我这边有照片。",
+            "我的是名字和体系。",
+            "里面了。",
+            "好的。",
+            "到处都是陌生人。",
+            "名字的话，我稍微读出来一下。",
+            "上面是平野蕾米。",
+            "平野蕾米，来做饭，来做饭。",
+            "戴着眼镜在工作。",
+            "皮拉的是一片平坦的原野吗？",
+            "太郎啊。",
+            "好的。",
+            "塞尔吉奥·越后。",
+            "真是搞不懂啊，11号是誰？"
+          ],
+          "draft_sent_count": 12,
+          "onset_to_first_delta_p50_s": 1.439,
+          "onset_to_first_delta_p95_s": 3.058,
+          "draft_samples": [
+            {
+              "start_s": 3.66,
+              "end_s": 5.12,
+              "text_ja": "僕のほうには写真が。",
+              "text_zh": "我这边有照片。"
+            },
+            {
+              "start_s": 5.96,
+              "end_s": 8.64,
+              "text_ja": "私のほうは名前と傾向。",
+              "text_zh": "我这边是姓名和倾向。"
+            },
+            {
+              "start_s": 5.96,
+              "end_s": 9.86,
+              "text_ja": "私のほうは名前とひと言っていう。",
+              "text_zh": "我这边是名字和介绍。"
+            },
+            {
+              "start_s": 11.66,
+              "end_s": 13.12,
+              "text_ja": "知らない人が。",
+              "text_zh": "不认识的人。"
+            },
+            {
+              "start_s": 11.66,
+              "end_s": 14.34,
+              "text_ja": "知らない人がいっぱいいるぞ。",
+              "text_zh": "到处都是陌生人。"
+            },
+            {
+              "start_s": 15.45,
+              "end_s": 17.22,
+              "text_ja": "名前じゃあちょっと読み上げて。",
+              "text_zh": "还是直接读出来吧。"
+            },
+            {
+              "start_s": 21.52,
+              "end_s": 24.19,
+              "text_ja": "平野レミお料理を作る。",
+              "text_zh": "平野蕾米来做饭。"
+            },
+            {
+              "start_s": 25.51,
+              "end_s": 27.26,
+              "text_ja": "女の人だよね。",
+              "text_zh": "是位女性啊。"
+            },
+            {
+              "start_s": 25.51,
+              "end_s": 28.48,
+              "text_ja": "眼鏡かけててショートカット。",
+              "text_zh": "戴着眼镜，短发。"
+            },
+            {
+              "start_s": 29.77,
+              "end_s": 33.66,
+              "text_ja": "平野平らな野っ原ですか。",
+              "text_zh": "平野是平坦的原野吗？"
+            },
+            {
+              "start_s": 36.24,
+              "end_s": 37.7,
+              "text_ja": "セル地を得て。",
+              "text_zh": "获得细胞地。"
+            },
+            {
+              "start_s": 38.48,
+              "end_s": 39.94,
+              "text_ja": "分かんないですね。",
+              "text_zh": "不明白呢。"
+            }
+          ],
+          "asr_backends": {
+            "speech_cpp_gpu": 15
+          },
+          "fallback_count": 0
+        },
+        "silence": {
+          "id": "silence",
+          "eof": true,
+          "captions": 0,
+          "warnings": 0,
+          "max_send_late_ms": 19.51,
+          "drain_seconds": 0.008125625001412118,
+          "deltas": 0,
+          "asr_p50_s": 0.0,
+          "asr_p95_s": 0.0,
+          "mt_p50_s": 0.0,
+          "mt_p95_s": 0.0,
+          "first_delta_e2e_p50_s": 0.0,
+          "first_delta_e2e_p95_s": 0.0,
+          "final_e2e_p50_s": 0.0,
+          "final_e2e_p95_s": 0.0,
+          "texts": [],
+          "asr_backends": {},
+          "fallback_count": 0
+        },
+        "d1-ep01-45s": {
+          "id": "d1-ep01-45s",
+          "eof": true,
+          "captions": 13,
+          "warnings": 0,
+          "max_send_late_ms": 21.33,
+          "drain_seconds": 0.33617675000277814,
+          "deltas": 41,
+          "asr_p50_s": 0.0906,
+          "asr_p95_s": 0.127,
+          "mt_p50_s": 0.248,
+          "mt_p95_s": 0.3266,
+          "first_delta_e2e_p50_s": 0.466,
+          "first_delta_e2e_p95_s": 0.803,
+          "final_e2e_p50_s": 0.545,
+          "final_e2e_p95_s": 0.915,
+          "texts": [
+            "我以前也总是说“你好”。",
+            "亲切得不行。",
+            "这太糟糕了。",
+            "对了，保育员是让接孩子的家长来取孩子的。",
+            "确实如此。",
+            "大家请出发吧。",
+            "憩。",
+            "那我们也该回家了。",
+            "绝对会做到。",
+            "我懂的，毕竟谢谢你们啊。",
+            "辛苦了，之后的日子呢。",
+            "那好吧。",
+            "绝对能决定。"
+          ],
+          "draft_sent_count": 14,
+          "onset_to_first_delta_p50_s": 2.092,
+          "onset_to_first_delta_p95_s": 3.439,
+          "draft_samples": [
+            {
+              "start_s": 0.65,
+              "end_s": 4.54,
+              "text_ja": "私も前までこんにちはって言ってたけど。",
+              "text_zh": "我以前也总是说“你好”。"
+            },
+            {
+              "start_s": 4.28,
+              "end_s": 7.3,
+              "text_ja": "なれなれしい。",
+              "text_zh": "亲切自然。"
+            },
+            {
+              "start_s": 8.63,
+              "end_s": 10.43,
+              "text_ja": "意味分からん。",
+              "text_zh": "意思不明白。"
+            },
+            {
+              "start_s": 8.63,
+              "end_s": 11.65,
+              "text_ja": "意味分かんなくない?",
+              "text_zh": "这不就是意思不明吗？"
+            },
+            {
+              "start_s": 12.83,
+              "end_s": 14.27,
+              "text_ja": "そういえば保育士さん来た。",
+              "text_zh": "对了，来过保育员。"
+            },
+            {
+              "start_s": 12.83,
+              "end_s": 15.49,
+              "text_ja": "そういえば保育士さんって子ども",
+              "text_zh": "对了，幼儿园老师啊，孩子"
+            },
+            {
+              "start_s": 12.83,
+              "end_s": 16.7,
+              "text_ja": "そういえば保育士さんって子ども迎えに来た親におかえり。",
+              "text_zh": "对了，保育员是替来接孩子的家长送还的。"
+            },
+            {
+              "start_s": 19.02,
+              "end_s": 20.48,
+              "text_ja": "仕事帰りの人が多い。",
+              "text_zh": "下班回家的人很多。"
+            },
+            {
+              "start_s": 19.02,
+              "end_s": 21.7,
+              "text_ja": "仕事帰りの人が多いからだ。",
+              "text_zh": "因为下班的人很多。"
+            },
+            {
+              "start_s": 23.77,
+              "end_s": 25.22,
+              "text_ja": "そのまんま絞った。",
+              "text_zh": "就这样直接挤出来。"
+            },
+            {
+              "start_s": 23.77,
+              "end_s": 26.43,
+              "text_ja": "そのまま仕事に行くからだ。",
+              "text_zh": "就这样去上班吧。"
+            },
+            {
+              "start_s": 27.77,
+              "end_s": 29.57,
+              "text_ja": "絶対毛だろあれ。",
+              "text_zh": "绝对是毛。"
+            }
+          ],
+          "asr_backends": {
+            "speech_cpp_gpu": 13
+          },
+          "fallback_count": 0
+        }
+      },
+      "seek_50ms": {
+        "gap_ms": 50,
+        "reopen_wall_s": 41.439,
+        "reopen": {
+          "id": "reopen-stage2",
+          "eof": true,
+          "captions": 14,
+          "warnings": 0,
+          "max_send_late_ms": 18.3,
+          "drain_seconds": 0.2788814169989777
+        }
+      },
+      "resources": {
+        "peak_rss_mib": 2763.8,
+        "mean_cpu_pct": 20.9,
+        "peak_cpu_pct": 71.6,
+        "wired_delta_mb": 3696.4
+      }
+    },
+    "ane_greedy": {
+      "results": {
+        "csj-reproduction": {
+          "id": "csj-reproduction",
+          "eof": true,
+          "captions": 13,
+          "warnings": 1,
+          "max_send_late_ms": 21.22,
+          "drain_seconds": 0.2959212089999923,
+          "deltas": 56,
+          "asr_p50_s": 0.0585,
+          "asr_p95_s": 0.0932,
+          "mt_p50_s": 0.2568,
+          "mt_p95_s": 0.431,
+          "first_delta_e2e_p50_s": 0.511,
+          "first_delta_e2e_p95_s": 0.72,
+          "final_e2e_p50_s": 0.66,
+          "final_e2e_p95_s": 0.861,
+          "texts": [
+            "所谓副语言信息，简单来说是",
+            "我想先来复习一下。",
+            "我们这样交谈当然也是可以的。",
+            "传递语言信息是其中一个重要的目的。",
+            "不过呢。",
+            "同时，语调信息以及非语言信息也正在传递。",
+            "这种散文法是藤崎先生所编的。",
+            "编程语言信息是指。",
+            "关键在于可以被有意地控制。",
+            "马车正被妥善控制着出发呢。",
+            "因为语言信息会持续变化，所以无法归类。",
+            "有点麻烦。",
+            "也就是说，这些资料。"
+          ],
+          "draft_sent_count": 22,
+          "onset_to_first_delta_p50_s": 2.082,
+          "onset_to_first_delta_p95_s": 3.032,
+          "draft_samples": [
+            {
+              "start_s": 0.01,
+              "end_s": 2.69,
+              "text_ja": "パラ言語情報ということなんですが。",
+              "text_zh": "所谓的声音语言信息。"
+            },
+            {
+              "start_s": 0.01,
+              "end_s": 3.9,
+              "text_ja": "パラ言語情報ということなんですが簡単に",
+              "text_zh": "所谓副语言信息，简单来说是"
+            },
+            {
+              "start_s": 3.76,
+              "end_s": 5.57,
+              "text_ja": "最初に復習をして、",
+              "text_zh": "首先来复习一下。"
+            },
+            {
+              "start_s": 7.12,
+              "end_s": 9.79,
+              "text_ja": "こうやって話して。",
+              "text_zh": "就这样来聊一聊。"
+            },
+            {
+              "start_s": 7.12,
+              "end_s": 11.01,
+              "text_ja": "こうやって話しておりますとそれはもちろん",
+              "text_zh": "我们这样交谈当然也是可以的。"
+            },
+            {
+              "start_s": 11.07,
+              "end_s": 12.86,
+              "text_ja": "言語情報を伝えると、",
+              "text_zh": "一旦传达语言信息的话，"
+            },
+            {
+              "start_s": 11.07,
+              "end_s": 14.08,
+              "text_ja": "言語情報を伝えるということが1つ。",
+              "text_zh": "传递语言信息这一点。"
+            },
+            {
+              "start_s": 11.07,
+              "end_s": 15.3,
+              "text_ja": "言語情報を伝えるということが一つの重要な目的と",
+              "text_zh": "传递语言信息本身就是一个重要目的。"
+            },
+            {
+              "start_s": 15.12,
+              "end_s": 16.9,
+              "text_ja": "なんでありますが。",
+              "text_zh": "不过呢。"
+            },
+            {
+              "start_s": 17.12,
+              "end_s": 18.56,
+              "text_ja": "同時にパラゲン語上。",
+              "text_zh": "同时在派拉根语层面。"
+            },
+            {
+              "start_s": 17.12,
+              "end_s": 19.78,
+              "text_ja": "同時にパラ言語情報そして非現",
+              "text_zh": "同时，副语言信息以及非现实"
+            },
+            {
+              "start_s": 17.12,
+              "end_s": 20.99,
+              "text_ja": "同時にパラ言語情報そして非言語情報が伝わった。",
+              "text_zh": "同时，副语言信息和非语言信息也传递了过来。"
+            }
+          ],
+          "asr_backends": {
+            "ane": 14
+          },
+          "fallback_count": 0,
+          "ane_timings_summary": {
+            "frontend_ms": {
+              "p50_ms": 3.51,
+              "p95_ms": 12.06
+            },
+            "predict_ms": {
+              "p50_ms": 32.92,
+              "p95_ms": 36.12
+            },
+            "output_copy_ms": {
+              "p50_ms": 0.11,
+              "p95_ms": 0.33
+            },
+            "decode_ms": {
+              "p50_ms": 23.37,
+              "p95_ms": 45.02
+            },
+            "total_ms": {
+              "p50_ms": 58.09,
+              "p95_ms": 92.49
+            }
+          }
+        },
+        "csj-task": {
+          "id": "csj-task",
+          "eof": true,
+          "captions": 15,
+          "warnings": 0,
+          "max_send_late_ms": 27.21,
+          "drain_seconds": 0.4170994169998181,
+          "deltas": 41,
+          "asr_p50_s": 0.0694,
+          "asr_p95_s": 0.0892,
+          "mt_p50_s": 0.2222,
+          "mt_p95_s": 0.3336,
+          "first_delta_e2e_p50_s": 0.58,
+          "first_delta_e2e_p95_s": 0.64,
+          "final_e2e_p50_s": 0.619,
+          "final_e2e_p95_s": 0.737,
+          "texts": [
+            "好的。",
+            "我这边有照片。",
+            "我的是名字和体系。",
+            "里面了。",
+            "好的。",
+            "到处都是陌生人。",
+            "名字的话，我稍微读出来一下。",
+            "上面是平野蕾米。",
+            "平野蕾米，来做饭，来做饭。",
+            "戴着眼镜在工作。",
+            "皮拉的是一片平坦的原野吗？",
+            "太郎啊。",
+            "好的。",
+            "塞尔吉奥·越后。",
+            "真是搞不懂啊，11号是誰？"
+          ],
+          "draft_sent_count": 11,
+          "onset_to_first_delta_p50_s": 1.447,
+          "onset_to_first_delta_p95_s": 3.095,
+          "draft_samples": [
+            {
+              "start_s": 3.66,
+              "end_s": 5.12,
+              "text_ja": "僕のほうには写真が。",
+              "text_zh": "我这边有照片。"
+            },
+            {
+              "start_s": 5.96,
+              "end_s": 8.64,
+              "text_ja": "私のほうは名前と経験。",
+              "text_zh": "我这边是姓名和经验。"
+            },
+            {
+              "start_s": 5.96,
+              "end_s": 9.86,
+              "text_ja": "私のほうは名前とひと言っていう。",
+              "text_zh": "我这边是名字和介绍。"
+            },
+            {
+              "start_s": 11.66,
+              "end_s": 13.12,
+              "text_ja": "知らない人が。",
+              "text_zh": "不认识的人。"
+            },
+            {
+              "start_s": 11.66,
+              "end_s": 14.34,
+              "text_ja": "知らない人がいっぱいいるぞ。",
+              "text_zh": "到处都是陌生人。"
+            },
+            {
+              "start_s": 15.45,
+              "end_s": 17.22,
+              "text_ja": "前じゃあちょっと読み上げて。",
+              "text_zh": "之前我稍微读一遍。"
+            },
+            {
+              "start_s": 21.52,
+              "end_s": 24.19,
+              "text_ja": "平野レミお料理を作る。",
+              "text_zh": "平野蕾米来做饭。"
+            },
+            {
+              "start_s": 25.51,
+              "end_s": 28.48,
+              "text_ja": "眼鏡かけててショートカット。",
+              "text_zh": "戴着眼镜，短发。"
+            },
+            {
+              "start_s": 29.77,
+              "end_s": 32.45,
+              "text_ja": "ちょっと平の平らな。",
+              "text_zh": "稍微平一点，平平的。"
+            },
+            {
+              "start_s": 36.24,
+              "end_s": 37.7,
+              "text_ja": "セル地を得て。",
+              "text_zh": "获得细胞地。"
+            },
+            {
+              "start_s": 38.48,
+              "end_s": 39.94,
+              "text_ja": "分かんないですね。",
+              "text_zh": "不明白呢。"
+            }
+          ],
+          "asr_backends": {
+            "ane": 15
+          },
+          "fallback_count": 0,
+          "ane_timings_summary": {
+            "frontend_ms": {
+              "p50_ms": 2.6,
+              "p95_ms": 6.31
+            },
+            "predict_ms": {
+              "p50_ms": 34.52,
+              "p95_ms": 36.09
+            },
+            "output_copy_ms": {
+              "p50_ms": 0.12,
+              "p95_ms": 1.1
+            },
+            "decode_ms": {
+              "p50_ms": 31.42,
+              "p95_ms": 45.11
+            },
+            "total_ms": {
+              "p50_ms": 68.81,
+              "p95_ms": 88.68
+            }
+          }
+        },
+        "silence": {
+          "id": "silence",
+          "eof": true,
+          "captions": 0,
+          "warnings": 0,
+          "max_send_late_ms": 21.75,
+          "drain_seconds": 0.004126916999666719,
+          "deltas": 0,
+          "asr_p50_s": 0.0,
+          "asr_p95_s": 0.0,
+          "mt_p50_s": 0.0,
+          "mt_p95_s": 0.0,
+          "first_delta_e2e_p50_s": 0.0,
+          "first_delta_e2e_p95_s": 0.0,
+          "final_e2e_p50_s": 0.0,
+          "final_e2e_p95_s": 0.0,
+          "texts": [],
+          "asr_backends": {},
+          "fallback_count": 0
+        },
+        "d1-ep01-45s": {
+          "id": "d1-ep01-45s",
+          "eof": true,
+          "captions": 13,
+          "warnings": 0,
+          "max_send_late_ms": 24.37,
+          "drain_seconds": 0.31003324999983306,
+          "deltas": 42,
+          "asr_p50_s": 0.0683,
+          "asr_p95_s": 0.076,
+          "mt_p50_s": 0.2264,
+          "mt_p95_s": 0.2807,
+          "first_delta_e2e_p50_s": 0.423,
+          "first_delta_e2e_p95_s": 0.79,
+          "final_e2e_p50_s": 0.494,
+          "final_e2e_p95_s": 0.907,
+          "texts": [
+            "我以前也总是说“你好”。",
+            "亲切得不行。",
+            "这太糟糕了。",
+            "对了，保育员是让接孩子的家长来取孩子的。",
+            "确实如此。",
+            "大家请出发吧。",
+            "憩。",
+            "那我们也该回去了。",
+            "绝对能行。",
+            "我懂的，毕竟谢谢你们啊。",
+            "辛苦了，之后的日子呢。",
+            "那好吧。",
+            "绝对能决定。"
+          ],
+          "draft_sent_count": 15,
+          "onset_to_first_delta_p50_s": 2.087,
+          "onset_to_first_delta_p95_s": 3.394,
+          "draft_samples": [
+            {
+              "start_s": 0.65,
+              "end_s": 4.54,
+              "text_ja": "私も前までこんにちはって言ってたけど。",
+              "text_zh": "我以前也总是说“你好”。"
+            },
+            {
+              "start_s": 4.28,
+              "end_s": 7.3,
+              "text_ja": "なれなれしい。",
+              "text_zh": "亲切自然。"
+            },
+            {
+              "start_s": 8.63,
+              "end_s": 10.43,
+              "text_ja": "意味分からん。",
+              "text_zh": "意思不明白。"
+            },
+            {
+              "start_s": 8.63,
+              "end_s": 11.65,
+              "text_ja": "意味分かんなくない?",
+              "text_zh": "这不就是意思不明吗？"
+            },
+            {
+              "start_s": 12.83,
+              "end_s": 14.27,
+              "text_ja": "そういえば保育士さん来た。",
+              "text_zh": "对了，来过保育员。"
+            },
+            {
+              "start_s": 12.83,
+              "end_s": 15.49,
+              "text_ja": "そういえば保育士さんって子ども。",
+              "text_zh": "对了，保育员是照顾孩子的人。"
+            },
+            {
+              "start_s": 19.02,
+              "end_s": 20.48,
+              "text_ja": "仕事帰りの人が多い。",
+              "text_zh": "下班回家的人很多。"
+            },
+            {
+              "start_s": 19.02,
+              "end_s": 21.7,
+              "text_ja": "仕事帰りの人が多いからだ。",
+              "text_zh": "因为下班的人很多。"
+            },
+            {
+              "start_s": 19.02,
+              "end_s": 22.91,
+              "text_ja": "皆さんはいってらっしゃいスクープ。",
+              "text_zh": "大家请出发吧，去报道独家消息。"
+            },
+            {
+              "start_s": 23.77,
+              "end_s": 25.22,
+              "text_ja": "そのまんま絞った。",
+              "text_zh": "就这样直接挤出来。"
+            },
+            {
+              "start_s": 23.77,
+              "end_s": 26.43,
+              "text_ja": "そのまま仕事に行くからだ。",
+              "text_zh": "就这样去上班吧。"
+            },
+            {
+              "start_s": 27.77,
+              "end_s": 29.57,
+              "text_ja": "絶対毛だろあれ。",
+              "text_zh": "绝对是毛。"
+            }
+          ],
+          "asr_backends": {
+            "ane": 13
+          },
+          "fallback_count": 0,
+          "ane_timings_summary": {
+            "frontend_ms": {
+              "p50_ms": 6.52,
+              "p95_ms": 10.49
+            },
+            "predict_ms": {
+              "p50_ms": 34.37,
+              "p95_ms": 36.44
+            },
+            "output_copy_ms": {
+              "p50_ms": 0.16,
+              "p95_ms": 0.32
+            },
+            "decode_ms": {
+              "p50_ms": 28.82,
+              "p95_ms": 35.41
+            },
+            "total_ms": {
+              "p50_ms": 67.43,
+              "p95_ms": 75.43
+            }
+          }
+        }
+      },
+      "seek_50ms": {
+        "gap_ms": 50,
+        "reopen_wall_s": 41.4,
+        "reopen": {
+          "id": "reopen-stage2",
+          "eof": true,
+          "captions": 13,
+          "warnings": 1,
+          "max_send_late_ms": 25.39,
+          "drain_seconds": 0.2544839170014015
+        }
+      },
+      "resources": {
+        "peak_rss_mib": 2066.9,
+        "mean_cpu_pct": 13.9,
+        "peak_cpu_pct": 44.3,
+        "wired_delta_mb": 2483.4
+      }
+    }
+  }
+}

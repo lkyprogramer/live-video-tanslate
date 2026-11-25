@@ -1090,3 +1090,353 @@ model_revision = "{REV_B}"
     assert any(isinstance(e, lp.Caption) and e.text_zh == "正式:本番です。" for e in evts)
 
 
+def test_ane_init_failure_switches_session_to_gpu_serial_scheduler(tmp_path, monkeypatch):
+    cfg = tmp_path / "profiles.toml"
+    cfg.write_text(
+        f"""
+schema_version = 1
+default_profile_id = "reazon-hy"
+cache_root = "{tmp_path / 'cache'}"
+
+[server]
+port = 18765
+allowed_origin = "chrome-extension://{'a' * 32}"
+
+[profiles.reazon-hy]
+label = "ReazonSpeech"
+type = "local_pipeline"
+enabled = true
+
+[profiles.reazon-hy.asr]
+type = "reazon_sherpa"
+model_revision = "{REV_A}"
+
+[profiles.reazon-hy.mt]
+type = "hy_mt2_mlx"
+model_revision = "{REV_B}"
+
+[profiles.m1-pro-nemo]
+label = "NeMo-ANE"
+type = "local_pipeline"
+enabled = true
+
+[profiles.m1-pro-nemo.asr]
+type = "speech_cpp_nemo"
+model_file = "reazonspeech-nemo-619M-v2-Q8_0.gguf"
+threads = 6
+decoding = "greedy"
+device = "ane"
+max_segment_s = 4.5
+overlap_ms = 350
+
+[profiles.m1-pro-nemo.mt]
+type = "qwen3_mt_mlx"
+model_revision = "{REV_B}"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    settings = load_settings(cfg)
+    cache = Path(settings.cache_root)
+    (cache / "speech-cpp").mkdir(parents=True, exist_ok=True)
+    dylib_path = cache / "speech-cpp/libspeech.dylib"
+    model_path = cache / "speech-cpp/reazonspeech-nemo-619M-v2-Q8_0.gguf"
+    vad_path = cache / "reazonspeech-assets/silero_vad.onnx"
+    vad_path.parent.mkdir(parents=True, exist_ok=True)
+    dylib_path.write_bytes(b"")
+    model_path.write_bytes(b"")
+    vad_path.write_bytes(b"vad")
+
+    monkeypatch.setattr(lp.NeMoAneBridge, "is_ready", classmethod(lambda cls, _dir: True))
+
+    def boom_ane(*_a, **_kw):
+        raise RuntimeError("ane boom")
+
+    monkeypatch.setattr(lp, "NeMoAneBridge", type("BoomBridge", (), {
+        "is_ready": classmethod(lambda cls, _dir: True),
+        "__init__": boom_ane,
+    }))
+
+    class _StubFn:
+        def __init__(self, ret=0):
+            self.ret = ret
+
+        def __call__(self, *_a):
+            return self.ret
+
+    class FakeCppLib:
+        def __init__(self, _path):
+            pass
+
+        def __getattr__(self, name):
+            if name == "speech_request_result":
+                fn = _StubFn(1)
+            elif name == "speech_result_untimed":
+                fn = _StubFn(b"1")
+            elif name in ("speech_result_text", "speech_last_error"):
+                fn = _StubFn(b"")
+            elif name == "speech_status_name":
+                fn = _StubFn(b"ok")
+            else:
+                fn = _StubFn(0)
+            setattr(self, name, fn)
+            return fn
+
+    monkeypatch.setattr(lp.ctypes, "CDLL", FakeCppLib)
+    monkeypatch.setattr(lp, "silero_config", lambda *_a: object())
+
+    rec = lp.SpeechCppNeMoRecognizer(dylib_path, model_path, vad_path, settings.profiles["m1-pro-nemo"].asr)
+    assert rec.ane_active is False
+    assert rec._ane_init_fallback_reason == "ane_init_failed"
+    assert rec.last_decode_meta["backend"] == "speech_cpp_gpu"
+    assert rec.last_decode_meta["fallback_reason"] == "ane_init_failed"
+
+    backend = lp.LocalBackend(cache, settings.profiles["m1-pro-nemo"])
+    backend.recognizer = rec
+    assert backend.ane_runtime_active is False
+
+    async def make_sess():
+        sess = lp.LocalSession(backend, object(), lp._NoopSession(), lambda _ev: asyncio.sleep(0), None)
+        assert sess._use_gpu_serial is True
+        assert sess._use_ane_parallel is False
+        await sess.aclose()
+        await backend.aclose()
+
+    asyncio.run(make_sess())
+
+
+def test_ane_mid_session_gpu_fallback_serializes_with_mt_and_records_meta(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+    import time
+
+    cfg = tmp_path / "profiles.toml"
+    cfg.write_text(
+        f"""
+schema_version = 1
+default_profile_id = "reazon-hy"
+cache_root = "{tmp_path / 'cache'}"
+
+[server]
+port = 18765
+allowed_origin = "chrome-extension://{'a' * 32}"
+
+[profiles.reazon-hy]
+label = "ReazonSpeech"
+type = "local_pipeline"
+enabled = true
+
+[profiles.reazon-hy.asr]
+type = "reazon_sherpa"
+model_revision = "{REV_A}"
+
+[profiles.reazon-hy.mt]
+type = "hy_mt2_mlx"
+model_revision = "{REV_B}"
+
+[profiles.m1-pro-nemo]
+label = "NeMo-ANE"
+type = "local_pipeline"
+enabled = true
+
+[profiles.m1-pro-nemo.asr]
+type = "speech_cpp_nemo"
+model_file = "reazonspeech-nemo-619M-v2-Q8_0.gguf"
+threads = 6
+decoding = "greedy"
+device = "ane"
+draft_interval_s = 0.0
+max_segment_s = 4.5
+overlap_ms = 350
+
+[profiles.m1-pro-nemo.mt]
+type = "qwen3_mt_mlx"
+model_revision = "{REV_B}"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    nemo = load_settings(cfg).profiles["m1-pro-nemo"]
+
+    active_gpu = 0
+    max_concurrent_gpu = 0
+    gpu_mu = threading.Lock()
+
+    class FallbackCppLib:
+        def speech_request_new(self, _m, _r): return 0
+        def speech_request_free(self, _r): pass
+        def speech_request_set_audio(self, *_a): return 0
+        def speech_request_set_string(self, *_a): return 0
+        def speech_request_set_bool(self, *_a): return 0
+        def speech_request_set_progress(self, *_a): return 0
+        def speech_transcribe(self, _r):
+            nonlocal active_gpu, max_concurrent_gpu
+            with gpu_mu:
+                active_gpu += 1
+                max_concurrent_gpu = max(max_concurrent_gpu, active_gpu)
+            time.sleep(0.03)
+            with gpu_mu:
+                active_gpu -= 1
+            return 0
+        def speech_request_result(self, _r): return 1
+        def speech_result_untimed(self, _r): return b"1"
+        def speech_result_text(self, _r): return b"\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88"
+
+    rec = lp.SpeechCppNeMoRecognizer.__new__(lp.SpeechCppNeMoRecognizer)
+    rec._model = object()
+    rec._pad_samples = 0
+    rec._pad_s = 0.0
+    rec._decoding = b"greedy"
+    rec._device = "ane"
+    rec._fallback_device = "gpu"
+    rec._ane_init_fallback_reason = None
+    rec.last_decode_meta = {}
+    rec._lib = FallbackCppLib()
+    rec._check_status = lambda _op, st: st
+    rec._ane = type("TooLongAne", (), {
+        "retired": False,
+        "transcribe": lambda *_a, **_kw: (_ for _ in ()).throw(lp._AneFallback(2)),
+    })()
+
+    class DummyBackend:
+        profile = nemo
+        uses_mlx_asr = False
+        uses_speech_cpp_asr = True
+        uses_gpu_speech_cpp = False
+        uses_ane_asr = True
+        uses_gpu_scheduler = False
+        ane_runtime_active = True
+        _gpu_fallback_lock = threading.Lock()
+        recognizer = rec
+        vad_pool = ThreadPoolExecutor(max_workers=1)
+        asr_pool = ThreadPoolExecutor(max_workers=1)
+        mt_pool = ThreadPoolExecutor(max_workers=1)
+
+        class translator:
+            @staticmethod
+            def translate(_sess, text_ja, **_kwargs):
+                nonlocal active_gpu, max_concurrent_gpu
+                with gpu_mu:
+                    active_gpu += 1
+                    max_concurrent_gpu = max(max_concurrent_gpu, active_gpu)
+                time.sleep(0.04)
+                with gpu_mu:
+                    active_gpu -= 1
+                return f"译:{text_ja}"
+
+    traces = []
+
+    async def scenario():
+        emitted = []
+        sess = lp.LocalSession(
+            DummyBackend(),
+            object(),
+            lp._NoopSession(),
+            lambda ev: emitted.append(ev) or asyncio.sleep(0),
+            lambda stage, **kw: traces.append((stage, kw)),
+        )
+        chunks = [
+            lp._EmittedChunk(0, np.zeros(1600, dtype=np.float32), 0, "vad"),
+            lp._EmittedChunk(1600, np.zeros(1600, dtype=np.float32), 0, "vad"),
+        ]
+        sess.segmenter.push = lambda frame: [chunks.pop(0)] if (frame is not None and chunks) else []
+        await sess.accept_pcm(b"1")
+        await sess.accept_pcm(b"2")
+        await sess.finish()
+        await sess.aclose()
+        DummyBackend.vad_pool.shutdown()
+        DummyBackend.asr_pool.shutdown()
+        DummyBackend.mt_pool.shutdown()
+        return emitted
+
+    emitted = asyncio.run(scenario())
+    assert len(emitted) == 2
+    assert max_concurrent_gpu == 1
+    asr_ends = [kw for st, kw in traces if st == "asr_end"]
+    assert len(asr_ends) == 2
+    assert all(x["asr_backend"] == "speech_cpp_gpu" and x["fallback_reason"] == "ane_too_long" for x in asr_ends)
+
+
+def test_local_session_aclose_waits_for_mt_before_resetting_kv_cache():
+    from concurrent.futures import ThreadPoolExecutor
+
+    order = []
+    threads = {}
+    mt_entered = threading.Event()
+    release_mt = threading.Event()
+
+    class DummyBackend:
+        profile = type("Prof", (), {
+            "asr": type("Asr", (), {"max_segment_s": 0.0, "overlap_ms": 0, "draft_interval_s": 0.0})(),
+        })()
+        uses_mlx_asr = False
+        uses_speech_cpp_asr = False
+        uses_gpu_speech_cpp = False
+        uses_ane_asr = False
+        uses_gpu_scheduler = False
+        vad_pool = ThreadPoolExecutor(max_workers=1)
+        asr_pool = ThreadPoolExecutor(max_workers=1)
+        mt_pool = ThreadPoolExecutor(max_workers=1)
+
+        class translator:
+            @staticmethod
+            def translate(_sess, _text_ja, **_kwargs):
+                order.append("mt_started")
+                threads["mt"] = threading.get_ident()
+                mt_entered.set()
+                release_mt.wait(timeout=2.0)
+                order.append("mt_finished")
+                return "你好"
+
+    class TrackingSession:
+        def close(self):
+            order.append("translation_closed")
+            threads["close"] = threading.get_ident()
+
+    async def scenario():
+        sess = lp.LocalSession(DummyBackend(), object(), TrackingSession(), lambda _ev: asyncio.sleep(0), None)
+        sess._enqueue_segment(lp.RecognizedSegment(1, 0, 1600, "こんにちは"))
+        for _ in range(100):
+            if mt_entered.is_set():
+                break
+            await asyncio.sleep(0.005)
+        assert mt_entered.is_set()
+        close_task = asyncio.create_task(sess.aclose())
+        await asyncio.sleep(0.05)
+        assert "translation_closed" not in order
+        release_mt.set()
+        await close_task
+        DummyBackend.vad_pool.shutdown()
+        DummyBackend.asr_pool.shutdown()
+        DummyBackend.mt_pool.shutdown()
+
+    asyncio.run(scenario())
+    assert order == ["mt_started", "mt_finished", "translation_closed"]
+    assert threads["mt"] == threads["close"]
+
+
+def test_native_nemo_ane_idle_no_keepalive_and_timings():
+    import time
+
+    ane_dir = ROOT / ".model-cache/nemo-ane"
+    gguf_path = ROOT / ".model-cache/speech-cpp/reazonspeech-nemo-619M-v2-Q8_0.gguf"
+    if not lp.NeMoAneBridge.is_ready(ane_dir) or not gguf_path.is_file():
+        pytest.skip("local ANE assets not built")
+
+    bridge = lp.NeMoAneBridge(ane_dir, gguf_path)
+    try:
+        c0 = bridge.eval_count()
+        assert c0 >= 1
+        time.sleep(2.5)
+        assert bridge.eval_count() == c0
+
+        audio = np.zeros(lp.RATE, dtype=np.float32)
+        _ = bridge.transcribe(audio, pad_samples=5600, use_beam=False)
+        assert bridge.eval_count() == c0 + 1
+        timings = bridge.last_timings
+        assert isinstance(timings, dict)
+        for key in ("frontend_ms", "predict_ms", "output_copy_ms", "decode_ms", "total_ms"):
+            assert timings[key] > 0.0
+        assert timings["bucket_mel"] == 256
+    finally:
+        bridge.close()
+

@@ -1,7 +1,7 @@
 import asyncio
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import suppress
+from contextlib import nullcontext, suppress
 import ctypes
 from dataclasses import dataclass, replace
 import hashlib
@@ -525,6 +525,19 @@ class _NemoAneToken(ctypes.Structure):
     _fields_ = [("token_id", ctypes.c_int32), ("frame", ctypes.c_int32)]
 
 
+class _NemoAneTimings(ctypes.Structure):
+    _fields_ = [
+        ("frontend_ms", ctypes.c_double),
+        ("predict_ms", ctypes.c_double),
+        ("output_copy_ms", ctypes.c_double),
+        ("decode_ms", ctypes.c_double),
+        ("total_ms", ctypes.c_double),
+        ("bucket_mel", ctypes.c_int32),
+        ("mel_frames", ctypes.c_int32),
+        ("enc_frames", ctypes.c_int32),
+    ]
+
+
 class NeMoAneBridge:
     """ctypes binding for libnemo_ane.dylib (CoreML ANE FastConformer + Accelerate RNNT)."""
 
@@ -545,6 +558,14 @@ class NeMoAneBridge:
         lib.nemo_ane_wired_mb.restype = ctypes.c_double
         lib.nemo_ane_retired.argtypes = [ctypes.c_void_p]
         lib.nemo_ane_retired.restype = ctypes.c_int
+        self._has_eval_count = hasattr(lib, "nemo_ane_eval_count")
+        if self._has_eval_count:
+            lib.nemo_ane_eval_count.argtypes = [ctypes.c_void_p]
+            lib.nemo_ane_eval_count.restype = ctypes.c_uint64
+        self._has_timings = hasattr(lib, "nemo_ane_last_timings")
+        if self._has_timings:
+            lib.nemo_ane_last_timings.argtypes = [ctypes.c_void_p, ctypes.POINTER(_NemoAneTimings)]
+            lib.nemo_ane_last_timings.restype = ctypes.c_int
         lib.nemo_ane_transcribe.argtypes = [
             ctypes.c_void_p,
             ctypes.POINTER(ctypes.c_float),
@@ -577,6 +598,7 @@ class NeMoAneBridge:
             raise RuntimeError(f"nemo_ane_create failed: {err.value.decode('utf-8', 'replace')}")
         self._handle = handle
         self._retired_logged = False
+        self.last_timings: dict | None = None
 
     @property
     def retired(self) -> bool:
@@ -584,6 +606,11 @@ class NeMoAneBridge:
 
     def wired_mb(self) -> float:
         return float(self._lib.nemo_ane_wired_mb())
+
+    def eval_count(self) -> int:
+        if self._handle is None or not getattr(self, "_has_eval_count", False):
+            return 0
+        return int(self._lib.nemo_ane_eval_count(self._handle))
 
     def transcribe(
         self,
@@ -626,6 +653,19 @@ class NeMoAneBridge:
                 self._retired_logged = True
                 log.warning("nemo_ane retired; falling back to speech.cpp MTL0 GPU")
             raise _AneFallback(rc)
+        if getattr(self, "_has_timings", False):
+            t_struct = _NemoAneTimings()
+            if self._lib.nemo_ane_last_timings(self._handle, ctypes.byref(t_struct)) == 0:
+                self.last_timings = {
+                    "frontend_ms": round(float(t_struct.frontend_ms), 2),
+                    "predict_ms": round(float(t_struct.predict_ms), 2),
+                    "output_copy_ms": round(float(t_struct.output_copy_ms), 2),
+                    "decode_ms": round(float(t_struct.decode_ms), 2),
+                    "total_ms": round(float(t_struct.total_ms), 2),
+                    "bucket_mel": int(t_struct.bucket_mel),
+                    "mel_frames": int(t_struct.mel_frames),
+                    "enc_frames": int(t_struct.enc_frames),
+                }
         text = ""
         cnt = min(int(n_toks.value), max_toks)
         if dedup_before_sample > 0 and cnt > 0:
@@ -673,11 +713,22 @@ class SpeechCppNeMoRecognizer:
         self._pad_samples = int(round(getattr(config, "pad_ms", 350) * RATE / 1000.0))
         self._pad_s = self._pad_samples / float(RATE)
         self._ane = None
+        self._ane_init_fallback_reason: str | None = None
+        self.last_decode_meta: dict = {
+            "backend": "uninitialized",
+            "fallback_reason": None,
+            "timings": None,
+        }
         if self._device == "ane":
             ane_dir = dylib_path.parent.parent / "nemo-ane"
             if NeMoAneBridge.is_ready(ane_dir):
-                self._ane = NeMoAneBridge(ane_dir, model_path)
+                try:
+                    self._ane = NeMoAneBridge(ane_dir, model_path)
+                except Exception as exc:
+                    self._ane_init_fallback_reason = "ane_init_failed"
+                    log.warning("nemo_ane init failed (%s); using speech.cpp %s fallback", exc, self._fallback_device)
             else:
+                self._ane_init_fallback_reason = "ane_assets_missing"
                 log.warning("nemo-ane assets missing at %s; using speech.cpp %s fallback", ane_dir, self._fallback_device)
 
         lib = ctypes.CDLL(str(dylib_path))
@@ -758,6 +809,10 @@ class SpeechCppNeMoRecognizer:
         )
         raise BackendError("backend_error")
 
+    @property
+    def ane_active(self) -> bool:
+        return bool(getattr(self, "_ane", None) is not None and not self._ane.retired)
+
     def new_vad(self):
         return self.sherpa.VoiceActivityDetector(self.vad_config, buffer_size_in_seconds=120)
 
@@ -770,6 +825,7 @@ class SpeechCppNeMoRecognizer:
         dedup_before_sample: int = 0,
         decoding_override: str | None = None,
         pad_ms_override: int | None = None,
+        gpu_lock=None,
     ):
         if self._model is None or (cancel_event is not None and cancel_event.is_set()):
             return ""
@@ -782,66 +838,94 @@ class SpeechCppNeMoRecognizer:
         decoding_str = decoding_override or self._decoding.decode("utf-8")
         decoding_bytes = decoding_str.encode("utf-8")
         audio = np.ascontiguousarray(samples, dtype=np.float32)
-        if getattr(self, "_ane", None) is not None and not self._ane.retired:
-            try:
-                return self._ane.transcribe(
-                    audio,
-                    pad_samples=pad_samples,
-                    use_beam=(decoding_str != "greedy"),
-                    cancel_event=cancel_event,
-                    start_sample=start_sample,
-                    dedup_before_sample=dedup_before_sample,
-                )
-            except _AneFallback:
-                pass
-        if pad_samples > 0:
-            pad = np.zeros(pad_samples, dtype=np.float32)
-            audio = np.ascontiguousarray(np.concatenate([pad, audio, pad]), dtype=np.float32)
-        req = ctypes.c_void_p()
-        self._check_status("speech_request_new", self._lib.speech_request_new(self._model, ctypes.byref(req)))
-        try:
-            ptr = audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-            self._check_status("set_audio", self._lib.speech_request_set_audio(req, ptr, audio.size, RATE))
-            self._check_status("set_decoding", self._lib.speech_request_set_string(req, self._OPT_DECODING, decoding_bytes))
-            if self._fallback_device == "gpu":
-                self._check_status("set_decode_on_cpu", self._lib.speech_request_set_bool(req, self._OPT_DECODE_ON_CPU, 1))
-            if dedup_before_sample > 0:
-                self._check_status("set_timestamps", self._lib.speech_request_set_bool(req, self._OPT_TIMESTAMPS, 1))
-            cb = None
-            if cancel_event is not None:
-                cb = self._PROGRESS_CB(lambda _done, _ud: 1 if cancel_event.is_set() else 0)
-                self._check_status("set_progress", self._lib.speech_request_set_progress(req, cb, None))
-            status = self._check_status("transcribe", self._lib.speech_transcribe(req))
-            if status == self._SPEECH_CANCELLED or (cancel_event is not None and cancel_event.is_set()):
-                return ""
-            res = self._lib.speech_request_result(req)
-            if not res:
-                raise BackendError("backend_error")
-            text = ""
-            if dedup_before_sample > 0 and not self._lib.speech_result_untimed(res):
-                tok_count = int(self._lib.speech_result_token_count(res))
-                if tok_count > 0:
-                    toks: list[tuple[float, float, str]] = []
-                    st = ctypes.c_double()
-                    en = ctypes.c_double()
-                    tp = ctypes.c_char_p()
-                    for idx in range(tok_count):
-                        if self._lib.speech_result_token(res, idx, ctypes.byref(st), ctypes.byref(en), ctypes.byref(tp)) == 0:
-                            toks.append((float(st.value), float(en.value), tp.value.decode("utf-8", "replace") if tp.value else ""))
-                    text = _filter_tokens_by_sample(
-                        toks,
+        fallback_reason: str | None = None
+        if self._device == "ane":
+            ane = getattr(self, "_ane", None)
+            if ane is not None and not ane.retired:
+                try:
+                    text_ane = ane.transcribe(
+                        audio,
+                        pad_samples=pad_samples,
+                        use_beam=(decoding_str != "greedy"),
+                        cancel_event=cancel_event,
                         start_sample=start_sample,
                         dedup_before_sample=dedup_before_sample,
-                        pad_s=pad_s,
                     )
-            if not text:
-                raw = self._lib.speech_result_text(res)
-                text = raw.decode("utf-8", "replace").strip() if raw else ""
-            if text in ("ピッ!", "ピッ", "ピッ。"):
+                    self.last_decode_meta = {
+                        "backend": "ane",
+                        "fallback_reason": None,
+                        "timings": getattr(ane, "last_timings", None),
+                    }
+                    return text_ane
+                except _AneFallback as fb:
+                    fallback_reason = (
+                        "ane_too_long"
+                        if fb.code == 2
+                        else ("ane_retired" if fb.code == -2 else f"ane_error_{fb.code}")
+                    )
+            else:
+                fallback_reason = (
+                    "ane_retired"
+                    if ane is not None
+                    else (getattr(self, "_ane_init_fallback_reason", None) or "ane_unavailable")
+                )
+        lock_ctx = gpu_lock if (gpu_lock is not None and self._fallback_device == "gpu") else nullcontext()
+        with lock_ctx:
+            if cancel_event is not None and cancel_event.is_set():
                 return ""
-            return _collapse_repetition(text)
-        finally:
-            self._lib.speech_request_free(req)
+            if pad_samples > 0:
+                pad = np.zeros(pad_samples, dtype=np.float32)
+                audio = np.ascontiguousarray(np.concatenate([pad, audio, pad]), dtype=np.float32)
+            req = ctypes.c_void_p()
+            self._check_status("speech_request_new", self._lib.speech_request_new(self._model, ctypes.byref(req)))
+            try:
+                ptr = audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+                self._check_status("set_audio", self._lib.speech_request_set_audio(req, ptr, audio.size, RATE))
+                self._check_status("set_decoding", self._lib.speech_request_set_string(req, self._OPT_DECODING, decoding_bytes))
+                if self._fallback_device == "gpu":
+                    self._check_status("set_decode_on_cpu", self._lib.speech_request_set_bool(req, self._OPT_DECODE_ON_CPU, 1))
+                if dedup_before_sample > 0:
+                    self._check_status("set_timestamps", self._lib.speech_request_set_bool(req, self._OPT_TIMESTAMPS, 1))
+                cb = None
+                if cancel_event is not None:
+                    cb = self._PROGRESS_CB(lambda _done, _ud: 1 if cancel_event.is_set() else 0)
+                    self._check_status("set_progress", self._lib.speech_request_set_progress(req, cb, None))
+                status = self._check_status("transcribe", self._lib.speech_transcribe(req))
+                if status == self._SPEECH_CANCELLED or (cancel_event is not None and cancel_event.is_set()):
+                    return ""
+                res = self._lib.speech_request_result(req)
+                if not res:
+                    raise BackendError("backend_error")
+                text = ""
+                if dedup_before_sample > 0 and not self._lib.speech_result_untimed(res):
+                    tok_count = int(self._lib.speech_result_token_count(res))
+                    if tok_count > 0:
+                        toks: list[tuple[float, float, str]] = []
+                        st = ctypes.c_double()
+                        en = ctypes.c_double()
+                        tp = ctypes.c_char_p()
+                        for idx in range(tok_count):
+                            if self._lib.speech_result_token(res, idx, ctypes.byref(st), ctypes.byref(en), ctypes.byref(tp)) == 0:
+                                toks.append((float(st.value), float(en.value), tp.value.decode("utf-8", "replace") if tp.value else ""))
+                        text = _filter_tokens_by_sample(
+                            toks,
+                            start_sample=start_sample,
+                            dedup_before_sample=dedup_before_sample,
+                            pad_s=pad_s,
+                        )
+                if not text:
+                    raw = self._lib.speech_result_text(res)
+                    text = raw.decode("utf-8", "replace").strip() if raw else ""
+                self.last_decode_meta = {
+                    "backend": f"speech_cpp_{self._fallback_device}",
+                    "fallback_reason": fallback_reason,
+                    "timings": None,
+                }
+                if text in ("ピッ!", "ピッ", "ピッ。"):
+                    return ""
+                return _collapse_repetition(text)
+            finally:
+                self._lib.speech_request_free(req)
 
     def close(self):
         if getattr(self, "_ane", None) is not None:
@@ -1243,8 +1327,15 @@ class LocalBackend:
         self.asr_pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="subtitle-asr")
         self.mt_pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="subtitle-mt")
         self.lock = asyncio.Lock()
+        self._gpu_fallback_lock = threading.Lock()
         self.recognizer = None
         self.translator = None
+
+    @property
+    def ane_runtime_active(self) -> bool:
+        return self.uses_ane_asr and (
+            self.recognizer is None or bool(getattr(self.recognizer, "ane_active", True))
+        )
 
     async def available(self):
         return not self.missing
@@ -1283,9 +1374,11 @@ class LocalBackend:
 
     async def open(self, emit, *, record=None):
         await self.warmup()
+        loop = asyncio.get_running_loop()
         vad_pool = self.vad_pool if self.uses_speech_cpp_asr else self.asr_pool
-        vad = await asyncio.get_running_loop().run_in_executor(vad_pool, self.recognizer.new_vad)
-        return LocalSession(self, vad, self.translator.new_session(), emit, record)
+        vad = await loop.run_in_executor(vad_pool, self.recognizer.new_vad)
+        translation = await loop.run_in_executor(self.mt_pool, self.translator.new_session)
+        return LocalSession(self, vad, translation, emit, record)
 
     async def aclose(self):
         if self.recognizer is not None and hasattr(self.recognizer, "close"):
@@ -1321,8 +1414,11 @@ class LocalSession:
         self._pending_draft: _DraftSnapshot | None = None
         self._draft_cancel = threading.Event()
         self._last_draft_ja = ""
+        ane_runtime = bool(backend.uses_ane_asr and getattr(backend, "ane_runtime_active", True))
+        self._use_ane_parallel = ane_runtime
+        self._use_gpu_serial = bool(backend.uses_gpu_scheduler or (backend.uses_ane_asr and not ane_runtime))
 
-        if self.backend.uses_gpu_scheduler:
+        if self._use_gpu_serial:
             self._asr_queue: deque[_PendingAudio] = deque()
             self._mt_queue: deque[RecognizedSegment] = deque()
             self._queued_audio_s = 0.0
@@ -1330,7 +1426,7 @@ class LocalSession:
             self._work_ready = asyncio.Event()
             self.mt_task = asyncio.create_task(self._run_mlx_scheduler())
             self._cpp_asr_task = None
-        elif self.backend.uses_ane_asr:
+        elif self._use_ane_parallel:
             self._asr_queue: deque[_PendingAudio] = deque()
             self._mt_queue: deque[RecognizedSegment] = deque()
             self._queued_audio_s = 0.0
@@ -1338,6 +1434,8 @@ class LocalSession:
             self._mt_input_done = False
             self._ane_asr_ready = asyncio.Event()
             self._ane_mt_ready = asyncio.Event()
+            self._ane_mt_idle = asyncio.Event()
+            self._ane_mt_idle.set()
             self._pending_draft_ja: tuple[_DraftSnapshot, str] | None = None
             self._cpp_asr_task = asyncio.create_task(self._run_ane_asr())
             self.mt_task = asyncio.create_task(self._run_ane_mt_scheduler())
@@ -1363,6 +1461,19 @@ class LocalSession:
         if self._delta_tasks:
             await asyncio.gather(*list(self._delta_tasks), return_exceptions=True)
 
+    def _asr_trace_fields(self) -> dict:
+        meta = getattr(self.backend.recognizer, "last_decode_meta", None)
+        if not isinstance(meta, dict):
+            return {}
+        fields: dict = {}
+        if meta.get("backend"):
+            fields["asr_backend"] = meta["backend"]
+        if meta.get("fallback_reason"):
+            fields["fallback_reason"] = meta["fallback_reason"]
+        if meta.get("timings"):
+            fields["ane_timings"] = meta["timings"]
+        return fields
+
     def translate(self, segment, loop: asyncio.AbstractEventLoop | None = None):
         if self.record:
             self.record("mt_start", **vars(segment))
@@ -1371,15 +1482,17 @@ class LocalSession:
             on_delta = lambda partial: None if self.cancelled.is_set() else loop.call_soon_threadsafe(
                 self._schedule_delta, segment, partial
             )
-        text = _call_with_cancel(
-            self.backend.translator.translate,
-            self.translation,
-            segment.text_ja,
-            cancel_event=self.cancelled,
-            start_sample=segment.start_sample,
-            end_sample=segment.end_sample,
-            on_delta=on_delta,
-        )
+        gpu_lock = getattr(self.backend, "_gpu_fallback_lock", None) if self._use_ane_parallel else None
+        with (gpu_lock if gpu_lock is not None else nullcontext()):
+            text = _call_with_cancel(
+                self.backend.translator.translate,
+                self.translation,
+                segment.text_ja,
+                cancel_event=self.cancelled,
+                start_sample=segment.start_sample,
+                end_sample=segment.end_sample,
+                on_delta=on_delta,
+            )
         if self.record:
             self.record("mt_end", text_zh=text, **vars(segment))
         return text
@@ -1424,7 +1537,7 @@ class LocalSession:
                 if text:
                     self._last_ja = text
                 if self.record:
-                    self.record("asr_end", text_ja=text, **span)
+                    self.record("asr_end", text_ja=text, **span, **self._asr_trace_fields())
                 if text:
                     self._enqueue_segment(RecognizedSegment(item.segment_id, item.start_sample, item.end_sample, text))
             await self.pending.put(None)
@@ -1436,7 +1549,11 @@ class LocalSession:
         """Dedicated ANE ASR worker: Final ASR > Draft ASR, feeding GPU MT queue in parallel."""
         try:
             loop = asyncio.get_running_loop()
+            gpu_lock = getattr(self.backend, "_gpu_fallback_lock", None)
             while not self.cancelled.is_set():
+                if not getattr(self.backend, "ane_runtime_active", True) and self._mt_queue:
+                    await self._ane_mt_idle.wait()
+                    continue
                 if self._asr_queue:
                     item = self._asr_queue.popleft()
                     self._queued_audio_s = max(0.0, self._queued_audio_s - len(item.samples) / RATE)
@@ -1451,6 +1568,7 @@ class LocalSession:
                             cancel_event=self.cancelled,
                             start_sample=s.start_sample,
                             dedup_before_sample=s.dedup_before_sample,
+                            gpu_lock=gpu_lock,
                         ),
                     )
                     text = await asyncio.shield(self.asr_work)
@@ -1459,10 +1577,11 @@ class LocalSession:
                     if text:
                         self._last_ja = text
                     if self.record:
-                        self.record("asr_end", text_ja=text, **span)
+                        self.record("asr_end", text_ja=text, **span, **self._asr_trace_fields())
                     if text:
                         seg = RecognizedSegment(item.segment_id, item.start_sample, item.end_sample, text)
                         self._mt_queue.append(seg)
+                        self._ane_mt_idle.clear()
                         if self.record:
                             self.record("mt_enqueued", **vars(seg))
                         self._ane_mt_ready.set()
@@ -1483,6 +1602,7 @@ class LocalSession:
                             dedup_before_sample=s.dedup_before_sample,
                             decoding_override="greedy",
                             pad_ms_override=150,
+                            gpu_lock=gpu_lock,
                         ),
                     )
                     draft_ja = await asyncio.shield(self.asr_work)
@@ -1513,6 +1633,17 @@ class LocalSession:
         """Dedicated GPU MT worker running in parallel with ANE ASR: Final MT > Draft MT."""
         try:
             loop = asyncio.get_running_loop()
+            gpu_lock = getattr(self.backend, "_gpu_fallback_lock", None)
+
+            def _draft_mt(ja: str):
+                with (gpu_lock if gpu_lock is not None else nullcontext()):
+                    return _call_with_cancel(
+                        self.backend.translator.translate_draft,
+                        self.translation,
+                        ja,
+                        cancel_event=self._draft_cancel,
+                    )
+
             while not self.cancelled.is_set():
                 if self._mt_queue:
                     segment = self._mt_queue.popleft()
@@ -1521,21 +1652,16 @@ class LocalSession:
                     await self._drain_deltas()
                     if not self.cancelled.is_set() and translated:
                         await self.emit(Caption(segment.start_sample, segment.end_sample, translated, segment.segment_id))
+                    if not self._mt_queue:
+                        self._ane_mt_idle.set()
                     continue
+                self._ane_mt_idle.set()
                 if self._pending_draft_ja is not None:
                     snap, draft_ja = self._pending_draft_ja
                     self._pending_draft_ja = None
                     if self.cancelled.is_set() or self._draft_cancel.is_set() or self._asr_queue or self._mt_queue:
                         continue
-                    self.mt_work = loop.run_in_executor(
-                        self.backend.mt_pool,
-                        lambda ja=draft_ja: _call_with_cancel(
-                            self.backend.translator.translate_draft,
-                            self.translation,
-                            ja,
-                            cancel_event=self._draft_cancel,
-                        ),
-                    )
+                    self.mt_work = loop.run_in_executor(self.backend.mt_pool, _draft_mt, draft_ja)
                     draft_zh = await asyncio.shield(self.mt_work)
                     if (
                         not self.cancelled.is_set()
@@ -1562,6 +1688,8 @@ class LocalSession:
         except Exception:
             if not self.cancelled.is_set():
                 await self.emit(BackendError())
+        finally:
+            self._ane_mt_idle.set()
 
     async def _run_mlx_scheduler(self):
         """Single-MLX-thread priority scheduler: MT > ASR."""
@@ -1608,7 +1736,7 @@ class LocalSession:
                     if text:
                         self._last_ja = text
                     if self.record:
-                        self.record("asr_end", text_ja=text, **span)
+                        self.record("asr_end", text_ja=text, **span, **self._asr_trace_fields())
                     if text:
                         seg = RecognizedSegment(item.segment_id, item.start_sample, item.end_sample, text)
                         self._mt_queue.append(seg)
@@ -1699,7 +1827,7 @@ class LocalSession:
             return
 
         vad_pool = self.backend.vad_pool if self.backend.uses_speech_cpp_asr else self.backend.asr_pool
-        if (self.backend.uses_gpu_speech_cpp or self.backend.uses_ane_asr) and self._draft_interval_s > 0:
+        if (self._use_gpu_serial or self._use_ane_parallel) and self.backend.uses_speech_cpp_asr and self._draft_interval_s > 0:
             released, snap = await loop.run_in_executor(
                 vad_pool,
                 lambda: self.segmenter.push_and_preview(frame, draft_interval_s=self._draft_interval_s),
@@ -1708,16 +1836,16 @@ class LocalSession:
             released = await loop.run_in_executor(vad_pool, self.segmenter.push, frame)
             snap = None
 
-        if self.backend.uses_gpu_scheduler or self.backend.uses_ane_asr:
+        if self._use_gpu_serial or self._use_ane_parallel:
             if released:
                 self._draft_cancel.set()
                 self._pending_draft = None
-                if self.backend.uses_ane_asr:
+                if self._use_ane_parallel:
                     self._pending_draft_ja = None
                 self._last_draft_ja = ""
             elif snap is not None and not self._asr_queue and not self._mt_queue:
                 self._pending_draft = snap
-                (self._ane_asr_ready if self.backend.uses_ane_asr else self._work_ready).set()
+                (self._ane_asr_ready if self._use_ane_parallel else self._work_ready).set()
 
         for chunk in released:
             segment_id = next(self.segment_ids)
@@ -1741,13 +1869,13 @@ class LocalSession:
                 chunk.dedup_before_sample > 0,
                 chunk.dedup_before_sample,
             )
-            if self.backend.uses_gpu_scheduler or self.backend.uses_ane_asr:
+            if self._use_gpu_serial or self._use_ane_parallel:
                 dur = len(samples) / RATE
                 if self._queued_audio_s + dur > self.MAX_QUEUED_AUDIO_S:
                     raise BackendError("overloaded")
                 self._asr_queue.append(item)
                 self._queued_audio_s += dur
-                (self._ane_asr_ready if self.backend.uses_ane_asr else self._work_ready).set()
+                (self._ane_asr_ready if self._use_ane_parallel else self._work_ready).set()
             else:
                 try:
                     self._cpp_asr_queue.put_nowait(item)
@@ -1758,11 +1886,11 @@ class LocalSession:
         self._draft_cancel.set()
         self._pending_draft = None
         await self.accept_pcm(None)
-        if self.backend.uses_gpu_scheduler:
+        if self._use_gpu_serial:
             self._input_done = True
             self._work_ready.set()
             await asyncio.shield(self.mt_task)
-        elif self.backend.uses_ane_asr:
+        elif self._use_ane_parallel:
             self._pending_draft_ja = None
             self._asr_input_done = True
             self._ane_asr_ready.set()
@@ -1783,13 +1911,13 @@ class LocalSession:
         self.cancelled.set()
         self._draft_cancel.set()
         self._pending_draft = None
-        if self.backend.uses_gpu_scheduler:
+        if self._use_gpu_serial:
             self._work_ready.set()
-        if self.backend.uses_ane_asr:
+        if self._use_ane_parallel:
             self._pending_draft_ja = None
             self._ane_asr_ready.set()
             self._ane_mt_ready.set()
-        self.translation.close()
+            self._ane_mt_idle.set()
         for task in (self._cpp_asr_task, self.mt_task):
             if task is not None:
                 task.cancel()
@@ -1802,3 +1930,12 @@ class LocalSession:
             dt.cancel()
         if self._delta_tasks:
             await asyncio.gather(*list(self._delta_tasks), return_exceptions=True)
+        # Close translation session strictly after in-flight mt_work finishes to prevent KV cache races.
+        mt_pool = getattr(self.backend, "mt_pool", None)
+        if mt_pool is not None:
+            try:
+                await asyncio.get_running_loop().run_in_executor(mt_pool, self.translation.close)
+            except RuntimeError:
+                self.translation.close()
+        else:
+            self.translation.close()

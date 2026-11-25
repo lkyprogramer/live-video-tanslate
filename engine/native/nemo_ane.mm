@@ -18,6 +18,7 @@
 #include <condition_variable>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <map>
@@ -38,10 +39,23 @@ typedef struct {
   int32_t frame;
 } NemoAneToken;
 
+typedef struct {
+  double frontend_ms;
+  double predict_ms;
+  double output_copy_ms;
+  double decode_ms;
+  double total_ms;
+  int32_t bucket_mel;
+  int32_t mel_frames;
+  int32_t enc_frames;
+} NemoAneTimings;
+
 void* nemo_ane_create(const char* model_dir, const char* gguf_path, char* err_buf, size_t err_len);
 void nemo_ane_destroy(void* handle);
 double nemo_ane_wired_mb(void);
 int nemo_ane_retired(void* handle);
+uint64_t nemo_ane_eval_count(void* handle);
+int nemo_ane_last_timings(void* handle, NemoAneTimings* out);
 int nemo_ane_transcribe(
     void* handle,
     const float* samples,
@@ -670,7 +684,11 @@ struct NemoAneContext {
   AneBucket buckets[3];
   dispatch_queue_t ane_queue = nil;
   std::atomic<bool> retired{false};
-  std::atomic<double> last_use_ms{0.0};
+  std::atomic<double> last_real_use_ms{0.0};
+  std::atomic<double> last_keep_ms{0.0};
+  std::atomic<uint64_t> eval_count{0};
+  std::mutex timings_mu;
+  NemoAneTimings last_timings{};
   std::shared_ptr<KeepState> keep_st = std::make_shared<KeepState>();
   std::thread keep_thread;
 
@@ -679,7 +697,14 @@ struct NemoAneContext {
     return frames;
   }
 
-  bool eval_bucket(AneBucket& b, int valid_mel, int valid_enc, std::vector<float>& out_enc) {
+  bool eval_bucket(
+      AneBucket& b,
+      int valid_mel,
+      int valid_enc,
+      std::vector<float>& out_enc,
+      bool is_real_req,
+      double* out_predict_ms = nullptr,
+      double* out_copy_ms = nullptr) {
     if (retired.load(std::memory_order_acquire)) return false;
 
     float* mel_ptr = (float*)b.mel_arr.dataPointer;
@@ -699,6 +724,8 @@ struct NemoAneContext {
     MLMultiArray* a_arr = b.am_arr;
     MLMultiArray* c_arr = b.cm_arr;
 
+    eval_count.fetch_add(1, std::memory_order_relaxed);
+    double t_pred0 = now_ms();
     dispatch_async(ane_queue, ^{
       @autoreleasepool {
         NSError* err = nil;
@@ -723,6 +750,7 @@ struct NemoAneContext {
       retired.store(true, std::memory_order_release);
       return false;
     }
+    double pred_ms = now_ms() - t_pred0;
     if (!out_feat || pred_err) {
       retired.store(true, std::memory_order_release);
       return false;
@@ -733,6 +761,7 @@ struct NemoAneContext {
       retired.store(true, std::memory_order_release);
       return false;
     }
+    double t_copy0 = now_ms();
     const int H = decoder.hidden;
     out_enc.resize((size_t)valid_enc * H);
     if (enc_arr.dataType == MLMultiArrayDataTypeFloat16) {
@@ -758,8 +787,16 @@ struct NemoAneContext {
         }
       }
     }
+    double copy_ms = now_ms() - t_copy0;
+    if (out_predict_ms) *out_predict_ms = pred_ms;
+    if (out_copy_ms) *out_copy_ms = copy_ms;
     (void)mel_ptr;
-    last_use_ms.store(now_ms(), std::memory_order_relaxed);
+    double finished_ms = now_ms();
+    if (is_real_req) {
+      last_real_use_ms.store(finished_ms, std::memory_order_relaxed);
+    } else {
+      last_keep_ms.store(finished_ms, std::memory_order_relaxed);
+    }
     return true;
   }
 
@@ -773,14 +810,18 @@ struct NemoAneContext {
         if (st->stop) break;
       }
       if (retired.load(std::memory_order_acquire)) break;
-      double idle = now_ms() - last_use_ms.load(std::memory_order_relaxed);
-      if (idle < 1200.0 || idle > 180000.0) continue;
+      double now = now_ms();
+      double last_real = last_real_use_ms.load(std::memory_order_relaxed);
+      double last_keep = last_keep_ms.load(std::memory_order_relaxed);
+      double real_idle = now - last_real;
+      double any_idle = now - std::max(last_real, last_keep);
+      if (real_idle > 180000.0 || any_idle < 1200.0) continue;
       if (!st->eval_mu.try_lock_for(std::chrono::milliseconds(50))) continue;
       std::unique_lock<std::timed_mutex> ev_lk(st->eval_mu, std::adopt_lock);
       if (retired.load(std::memory_order_acquire)) break;
       AneBucket& b0 = buckets[0];
       std::memset(b0.mel_arr.dataPointer, 0, (size_t)b0.t_mel * 80 * sizeof(float));
-      eval_bucket(b0, 128, subsampled_len(128), dummy_enc);
+      eval_bucket(b0, 128, subsampled_len(128), dummy_enc, false);
     }
     st->done.store(true, std::memory_order_release);
   }
@@ -800,6 +841,19 @@ double nemo_ane_wired_mb(void) {
 int nemo_ane_retired(void* handle) {
   if (!handle) return 1;
   return static_cast<NemoAneContext*>(handle)->retired.load(std::memory_order_acquire) ? 1 : 0;
+}
+
+uint64_t nemo_ane_eval_count(void* handle) {
+  if (!handle) return 0;
+  return static_cast<NemoAneContext*>(handle)->eval_count.load(std::memory_order_relaxed);
+}
+
+int nemo_ane_last_timings(void* handle, NemoAneTimings* out) {
+  if (!handle || !out) return -1;
+  auto* ctx = static_cast<NemoAneContext*>(handle);
+  std::lock_guard<std::mutex> lk(ctx->timings_mu);
+  *out = ctx->last_timings;
+  return 0;
 }
 
 void* nemo_ane_create(const char* model_dir, const char* gguf_path, char* err_buf, size_t err_len) {
@@ -863,11 +917,17 @@ void* nemo_ane_create(const char* model_dir, const char* gguf_path, char* err_bu
     // Warmup bucket 0 so ANE is awake and compiled
     std::vector<float> dummy_enc;
     std::memset(ctx->buckets[0].mel_arr.dataPointer, 0, (size_t)ctx->buckets[0].t_mel * 80 * sizeof(float));
-    if (!ctx->eval_bucket(ctx->buckets[0], 128, NemoAneContext::subsampled_len(128), dummy_enc)) {
+    if (!ctx->eval_bucket(ctx->buckets[0], 128, NemoAneContext::subsampled_len(128), dummy_enc, false)) {
       throw std::runtime_error("Initial ANE warmup failed");
     }
-    ctx->last_use_ms.store(now_ms(), std::memory_order_relaxed);
-    ctx->keep_thread = std::thread([c = ctx.get()] { c->keep_loop(); });
+    double init_ms = now_ms();
+    ctx->last_real_use_ms.store(init_ms, std::memory_order_relaxed);
+    ctx->last_keep_ms.store(init_ms, std::memory_order_relaxed);
+    // Disabled by default: M1 Pro ANE shows no wake penalty across 2s gaps, and keepalive wastes idle power.
+    const char* ka_env = std::getenv("SUBTITLE_NEMO_ANE_KEEPALIVE");
+    if (ka_env && std::strcmp(ka_env, "1") == 0) {
+      ctx->keep_thread = std::thread([c = ctx.get()] { c->keep_loop(); });
+    }
     return ctx.release();
   } catch (const std::exception& e) {
     set_err(e.what());
@@ -884,15 +944,7 @@ void nemo_ane_destroy(void* handle) {
   }
   ctx->keep_st->cv.notify_all();
   if (ctx->keep_thread.joinable()) {
-    double t0 = now_ms();
-    while (!ctx->keep_st->done.load(std::memory_order_acquire) && (now_ms() - t0) < 2000.0) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    }
-    if (ctx->keep_st->done.load(std::memory_order_acquire)) {
-      ctx->keep_thread.join();
-    } else {
-      ctx->keep_thread.detach();
-    }
+    ctx->keep_thread.join();
   }
   delete ctx;
 }
@@ -932,6 +984,8 @@ int nemo_ane_transcribe(
   if (ctx->retired.load(std::memory_order_acquire)) return -2;
   if (cancel_cb && cancel_cb(user_data)) return 1;
 
+  double t_total0 = now_ms();
+  double t_fe0 = t_total0;
   std::vector<float> padded;
   const float* audio_ptr = samples;
   int32_t total_samples = n_samples;
@@ -944,6 +998,7 @@ int nemo_ane_transcribe(
 
   std::vector<float> mel;
   int mel_frames = ctx->frontend.compute(audio_ptr, total_samples, mel);
+  double frontend_ms = now_ms() - t_fe0;
   if (mel_frames < 2) {
     out_text[0] = '\0';
     if (out_n_tokens) *out_n_tokens = 0;
@@ -963,6 +1018,8 @@ int nemo_ane_transcribe(
 
   std::vector<float> enc_proj;
   int valid_enc = NemoAneContext::subsampled_len(mel_frames);
+  double predict_ms = 0.0;
+  double output_copy_ms = 0.0;
   {
     std::unique_lock<std::timed_mutex> ev_lk(ctx->keep_st->eval_mu, std::chrono::seconds(2));
     if (!ev_lk.owns_lock()) {
@@ -972,13 +1029,14 @@ int nemo_ane_transcribe(
     if (ctx->retired.load(std::memory_order_acquire)) return -2;
     std::memset(chosen->mel_arr.dataPointer, 0, (size_t)chosen->t_mel * 80 * sizeof(float));
     std::memcpy(chosen->mel_arr.dataPointer, mel.data(), (size_t)mel_frames * 80 * sizeof(float));
-    if (!ctx->eval_bucket(*chosen, mel_frames, valid_enc, enc_proj)) {
+    if (!ctx->eval_bucket(*chosen, mel_frames, valid_enc, enc_proj, true, &predict_ms, &output_copy_ms)) {
       return -2;
     }
   }
 
   if (cancel_cb && cancel_cb(user_data)) return 1;
 
+  double t_dec0 = now_ms();
   std::vector<NemoAneToken> toks;
   int rc = use_beam
       ? ctx->decoder.decode_beam(enc_proj.data(), valid_enc, cancel_cb, user_data, toks)
@@ -995,6 +1053,20 @@ int nemo_ane_transcribe(
   for (size_t i = 0; i < toks.size(); ++i) ids[i] = toks[i].token_id;
   std::string txt = ctx->detokenizer.text(ids.data(), (int32_t)ids.size());
   std::snprintf(out_text, out_text_cap, "%s", txt.c_str());
+  double t_end = now_ms();
+  {
+    std::lock_guard<std::mutex> lk(ctx->timings_mu);
+    ctx->last_timings = NemoAneTimings{
+        frontend_ms,
+        predict_ms,
+        output_copy_ms,
+        t_end - t_dec0,
+        t_end - t_total0,
+        chosen->t_mel,
+        mel_frames,
+        valid_enc,
+    };
+  }
   return 0;
 }
 
