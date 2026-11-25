@@ -41,14 +41,23 @@ curl -fLsS https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/si
   -o .model-cache/reazonspeech-assets/silero_vad.onnx
 ```
 
-### 2.2 `m1-pro-nemo`（推荐 M1 Pro 主力 · MTL0 GPU 交错 + Draft-and-Commit）
+### 2.2 `m1-pro-nemo`（推荐 M1 Pro 主力 · ANE ‖ GPU 物理异构并行 + Draft-and-Commit）
 
 1. **编译 `speech.cpp` 并下载/校验 `reazonspeech-nemo-619M-v2-Q8_0.gguf`**（需 `cmake`、`ninja`、`clang++`）：
    ```sh
    ./scripts/setup_speech_cpp_nemo.sh
    ```
-   脚本会自动校验 `Q8_0` GGUF 的 SHA256（`944411cb...e54a3`）并打印 `libspeech.dylib` 校验和，产物安装在 `.model-cache/speech-cpp/`。本机 `profiles.toml` 中该档位默认配置 `device = "gpu"`、`draft_interval_s = 1.2`、`vad_pause_ms = 350`、`pad_ms = 350`。
-2. **下载 `Qwen3-4B-Instruct-2507-4bit`**：见下方第 2.3 节共用命令。
+   脚本会自动校验 `Q8_0` GGUF 的 SHA256（`944411cb...e54a3`）并打印 `libspeech.dylib` 校验和，产物安装在 `.model-cache/speech-cpp/`。
+2. **编译 `libnemo_ane.dylib` 并准备 CoreML ANE 静态桶**（启用 `device = "ane"`、`decoding = "greedy"`）：
+   ```sh
+   ./scripts/setup_nemo_ane.sh
+   ```
+   产物安装在 `.model-cache/nemo-ane/`。若需生成 3 个 `w8a16` 静态桶（`fc_S256_w8a16.mlmodelc`、`fc_M560_w8a16.mlmodelc`、`fc_L1024_w8a16.mlmodelc`），可在包含 `coremltools==9.0` 与 `torch==2.5.1` 的隔离虚拟环境中运行：
+   ```sh
+   python p0/perf_probe/verify_stage5a_ane.py --export-prod-only --out-dir .model-cache/nemo-ane
+   ```
+   若未放置 `.mlmodelc` 桶或遇到超长切片，引擎会在启动或推理时自动无感回退至 `speech.cpp` MTL0 GPU。
+3. **下载 `Qwen3-4B-Instruct-2507-4bit`**：见下方第 2.3 节共用命令。
 
 ### 2.3 `m1-pro-hq`（全 MLX GPU 档）与 `reazon-hy`（轻量基线档）
 

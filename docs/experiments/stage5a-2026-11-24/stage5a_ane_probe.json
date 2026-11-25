@@ -1,0 +1,358 @@
+{
+  "sanity_5_slices": [
+    {
+      "idx": 0,
+      "mel_frames": 743,
+      "enc_frames": 93,
+      "speech_cpp_ref": "パラ言語情報ということなんですが簡単に最初に復習をしておきたいと思います。",
+      "pt_exact": "パラ言語情報ということなんですが簡単に最初に復習をしておきたいと思います。",
+      "pt_tanh": "パラ言語情報ということなんですが簡単に最初に復習をしておきたいと思います。",
+      "cer_vs_speech_cpp": 0.0,
+      "max_abs_tanh_diff": 0.11339
+    },
+    {
+      "idx": 1,
+      "mel_frames": 1041,
+      "enc_frames": 131,
+      "speech_cpp_ref": "こうやって話しておりますとそれはもちろん言語情報を伝えるということが1つの重要な目的なんでありますが。",
+      "pt_exact": "こうやって話しておりますとそれはもちろん言語情報を伝えるということが1つの重要な目的なんでありますが。",
+      "pt_tanh": "こうやって話しておりますとそれはもちろん言語情報を伝えるということが1つの重要な目的なんでありますが。",
+      "cer_vs_speech_cpp": 0.0,
+      "max_abs_tanh_diff": 0.19821
+    },
+    {
+      "idx": 2,
+      "mel_frames": 519,
+      "enc_frames": 65,
+      "speech_cpp_ref": "同時にパラ言語情報、そして非言語情報が伝わっております。",
+      "pt_exact": "同時にパラ言語情報、そして非言語情報が伝わっております。",
+      "pt_tanh": "同時にパラ言語情報、そして非言語情報が伝わっております。",
+      "cer_vs_speech_cpp": 0.0,
+      "max_abs_tanh_diff": 0.095
+    },
+    {
+      "idx": 3,
+      "mel_frames": 900,
+      "enc_frames": 113,
+      "speech_cpp_ref": "この散文法は藤崎先生によるものでして、パラ言語情報というのは、要は意図的に制御できる。",
+      "pt_exact": "この散文法は藤崎先生によるものでして、パラ言語情報というのは、要は意図的に制御できる。",
+      "pt_tanh": "この散文法は藤崎先生によるものでして、パラ言語情報というのは、要は意図的に制御できる。",
+      "cer_vs_speech_cpp": 0.0,
+      "max_abs_tanh_diff": 0.38277
+    },
+    {
+      "idx": 4,
+      "mel_frames": 919,
+      "enc_frames": 115,
+      "speech_cpp_ref": "話者がちゃんとコントロールして出してるんだけれども言語情報と違って連続的に変化するからカテゴライズすることがやや難しいです。",
+      "pt_exact": "話者がちゃんとコントロールして出してるんだけれども言語情報と違って連続的に変化するからカテゴライズすることがやや難しいです。",
+      "pt_tanh": "話者がちゃんとコントロールして出してるんだけれども言語情報と違って連続的に変化するからカテゴライズすることがやや難しいです。",
+      "cer_vs_speech_cpp": 0.0,
+      "max_abs_tanh_diff": 0.14311
+    }
+  ],
+  "mean_sanity_cer": 0.0,
+  "compute_unit_bench_m512": {
+    "fp16": {
+      "CPU_ONLY": {
+        "p50_ms": 54.91,
+        "p95_ms": 60.23,
+        "wired_load_delta_mb": -23.7,
+        "wired_eval_delta_mb": 1.2,
+        "slice2_cer": 0.0
+      },
+      "CPU_AND_GPU": {
+        "p50_ms": 34.61,
+        "p95_ms": 45.25,
+        "wired_load_delta_mb": 82.5,
+        "wired_eval_delta_mb": 1350.5,
+        "slice2_cer": 0.0
+      },
+      "CPU_AND_NE": {
+        "p50_ms": 24.53,
+        "p95_ms": 24.87,
+        "wired_load_delta_mb": -222.1,
+        "wired_eval_delta_mb": 32.1,
+        "slice2_cer": 0.0
+      },
+      "ALL": {
+        "p50_ms": 24.25,
+        "p95_ms": 50.21,
+        "wired_load_delta_mb": 776.1,
+        "wired_eval_delta_mb": 0.0,
+        "slice2_cer": 0.0
+      }
+    },
+    "w8a16": {
+      "CPU_ONLY": {
+        "p50_ms": 68.46,
+        "p95_ms": 77.47,
+        "wired_load_delta_mb": -1929.5,
+        "wired_eval_delta_mb": 81.8,
+        "slice2_cer": 0.0
+      },
+      "CPU_AND_GPU": {
+        "p50_ms": 60.05,
+        "p95_ms": 67.89,
+        "wired_load_delta_mb": -275.6,
+        "wired_eval_delta_mb": 882.9,
+        "slice2_cer": 0.0
+      },
+      "CPU_AND_NE": {
+        "p50_ms": 19.78,
+        "p95_ms": 19.91,
+        "wired_load_delta_mb": 71.1,
+        "wired_eval_delta_mb": 316.9,
+        "slice2_cer": 0.0
+      },
+      "ALL": {
+        "p50_ms": 19.72,
+        "p95_ms": 19.8,
+        "wired_load_delta_mb": 42.8,
+        "wired_eval_delta_mb": 317.1,
+        "slice2_cer": 0.0
+      }
+    }
+  },
+  "selected_precision": "w8a16",
+  "bucket_warm_ane_ms": {
+    "S256": {
+      "p50_ms": 16.74,
+      "p95_ms": 17.18
+    },
+    "M512": {
+      "p50_ms": 19.97,
+      "p95_ms": 20.18
+    },
+    "L1024": {
+      "p50_ms": 29.11,
+      "p95_ms": 29.26
+    }
+  },
+  "wired_all_3_buckets_delta_mb": 703.3,
+  "sleep_2s_cold_wake_ms": [
+    77.18,
+    32.53,
+    32.19,
+    32.18,
+    38.16
+  ],
+  "sleep_2s_keepalive_ms": [
+    34.24,
+    34.91,
+    36.15,
+    35.68,
+    32.7
+  ],
+  "cold_wake_median_ms": 32.53,
+  "keepalive_median_ms": 34.91,
+  "frozen_91_slices_w8a16": {
+    "ane_slices_count": 87,
+    "cpu_fallback_slices_count": 4,
+    "frontend_ms": {
+      "p50": 1.57,
+      "p95": 5.23
+    },
+    "encoder_ane_only_ms": {
+      "p50": 29.79,
+      "p95": 39.5
+    },
+    "encoder_all_ms": {
+      "p50": 29.93,
+      "p95": 96.71
+    },
+    "decoder_beam_ms": {
+      "p50": 227.28,
+      "p95": 497.26
+    },
+    "decoder_greedy_ms": {
+      "p50": 23.73,
+      "p95": 58.11
+    },
+    "total_beam_ms": {
+      "p50": 260.43,
+      "p95": 564.56
+    },
+    "total_greedy_ms": {
+      "p50": 54.36,
+      "p95": 146.23
+    },
+    "beam": {
+      "d0_cer": {
+        "overall_cer": 0.1623,
+        "total_dist": 211,
+        "total_ref_len": 1300,
+        "non_empty_units": 33,
+        "by_clip": {
+          "csj-reproduction": {
+            "dist": 9,
+            "ref_len": 220,
+            "hyp_len": 222,
+            "cer": 0.0409
+          },
+          "csj-task": {
+            "dist": 58,
+            "ref_len": 134,
+            "hyp_len": 123,
+            "cer": 0.4328
+          },
+          "wmf-04": {
+            "dist": 144,
+            "ref_len": 946,
+            "hyp_len": 986,
+            "cer": 0.1522
+          }
+        }
+      },
+      "d1_cer": {
+        "dist": 97,
+        "ref_len": 334,
+        "hyp_len": 282,
+        "cer": 0.2904
+      },
+      "silence": "ピッ!"
+    },
+    "greedy": {
+      "d0_cer": {
+        "overall_cer": 0.1592,
+        "total_dist": 207,
+        "total_ref_len": 1300,
+        "non_empty_units": 33,
+        "by_clip": {
+          "csj-reproduction": {
+            "dist": 9,
+            "ref_len": 220,
+            "hyp_len": 222,
+            "cer": 0.0409
+          },
+          "csj-task": {
+            "dist": 57,
+            "ref_len": 134,
+            "hyp_len": 127,
+            "cer": 0.4254
+          },
+          "wmf-04": {
+            "dist": 141,
+            "ref_len": 946,
+            "hyp_len": 973,
+            "cer": 0.149
+          }
+        }
+      },
+      "d1_cer": {
+        "dist": 96,
+        "ref_len": 334,
+        "hyp_len": 285,
+        "cer": 0.2874
+      },
+      "silence": ""
+    }
+  },
+  "frozen_91_slices_fp16": {
+    "ane_slices_count": 87,
+    "cpu_fallback_slices_count": 4,
+    "frontend_ms": {
+      "p50": 1.52,
+      "p95": 5.43
+    },
+    "encoder_ane_only_ms": {
+      "p50": 37.46,
+      "p95": 50.54
+    },
+    "encoder_all_ms": {
+      "p50": 37.7,
+      "p95": 325.21
+    },
+    "decoder_beam_ms": {
+      "p50": 212.14,
+      "p95": 424.52
+    },
+    "decoder_greedy_ms": {
+      "p50": 23.29,
+      "p95": 65.54
+    },
+    "total_beam_ms": {
+      "p50": 256.56,
+      "p95": 476.97
+    },
+    "total_greedy_ms": {
+      "p50": 65.08,
+      "p95": 335.52
+    },
+    "beam": {
+      "d0_cer": {
+        "overall_cer": 0.1585,
+        "total_dist": 206,
+        "total_ref_len": 1300,
+        "non_empty_units": 33,
+        "by_clip": {
+          "csj-reproduction": {
+            "dist": 9,
+            "ref_len": 220,
+            "hyp_len": 222,
+            "cer": 0.0409
+          },
+          "csj-task": {
+            "dist": 54,
+            "ref_len": 134,
+            "hyp_len": 137,
+            "cer": 0.403
+          },
+          "wmf-04": {
+            "dist": 143,
+            "ref_len": 946,
+            "hyp_len": 985,
+            "cer": 0.1512
+          }
+        }
+      },
+      "d1_cer": {
+        "dist": 98,
+        "ref_len": 334,
+        "hyp_len": 284,
+        "cer": 0.2934
+      },
+      "silence": "ピッ!"
+    },
+    "greedy": {
+      "d0_cer": {
+        "overall_cer": 0.1577,
+        "total_dist": 205,
+        "total_ref_len": 1300,
+        "non_empty_units": 33,
+        "by_clip": {
+          "csj-reproduction": {
+            "dist": 9,
+            "ref_len": 220,
+            "hyp_len": 222,
+            "cer": 0.0409
+          },
+          "csj-task": {
+            "dist": 54,
+            "ref_len": 134,
+            "hyp_len": 130,
+            "cer": 0.403
+          },
+          "wmf-04": {
+            "dist": 142,
+            "ref_len": 946,
+            "hyp_len": 974,
+            "cer": 0.1501
+          }
+        }
+      },
+      "d1_cer": {
+        "dist": 96,
+        "ref_len": 334,
+        "hyp_len": 285,
+        "cer": 0.2874
+      },
+      "silence": ""
+    }
+  },
+  "baseline_stage3_mtl0_q8": {
+    "total_p50_ms": 137.8,
+    "d0_cer": 0.1523,
+    "d1_cer": 0.2934
+  }
+}
