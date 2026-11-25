@@ -1,0 +1,299 @@
+{
+  "run_a_session_id": "e1d77bed07cc430485f4852fafb7233f",
+  "clock_calibration": {
+    "audio_origin_media_s": 0.0633,
+    "clock_anchors_count": 544,
+    "clock_drift_across_45m_ms": 11.3
+  },
+  "counts": {
+    "vad_released": 668,
+    "ws_sent_captions": 617,
+    "gateway_filtered": 23,
+    "cut_reasons": {
+      "vad_natural": 228,
+      "energy_valley": 253,
+      "vad_tail": 187
+    },
+    "asr_backends": {
+      "ane": 668
+    },
+    "fallback_count": 0,
+    "matched_to_jp_srt_captions": 610,
+    "unmatched_captions": 7
+  },
+  "latencies": {
+    "seg_start_to_first_visible_s": {
+      "n": 617,
+      "p50": 1.99,
+      "p90": 3.411,
+      "p95": 4.233,
+      "p99": 4.765
+    },
+    "onset_to_first_visible_s": {
+      "n": 610,
+      "p50": 3.111,
+      "p90": 5.38,
+      "p95": 6.192,
+      "p99": 7.501
+    },
+    "cue_end_to_final_visible_s": {
+      "n": 610,
+      "p50": -0.482,
+      "p90": 0.501,
+      "p95": 0.767,
+      "p99": 1.523
+    },
+    "seg_end_to_final_visible_s": {
+      "n": 617,
+      "p50": 0.574,
+      "p90": 0.848,
+      "p95": 0.919,
+      "p99": 1.03
+    }
+  },
+  "hops_ms": {
+    "vad_end_to_release_delay_ms": {
+      "p50": 301.68,
+      "p95": 523.51
+    },
+    "asr_queue_ms": {
+      "p50": 0.1,
+      "p95": 0.19
+    },
+    "ane_asr_total_ms": {
+      "p50": 54.9,
+      "p95": 72.95
+    },
+    "ane_native_sub_ms": {
+      "frontend_ms": {
+        "p50": 1.8,
+        "p95": 3.09
+      },
+      "predict_ms": {
+        "p50": 32.9,
+        "p95": 35.65
+      },
+      "output_copy_ms": {
+        "p50": 0.07,
+        "p95": 0.18
+      },
+      "decode_ms": {
+        "p50": 18.17,
+        "p95": 34.52
+      }
+    },
+    "mt_queue_ms": {
+      "p50": 0.09,
+      "p95": 0.2
+    },
+    "gpu_mt_ms": {
+      "p50": 246.74,
+      "p95": 424.94
+    },
+    "ws_ipc_ms": {
+      "p50": 0.0,
+      "p95": 0.08
+    },
+    "dom_raf_paint_ms": {
+      "p50": 5.5,
+      "p95": 9.4
+    }
+  },
+  "sync_and_reading": {
+    "final_after_cue_end_pct": 32.95,
+    "final_after_next_cue_start_pct": 19.02,
+    "with_draft_before_final_pct": 98.54,
+    "deltas_per_caption_mean": 3.3,
+    "first_draft_to_final_edit_ratio_p50": 0.6667,
+    "heavy_draft_rewrite_ge_0_7_pct": 47.04,
+    "dwell_s_p50": 4.285,
+    "dwell_s_p10": 2.533,
+    "dwell_under_1_2s_pct": 0.0
+  },
+  "drift_15m": {
+    "0-15m": {
+      "captions": 231,
+      "gateway_filtered": 11,
+      "seg_end_to_final_p50_s": 0.574,
+      "seg_end_to_final_p95_s": 0.919,
+      "onset_to_first_p50_s": 3.24,
+      "onset_to_first_p95_s": 6.49,
+      "cue_end_to_final_p50_s": -0.458,
+      "cue_end_to_final_p95_s": 0.804,
+      "asr_p50_ms": 56.66,
+      "mt_p50_ms": 255.87,
+      "srv_mean_cpu_pct": 12.2,
+      "srv_peak_rss_mib": 3184.5,
+      "chrome_mean_cpu_pct": 32.8,
+      "chrome_peak_rss_mib": 5442.1,
+      "dropped_frames": 1587,
+      "dropped_frame_pct": 5.88
+    },
+    "15-30m": {
+      "captions": 216,
+      "gateway_filtered": 8,
+      "seg_end_to_final_p50_s": 0.563,
+      "seg_end_to_final_p95_s": 0.908,
+      "onset_to_first_p50_s": 3.414,
+      "onset_to_first_p95_s": 6.287,
+      "cue_end_to_final_p50_s": -0.645,
+      "cue_end_to_final_p95_s": 0.611,
+      "asr_p50_ms": 53.86,
+      "mt_p50_ms": 246.28,
+      "srv_mean_cpu_pct": 10.9,
+      "srv_peak_rss_mib": 3179.3,
+      "chrome_mean_cpu_pct": 33.1,
+      "chrome_peak_rss_mib": 5444.1,
+      "dropped_frames": 1551,
+      "dropped_frame_pct": 5.75
+    },
+    "30-45m": {
+      "captions": 170,
+      "gateway_filtered": 4,
+      "seg_end_to_final_p50_s": 0.588,
+      "seg_end_to_final_p95_s": 0.909,
+      "onset_to_first_p50_s": 2.719,
+      "onset_to_first_p95_s": 5.378,
+      "cue_end_to_final_p50_s": -0.353,
+      "cue_end_to_final_p95_s": 0.872,
+      "asr_p50_ms": 52.11,
+      "mt_p50_ms": 238.44,
+      "srv_mean_cpu_pct": 8.8,
+      "srv_peak_rss_mib": 3174.7,
+      "chrome_mean_cpu_pct": 34.4,
+      "chrome_peak_rss_mib": 5330.7,
+      "dropped_frames": 1540,
+      "dropped_frame_pct": 5.59
+    }
+  },
+  "bgm_false_triggers": {
+    "music_spans_checked": 27,
+    "triggered_span_count": 2,
+    "details": [
+      {
+        "music_cue": {
+          "cue_idx": 373,
+          "start_s": 1197.13,
+          "end_s": 1203.57,
+          "raw_text": "♪～ ずっと守ってくと決めた 恋におちて",
+          "clean_text": "♪～ ずっと守ってくと決めた 恋におちて",
+          "is_sfx_only": false
+        },
+        "triggered_captions": [
+          {
+            "seq": 308,
+            "seg_start_s": 1198.747,
+            "seg_end_s": 1202.733,
+            "text_ja": "抱くときめた恋に落ちて",
+            "text_zh": "陷入了一段突如其来的恋爱"
+          }
+        ]
+      },
+      {
+        "music_cue": {
+          "cue_idx": 725,
+          "start_s": 2634.566,
+          "end_s": 2640.505,
+          "raw_text": "♪～ “ﾎﾟｹﾍﾞﾙが鳴らなくて”",
+          "clean_text": "♪～ “ﾎﾟｹﾍﾞﾙが鳴らなくて”",
+          "is_sfx_only": false
+        },
+        "triggered_captions": [
+          {
+            "seq": 604,
+            "seg_start_s": 2635.305,
+            "seg_end_s": 2636.961,
+            "text_ja": "しかも",
+            "text_zh": "而且"
+          }
+        ]
+      }
+    ]
+  },
+  "run_b_soak": {
+    "seeks": [
+      {
+        "target_s": 275,
+        "recovered": true,
+        "first_final_ms": 2544,
+        "finals": 3
+      },
+      {
+        "target_s": 725,
+        "recovered": true,
+        "first_final_ms": 1643,
+        "finals": 2
+      },
+      {
+        "target_s": 55,
+        "recovered": true,
+        "first_final_ms": 1635,
+        "finals": 1
+      },
+      {
+        "target_s": 1320,
+        "recovered": true,
+        "first_final_ms": 5359,
+        "finals": 3
+      },
+      {
+        "target_s": 1800,
+        "recovered": true,
+        "first_final_ms": 1636,
+        "finals": 1
+      },
+      {
+        "target_s": 2400,
+        "recovered": true,
+        "first_final_ms": 3806,
+        "finals": 2
+      },
+      {
+        "target_s": 600,
+        "recovered": true,
+        "first_final_ms": 5337,
+        "finals": 2
+      },
+      {
+        "target_s": 1000,
+        "recovered": true,
+        "first_final_ms": 5342,
+        "finals": 2
+      },
+      {
+        "target_s": 1500,
+        "recovered": true,
+        "first_final_ms": 1619,
+        "finals": 3
+      },
+      {
+        "target_s": 2100,
+        "recovered": false,
+        "first_final_ms": null,
+        "finals": 0
+      }
+    ],
+    "speeds": {
+      "x1.25": {
+        "start_s": 275,
+        "duration_s": 45,
+        "finals": 16
+      },
+      "x1.5": {
+        "start_s": 725,
+        "duration_s": 45,
+        "finals": 11
+      }
+    },
+    "rapid_toggle_x5": {
+      "recovered": true,
+      "post_toggle_finals_15s": 5
+    },
+    "pause_idle_180s": {
+      "duration_s": 180,
+      "model_trace_bytes_delta": 0,
+      "srv_mean_cpu_pct": 0.39,
+      "srv_peak_cpu_pct": 0.6
+    }
+  }
+}
