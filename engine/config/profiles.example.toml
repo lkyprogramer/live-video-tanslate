@@ -1,5 +1,7 @@
-# Optional M1 Pro heterogeneous profile: run scripts/setup_speech_cpp_nemo.sh first,
-# then enable [profiles.m1-pro-nemo] and set default_profile_id = "m1-pro-nemo" in profiles.toml.
+# Optional M1 Pro heterogeneous profile: run scripts/setup_speech_cpp_nemo.sh first
+# (and optionally scripts/setup_nemo_ane.sh to enable ANE acceleration; falls back
+# automatically to speech.cpp MTL0 GPU if ANE assets are absent), then enable
+# [profiles.m1-pro-nemo] and set default_profile_id = "m1-pro-nemo" in profiles.toml.
 schema_version = 1
 default_profile_id = "reazon-hy"
 cache_root = "../../.model-cache"
@@ -48,7 +50,7 @@ type = "qwen3_mt_mlx"
 model_revision = "50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b"
 
 [profiles.m1-pro-nemo]
-label = "NeMo-v2 + Qwen3 · 异构极速高精"
+label = "NeMo-v2(ANE) + Qwen3(GPU) · 异构极速高精"
 type = "local_pipeline"
 enabled = false
 
@@ -56,8 +58,8 @@ enabled = false
 type = "speech_cpp_nemo"
 model_file = "reazonspeech-nemo-619M-v2-Q8_0.gguf"
 threads = 6
-decoding = "beam"
-device = "gpu"
+decoding = "greedy"
+device = "ane"
 draft_interval_s = 1.2
 vad_pause_ms = 350
 max_segment_s = 4.5

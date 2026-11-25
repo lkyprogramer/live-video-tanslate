@@ -32,7 +32,7 @@ class AsrConfig(StrictModel):
     overlap_ms: int = Field(default=350, ge=0, le=1000)
     pad_ms: int = Field(default=350, ge=0, le=1000)
     decoding: Literal["beam", "greedy"] = "beam"
-    device: Literal["cpu", "gpu"] = "cpu"
+    device: Literal["cpu", "gpu", "ane"] = "cpu"
     draft_interval_s: float = Field(default=0.0, ge=0.0, le=5.0)
 
     @model_validator(mode="after")

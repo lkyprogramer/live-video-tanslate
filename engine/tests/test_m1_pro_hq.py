@@ -933,3 +933,160 @@ model_revision = "{REV_B}"
     assert len(backend.missing) == 6
 
 
+def test_ane_config_fallback_and_parallel_session(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+
+    cfg = tmp_path / "profiles.toml"
+    cfg.write_text(
+        f"""
+schema_version = 1
+default_profile_id = "reazon-hy"
+cache_root = "{tmp_path / 'cache'}"
+
+[server]
+port = 18765
+allowed_origin = "chrome-extension://{'a' * 32}"
+
+[profiles.reazon-hy]
+label = "ReazonSpeech"
+type = "local_pipeline"
+enabled = true
+
+[profiles.reazon-hy.asr]
+type = "reazon_sherpa"
+model_revision = "{REV_A}"
+
+[profiles.reazon-hy.mt]
+type = "hy_mt2_mlx"
+model_revision = "{REV_B}"
+
+[profiles.m1-pro-nemo]
+label = "NeMo-ANE"
+type = "local_pipeline"
+enabled = true
+
+[profiles.m1-pro-nemo.asr]
+type = "speech_cpp_nemo"
+model_file = "reazonspeech-nemo-619M-v2-Q8_0.gguf"
+threads = 6
+decoding = "greedy"
+device = "ane"
+max_segment_s = 4.5
+overlap_ms = 350
+draft_interval_s = 1.2
+
+[profiles.m1-pro-nemo.mt]
+type = "qwen3_mt_mlx"
+model_revision = "{REV_B}"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    settings = load_settings(cfg)
+    nemo = settings.profiles["m1-pro-nemo"]
+    assert nemo.asr.device == "ane"
+    backend = lp.LocalBackend(Path(settings.cache_root), nemo)
+    assert backend.uses_ane_asr is True
+    assert backend.uses_gpu_scheduler is False
+
+    # Test SpeechCppNeMoRecognizer.decode ANE -> libspeech fallback on TOO_LONG / RETIRED
+    rec = lp.SpeechCppNeMoRecognizer.__new__(lp.SpeechCppNeMoRecognizer)
+    rec._model = object()
+    rec._pad_samples = 5600
+    rec._pad_s = 0.35
+    rec._decoding = b"greedy"
+    rec._device = "ane"
+    rec._fallback_device = "gpu"
+
+    class FakeAne:
+        retired = False
+        def transcribe(self, *args, **kwargs):
+            raise lp._AneFallback(2)
+
+    rec._ane = FakeAne()
+    fallback_called = []
+
+    class FakeCppLib:
+        def speech_request_new(self, _m, req_ptr):
+            return 0
+        def speech_request_free(self, _r):
+            pass
+        def speech_request_set_audio(self, _r, _p, _n, _sr):
+            return 0
+        def speech_request_set_string(self, _r, _k, _v):
+            return 0
+        def speech_request_set_bool(self, _r, _k, _v):
+            return 0
+        def speech_transcribe(self, _r):
+            fallback_called.append(True)
+            return 0
+        def speech_request_result(self, _r):
+            return 1
+        def speech_result_untimed(self, _r):
+            return b"1"
+        def speech_result_text(self, _r):
+            return b"\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88"
+
+    rec._lib = FakeCppLib()
+    rec._check_status = lambda _op, st: st
+    out = rec.decode(np.zeros(1600, dtype=np.float32))
+    assert fallback_called == [True] and out == "テスト"
+
+    # Test parallel ANE + GPU LocalSession Draft + Final emission & preemption
+    class DummyBackend:
+        profile = nemo
+        uses_mlx_asr = False
+        uses_speech_cpp_asr = True
+        uses_gpu_speech_cpp = False
+        uses_ane_asr = True
+        uses_gpu_scheduler = False
+        vad_pool = ThreadPoolExecutor(max_workers=1)
+        asr_pool = ThreadPoolExecutor(max_workers=1)
+        mt_pool = ThreadPoolExecutor(max_workers=1)
+
+        class recognizer:
+            @staticmethod
+            def decode(samples, *, cancel_event=None, start_sample=0, dedup_before_sample=0, decoding_override=None, pad_ms_override=None):
+                return "これはテストですが" if decoding_override == "greedy" else "本番です。"
+
+        class translator:
+            @staticmethod
+            def translate(_sess, text_ja, **_kwargs):
+                return f"正式:{text_ja}"
+
+            @staticmethod
+            def translate_draft(_sess, text_ja, **_kwargs):
+                return f"草稿:{text_ja}"
+
+    async def scenario():
+        emitted = []
+        sess = lp.LocalSession(
+            DummyBackend(),
+            object(),
+            type("Sess", (), {"close": lambda self: None})(),
+            lambda ev: emitted.append(ev) or asyncio.sleep(0),
+            None,
+        )
+        snap = lp._DraftSnapshot(0, np.zeros(8000, dtype=np.float32), 0)
+        final_chunk = lp._EmittedChunk(0, np.zeros(16000, dtype=np.float32), 0, "vad_pause")
+        sess.segmenter.push_and_preview = lambda frame, draft_interval_s=0.0: (
+            ([final_chunk], None) if frame == b"FINAL" else ([], snap)
+        )
+        await sess.accept_pcm(b"DRAFT")
+        for _ in range(50):
+            if any(isinstance(e, lp.CaptionDelta) for e in emitted):
+                break
+            await asyncio.sleep(0.01)
+        await sess.accept_pcm(b"FINAL")
+        await sess.finish()
+        await sess.aclose()
+        DummyBackend.vad_pool.shutdown()
+        DummyBackend.asr_pool.shutdown()
+        DummyBackend.mt_pool.shutdown()
+        return emitted
+
+    evts = asyncio.run(scenario())
+    assert any(isinstance(e, lp.CaptionDelta) and "草稿:" in e.text_zh for e in evts)
+    assert any(isinstance(e, lp.Caption) and e.text_zh == "正式:本番です。" for e in evts)
+
+
