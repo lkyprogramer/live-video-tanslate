@@ -1,0 +1,123 @@
+{
+  "profile_id": "m1-pro-nemo",
+  "max_run_a_s": 0,
+  "skip_run_b": false,
+  "run_a": {
+    "wall_seconds": 2727.6,
+    "current_time": 2722.05,
+    "ended": true,
+    "total_frames": 81578,
+    "dropped_frames": 4692,
+    "screenshots": [
+      "shot_04m45s.png",
+      "shot_22m15s.png",
+      "shot_44m30s.png"
+    ],
+    "diag_counts": {
+      "first_pcm_sent": 1,
+      "ws_received": 2696,
+      "dom_visible": 627,
+      "dom_removed": 627
+    },
+    "dom_event_counts": {
+      "total": 2904,
+      "streaming": 2065,
+      "final": 627,
+      "status": 2,
+      "empty": 210
+    },
+    "srv_mean_cpu_pct": 10.6,
+    "srv_peak_cpu_pct": 53.6,
+    "srv_peak_rss_mib": 3184.5,
+    "chrome_mean_cpu_pct": 33.4,
+    "chrome_peak_rss_mib": 5444.1
+  },
+  "run_b": {
+    "seeks": [
+      {
+        "target_s": 275,
+        "recovered": true,
+        "first_final_ms": 2544,
+        "finals": 3
+      },
+      {
+        "target_s": 725,
+        "recovered": true,
+        "first_final_ms": 1643,
+        "finals": 2
+      },
+      {
+        "target_s": 55,
+        "recovered": true,
+        "first_final_ms": 1635,
+        "finals": 1
+      },
+      {
+        "target_s": 1320,
+        "recovered": true,
+        "first_final_ms": 5359,
+        "finals": 3
+      },
+      {
+        "target_s": 1800,
+        "recovered": true,
+        "first_final_ms": 1636,
+        "finals": 1
+      },
+      {
+        "target_s": 2400,
+        "recovered": true,
+        "first_final_ms": 3806,
+        "finals": 2
+      },
+      {
+        "target_s": 600,
+        "recovered": true,
+        "first_final_ms": 5337,
+        "finals": 2
+      },
+      {
+        "target_s": 1000,
+        "recovered": true,
+        "first_final_ms": 5342,
+        "finals": 2
+      },
+      {
+        "target_s": 1500,
+        "recovered": true,
+        "first_final_ms": 1619,
+        "finals": 3
+      },
+      {
+        "target_s": 2100,
+        "recovered": false,
+        "first_final_ms": null,
+        "finals": 0
+      }
+    ],
+    "speeds": {
+      "x1.25": {
+        "start_s": 275,
+        "duration_s": 45,
+        "finals": 16
+      },
+      "x1.5": {
+        "start_s": 725,
+        "duration_s": 45,
+        "finals": 11
+      }
+    },
+    "rapid_toggle_x5": {
+      "recovered": true,
+      "post_toggle_finals_15s": 5
+    },
+    "pause_idle_180s": {
+      "duration_s": 180,
+      "model_trace_bytes_delta": 0,
+      "srv_mean_cpu_pct": 0.39,
+      "srv_peak_cpu_pct": 0.6
+    }
+  },
+  "chrome": "Chrome/158.0.8127.88",
+  "extension_id": "nagdakgnogdeflofdnglgjcldkpoknmj"
+}
