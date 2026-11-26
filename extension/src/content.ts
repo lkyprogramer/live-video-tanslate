@@ -51,35 +51,52 @@ function install() {
   label.lang = 'zh-Hans';
   shadow.append(style, prevLabel, label);
 
-  type DiagnosticCue = { session_id: string; seq: number; epoch: number };
+  type DiagnosticCue = {
+    session_id: string;
+    seq: number;
+    epoch: number;
+    kind: 'preview' | 'final_token_stream' | 'final';
+    text_zh: string;
+  };
   let currCue: DiagnosticCue | undefined;
   let prevCue: DiagnosticCue | undefined;
   let displayedCues = new Map<string, DiagnosticCue>();
+  const cueRemoveReasons = new Map<string, 'dwell_expired' | 'replaced' | 'cleared'>();
+  const cueKey = (cue: { session_id: string; seq: number; epoch: number }) =>
+    `${cue.session_id}:${cue.seq}:${cue.epoch}`;
   if (SUBTITLE_DIAGNOSTICS) {
     const isElementVisible = (el: HTMLElement) => {
       const rect = el.getBoundingClientRect();
       return el.isConnected && rect.width > 0 && rect.height > 0 &&
         rect.bottom > 0 && rect.right > 0 && rect.top < innerHeight && rect.left < innerWidth && !document.hidden;
     };
-    const cueKey = (cue: DiagnosticCue) => `${cue.session_id}:${cue.seq}:${cue.epoch}`;
     const measureVisibility = () => {
       const nextVisible = new Map<string, DiagnosticCue>();
       if (currCue && label.textContent && !label.hasAttribute('data-status') && isElementVisible(label)) {
-        nextVisible.set(cueKey(currCue), currCue);
+        nextVisible.set(cueKey(currCue), { ...currCue });
       }
       if (prevCue && prevLabel.textContent && isElementVisible(prevLabel)) {
-        nextVisible.set(cueKey(prevCue), prevCue);
+        nextVisible.set(cueKey(prevCue), { ...prevCue });
       }
-      const t = performance.timeOrigin + performance.now();
+      const perfNowMs = performance.now();
+      const t = performance.timeOrigin + perfNowMs;
       for (const [key, cue] of displayedCues) {
         if (!nextVisible.has(key)) {
-          console.debug('subtitle-diagnostic', JSON.stringify({ stage: 'dom_removed', t, ...cue,
+          const removeReason = cueRemoveReasons.get(key) ?? 'replaced';
+          cueRemoveReasons.delete(key);
+          console.debug('subtitle-diagnostic', JSON.stringify({ stage: 'dom_removed', t, perf_now_ms: perfNowMs,
+            remove_reason: removeReason, ...cue,
             media_time: video?.currentTime, playback_rate: video?.playbackRate }));
         }
       }
       for (const [key, cue] of nextVisible) {
-        if (!displayedCues.has(key)) {
-          console.debug('subtitle-diagnostic', JSON.stringify({ stage: 'dom_visible', t, ...cue,
+        const prev = displayedCues.get(key);
+        if (!prev) {
+          console.debug('subtitle-diagnostic', JSON.stringify({ stage: 'dom_visible', t, perf_now_ms: perfNowMs,
+            ...cue, media_time: video?.currentTime, playback_rate: video?.playbackRate }));
+        } else if (prev.text_zh !== cue.text_zh || prev.kind !== cue.kind) {
+          console.debug('subtitle-diagnostic', JSON.stringify({ stage: 'dom_update', t, perf_now_ms: perfNowMs,
+            previous_text_zh: prev.text_zh, previous_kind: prev.kind, ...cue,
             media_time: video?.currentTime, playback_rate: video?.playbackRate }));
         }
       }
@@ -102,11 +119,13 @@ function install() {
       width: rect.width + 'px', height: rect.height + 'px' });
   }
 
-  function clearBoth() {
+  function clearBoth(reason: 'dwell_expired' | 'replaced' | 'cleared' = 'cleared') {
     clearTimeout(hideCurr);
     clearTimeout(hidePrev);
     activeDeltaSeq = 0;
     if (SUBTITLE_DIAGNOSTICS) {
+      if (currCue) cueRemoveReasons.set(cueKey(currCue), reason);
+      if (prevCue) cueRemoveReasons.set(cueKey(prevCue), reason);
       currCue = undefined;
       prevCue = undefined;
     }
@@ -116,16 +135,20 @@ function install() {
     label.removeAttribute('data-streaming');
   }
 
-  function showDelta(text: string, cueSeq: number) {
+  function showDelta(text: string, cueSeq: number, deltaKind?: 'preview' | 'final_token_stream') {
     clearTimeout(hideCurr);
     if (activeDeltaSeq !== cueSeq) {
       clearTimeout(hidePrev);
+      if (SUBTITLE_DIAGNOSTICS && prevCue) {
+        cueRemoveReasons.set(cueKey(prevCue), 'replaced');
+      }
       if (label.textContent && !label.hasAttribute('data-status')) {
         prevLabel.textContent = label.textContent;
-        if (SUBTITLE_DIAGNOSTICS) prevCue = currCue;
+        if (SUBTITLE_DIAGNOSTICS) prevCue = currCue ? { ...currCue } : undefined;
         const elapsed = performance.now() - currShownAt;
         const prevDwell = Math.min(3500, Math.max(1800, currDwellMs - elapsed));
         hidePrev = window.setTimeout(() => {
+          if (SUBTITLE_DIAGNOSTICS && prevCue) cueRemoveReasons.set(cueKey(prevCue), 'dwell_expired');
           prevLabel.textContent = '';
           if (SUBTITLE_DIAGNOSTICS) prevCue = undefined;
         }, prevDwell);
@@ -135,12 +158,21 @@ function install() {
       }
       activeDeltaSeq = cueSeq;
     }
-    if (SUBTITLE_DIAGNOSTICS) currCue = { session_id: sessionId, seq: cueSeq, epoch };
+    if (SUBTITLE_DIAGNOSTICS) {
+      currCue = {
+        session_id: sessionId,
+        seq: cueSeq,
+        epoch,
+        kind: deltaKind ?? 'preview',
+        text_zh: text,
+      };
+    }
     label.textContent = text;
     label.removeAttribute('data-status');
     label.toggleAttribute('data-streaming', true);
     currShownAt = performance.now();
     hideCurr = window.setTimeout(() => {
+      if (SUBTITLE_DIAGNOSTICS && currCue) cueRemoveReasons.set(cueKey(currCue), 'dwell_expired');
       label.textContent = '';
       label.removeAttribute('data-streaming');
       activeDeltaSeq = 0;
@@ -151,12 +183,12 @@ function install() {
 
   function show(text = '', status = false, finalizeSeq = 0) {
     if (!text) {
-      clearBoth();
+      clearBoth('cleared');
       position();
       return;
     }
     if (status) {
-      clearBoth();
+      clearBoth('replaced');
       label.textContent = text;
       label.toggleAttribute('data-status', true);
       hideCurr = window.setTimeout(() => { label.textContent = ''; }, 4000);
@@ -168,12 +200,16 @@ function install() {
     activeDeltaSeq = 0;
     if (!finalizedInPlace) {
       clearTimeout(hidePrev);
+      if (SUBTITLE_DIAGNOSTICS && prevCue) {
+        cueRemoveReasons.set(cueKey(prevCue), 'replaced');
+      }
       if (label.textContent && !label.hasAttribute('data-status')) {
         prevLabel.textContent = label.textContent;
-        if (SUBTITLE_DIAGNOSTICS) prevCue = currCue;
+        if (SUBTITLE_DIAGNOSTICS) prevCue = currCue ? { ...currCue } : undefined;
         const elapsed = performance.now() - currShownAt;
         const prevDwell = Math.min(3500, Math.max(1800, currDwellMs - elapsed));
         hidePrev = window.setTimeout(() => {
+          if (SUBTITLE_DIAGNOSTICS && prevCue) cueRemoveReasons.set(cueKey(prevCue), 'dwell_expired');
           prevLabel.textContent = '';
           if (SUBTITLE_DIAGNOSTICS) prevCue = undefined;
         }, prevDwell);
@@ -182,13 +218,14 @@ function install() {
         if (SUBTITLE_DIAGNOSTICS) prevCue = undefined;
       }
     }
-    if (SUBTITLE_DIAGNOSTICS) currCue = { session_id: sessionId, seq, epoch };
+    if (SUBTITLE_DIAGNOSTICS) currCue = { session_id: sessionId, seq, epoch, kind: 'final', text_zh: text };
     label.textContent = text;
     label.removeAttribute('data-status');
     label.removeAttribute('data-streaming');
     currShownAt = performance.now();
     currDwellMs = Math.min(6500, Math.max(2500, Math.round(text.length * 170)));
     hideCurr = window.setTimeout(() => {
+      if (SUBTITLE_DIAGNOSTICS && currCue) cueRemoveReasons.set(cueKey(currCue), 'dwell_expired');
       label.textContent = '';
       if (SUBTITLE_DIAGNOSTICS) currCue = undefined;
     }, currDwellMs);
@@ -273,7 +310,7 @@ function install() {
         break;
       case 'caption_delta':
         if (view.cue.session_id === sessionId && view.cue.seq > seq) {
-          showDelta(view.cue.text_zh, view.cue.seq);
+          showDelta(view.cue.text_zh, view.cue.seq, view.cue.delta_kind);
         }
         break;
       case 'caption':

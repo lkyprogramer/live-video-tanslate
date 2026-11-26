@@ -117,23 +117,25 @@ class Connection:
                     return
                 if not (0 <= item.start_sample < item.end_sample <= self.accepted):
                     return
+                extra = {"delta_kind": item.kind} if item.kind is not None else {}
                 await self.send("caption_delta", seq=self.seq + 1, start_sample=item.start_sample,
-                                end_sample=item.end_sample, text_zh=text)
+                                end_sample=item.end_sample, text_zh=text, **extra)
                 if self.trace_path:
                     self.record("ws_delta_sent", seq=self.seq + 1, segment_id=item.segment_id,
-                                start_sample=item.start_sample, end_sample=item.end_sample)
+                                start_sample=item.start_sample, end_sample=item.end_sample,
+                                delta_kind=item.kind or "unknown", text_zh=text)
                 return
             text = chinese(item.text_zh)
             span = {"segment_id": item.segment_id, "start_sample": item.start_sample,
                     "end_sample": item.end_sample} if self.trace_path else None
             if text is None:
                 if span is not None:
-                    self.record("gateway_filtered", code="translation_invalid", **span)
+                    self.record("gateway_filtered", code="translation_invalid", text_zh=item.text_zh, **span)
                 await self.send("warning", code="translation_invalid")
                 return
             if not (0 <= item.start_sample < item.end_sample <= self.accepted and item.end_sample >= self.last_end):
                 if span is not None:
-                    self.record("gateway_filtered", code="adapter_unaligned", **span)
+                    self.record("gateway_filtered", code="adapter_unaligned", text_zh=text, **span)
                 await self.send("warning", code="adapter_unaligned")
                 return
             self.seq += 1
@@ -141,7 +143,7 @@ class Connection:
             await self.send("caption", seq=self.seq, start_sample=item.start_sample,
                             end_sample=item.end_sample, text_zh=text)
             if span is not None:
-                self.record("ws_sent", seq=self.seq, **span)
+                self.record("ws_sent", seq=self.seq, text_zh=text, **span)
 
     async def stream(self, session):
         queue = asyncio.Queue()

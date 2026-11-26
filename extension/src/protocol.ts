@@ -12,7 +12,7 @@ export interface Caption {
 }
 export interface CaptionDelta {
   type: 'caption_delta'; session_id: string; seq: number; text_zh: string;
-  start_sample: number; end_sample: number;
+  start_sample: number; end_sample: number; delta_kind?: 'preview' | 'final_token_stream';
 }
 export type ServerEvent =
   | { type: 'ready'; session_id: string; version: 1; profile_id: string; language: 'zh-Hans' }
@@ -56,9 +56,14 @@ export function serverEvent(raw: unknown): ServerEvent | undefined {
       break;
     case 'caption_delta':
       if (integer(obj.seq) && obj.seq > 0 && integer(obj.start_sample) && integer(obj.end_sample) &&
-          obj.end_sample > obj.start_sample && text(obj.text_zh)) {
-        return { type: 'caption_delta', session_id, seq: obj.seq, start_sample: obj.start_sample,
-          end_sample: obj.end_sample, text_zh: obj.text_zh };
+          obj.end_sample > obj.start_sample && text(obj.text_zh) &&
+          (obj.delta_kind === undefined || obj.delta_kind === 'preview' || obj.delta_kind === 'final_token_stream')) {
+        const delta: CaptionDelta = {
+          type: 'caption_delta', session_id, seq: obj.seq, start_sample: obj.start_sample,
+          end_sample: obj.end_sample, text_zh: obj.text_zh,
+        };
+        if (obj.delta_kind !== undefined) delta.delta_kind = obj.delta_kind;
+        return delta;
       }
       break;
     case 'warning':

@@ -116,6 +116,12 @@
         "text_zh": {
           "type": "string",
           "minLength": 1
+        },
+        "delta_kind": {
+          "enum": [
+            "preview",
+            "final_token_stream"
+          ]
         }
       },
       "required": [
@@ -153,6 +159,12 @@
         "text_zh": {
           "type": "string",
           "minLength": 1
+        },
+        "delta_kind": {
+          "enum": [
+            "preview",
+            "final_token_stream"
+          ]
         }
       },
       "required": [

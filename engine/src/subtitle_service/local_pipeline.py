@@ -15,6 +15,13 @@ import threading
 import numpy as np
 
 from .backend import BackendError, Caption, CaptionDelta
+from .mt_cache_contract import (
+    canonical_messages,
+    canonical_prompt_ids,
+    compute_cache_plan,
+    reconcile_cache_ledger,
+    token_ids_sha256,
+)
 
 log = logging.getLogger(__name__)
 RATE = 16000
@@ -1061,6 +1068,8 @@ class Qwen3Translator:
         self._prefix_ids = self.tokenizer.encode(prefix_str, add_special_tokens=False)
         self._prefix_len = len(self._prefix_ids)
         self._prompt_cache = make_prompt_cache(self.model)
+        self._cache_tokens: list[int] = list(self._prefix_ids)
+        self.last_translate_meta: dict = {}
         for _ in self._generate_step(
             mx.array(self._prefix_ids, dtype=mx.int32),
             self.model,
@@ -1074,9 +1083,40 @@ class Qwen3Translator:
     def _reset_cache(self):
         cache = getattr(self, "_prompt_cache", None)
         if cache:
-            cur_off = cache[0].offset
+            cur_off = int(cache[0].offset)
             if cur_off > self._prefix_len:
                 self._trim_prompt_cache(cache, cur_off - self._prefix_len)
+            new_off = int(cache[0].offset)
+            if new_off == self._prefix_len:
+                if hasattr(self, "_prefix_ids"):
+                    self._cache_tokens = list(self._prefix_ids)
+            elif new_off == 0:
+                self._cache_tokens = []
+            else:
+                # Truncated below prefix_len; drop entirely so next canonical sync rebuilds from 0.
+                if new_off > 0:
+                    self._trim_prompt_cache(cache, new_off)
+                self._cache_tokens = []
+
+    def _build_canonical_prompt_ids(self, history: list[tuple[str, str]], text_ja: str) -> list[int] | None:
+        if not hasattr(self.tokenizer, "apply_chat_template"):
+            return None
+        messages = canonical_messages(self.SYSTEM_PROMPT, history, text_ja)
+        return canonical_prompt_ids(self.tokenizer, messages)
+
+    def _sync_cache_to_target(self, target_ids: list[int]) -> tuple[list[int], int, int]:
+        cache = getattr(self, "_prompt_cache", None)
+        if not cache:
+            return list(target_ids), 0, 0
+        tracked = getattr(self, "_cache_tokens", None)
+        if tracked is None or len(tracked) != int(cache[0].offset):
+            self._reset_cache()
+            tracked = getattr(self, "_cache_tokens", [])
+        trim_n, feed_ids = compute_cache_plan(tracked, target_ids)
+        if trim_n > 0:
+            self._trim_prompt_cache(cache, trim_n)
+            del tracked[-trim_n:]
+        return feed_ids, len(tracked), trim_n
 
     def new_session(self):
         self._reset_cache()
@@ -1157,39 +1197,64 @@ class Qwen3Translator:
         *,
         keep_kv: bool = False,
         on_delta=None,
+        canonical_ids: list[int] | None = None,
+        max_tokens: int = 256,
     ) -> str:
         if cancel_event is not None and cancel_event.is_set():
-            if keep_kv:
+            self.last_translate_meta = {
+                "stop_reason": "cancelled",
+                "reused_tokens": 0,
+                "trimmed_tokens": 0,
+                "fed_tokens": 0,
+                "gen_tokens": 0,
+                "valid": False,
+            }
+            if not keep_kv:
                 self._reset_cache()
             return ""
         mx = self._mx
-        suffix_ids = mx.array(self.tokenizer.encode(suffix_str, add_special_tokens=False), dtype=mx.int32)
-        if not keep_kv:
-            self._reset_cache()
+        cache = self._prompt_cache
+        if canonical_ids is not None:
+            feed_list, reused_tokens, trimmed_tokens = self._sync_cache_to_target(canonical_ids)
+            suffix_ids = mx.array(feed_list, dtype=mx.int32)
+        else:
+            if not keep_kv:
+                self._reset_cache()
+            feed_list = [int(x) for x in self.tokenizer.encode(suffix_str, add_special_tokens=False)]
+            suffix_ids = mx.array(feed_list, dtype=mx.int32)
+            reused_tokens = int(cache[0].offset) if cache else 0
+            trimmed_tokens = 0
+
+        pre_offset = int(cache[0].offset) if cache else 0
+        pre_tokens = list(getattr(self, "_cache_tokens", []))
 
         def _check_cancel(_processed, _total):
             if cancel_event is not None and cancel_event.is_set():
                 raise _Cancelled()
 
         tokens: list[int] = []
+        yielded_all: list[int] = []
         last_delta = ""
-        completed = False
+        stop_reason = "length_limit"
+        raised = False
         try:
             for tok, _ in self._generate_step(
                 suffix_ids,
                 self.model,
-                max_tokens=256,
+                max_tokens=max_tokens,
                 sampler=self.sampler,
                 logits_processors=self.logits_processors,
-                prompt_cache=self._prompt_cache,
+                prompt_cache=cache,
                 prefill_step_size=512,
                 prompt_progress_callback=_check_cancel if cancel_event is not None else None,
             ):
                 if cancel_event is not None and cancel_event.is_set():
+                    stop_reason = "cancelled"
                     return ""
                 tid = int(tok)
+                yielded_all.append(tid)
                 if tid in self._eos_ids:
-                    completed = True
+                    stop_reason = "eos"
                     break
                 tokens.append(tid)
                 if on_delta is not None and (len(tokens) % 4 == 0 or len(tokens) == 2):
@@ -1197,17 +1262,63 @@ class Qwen3Translator:
                     if partial and len(partial) >= 2 and partial != last_delta and not _KANA.search(partial):
                         last_delta = partial
                         on_delta(partial)
-            else:
-                completed = True
         except _Cancelled:
+            stop_reason = "cancelled"
             return ""
+        except Exception:
+            stop_reason = "error"
+            raised = True
+            raise
         finally:
-            if not keep_kv or not completed:
+            if raised or not keep_kv:
                 self._reset_cache()
+            elif stop_reason != "eos":
+                cur_off = int(cache[0].offset)
+                extra = cur_off - pre_offset
+                if extra > 0:
+                    self._trim_prompt_cache(cache, extra)
+                if int(cache[0].offset) == pre_offset and hasattr(self, "_cache_tokens"):
+                    self._cache_tokens = list(pre_tokens)
+                else:
+                    self._reset_cache()
+            elif canonical_ids is not None and hasattr(self, "_cache_tokens"):
+                reconciled, _note = reconcile_cache_ledger(
+                    pre_tokens, feed_list, yielded_all, pre_offset, int(cache[0].offset)
+                )
+                if reconciled is None:
+                    self._reset_cache()
+                else:
+                    self._cache_tokens = reconciled
+            actual_prompt_tokens = pre_tokens + feed_list if canonical_ids is not None else []
+            self.last_translate_meta = {
+                "stop_reason": stop_reason,
+                "reused_tokens": reused_tokens,
+                "trimmed_tokens": trimmed_tokens,
+                "fed_tokens": len(feed_list),
+                "gen_tokens": len(tokens),
+                "valid": False,
+                "expected_prompt_ids_hash": token_ids_sha256(canonical_ids) if canonical_ids is not None else None,
+                "actual_prompt_ids_hash": token_ids_sha256(actual_prompt_tokens) if canonical_ids is not None else None,
+                "cache_offset_before": pre_offset,
+                "cache_offset_after": int(cache[0].offset) if cache else 0,
+            }
 
         out = self._clean_output(self.tokenizer.decode(tokens))
-        if keep_kv and (not out or _KANA.search(out)):
-            self._reset_cache()
+        invalid_out = (stop_reason != "eos") or (not out) or bool(_KANA.search(out))
+        if keep_kv and invalid_out and cache:
+            cur_off = int(cache[0].offset)
+            extra = cur_off - pre_offset
+            if extra > 0:
+                self._trim_prompt_cache(cache, extra)
+            if int(cache[0].offset) == pre_offset and hasattr(self, "_cache_tokens"):
+                self._cache_tokens = list(pre_tokens)
+            else:
+                self._reset_cache()
+
+        self.last_translate_meta["valid"] = not invalid_out
+        self.last_translate_meta["cache_offset_after"] = int(cache[0].offset) if cache else 0
+        if stop_reason == "cancelled":
+            return ""
         return out
 
     def translate(
@@ -1219,66 +1330,95 @@ class Qwen3Translator:
         start_sample: int | None = None,
         end_sample: int | None = None,
         on_delta=None,
+        max_tokens: int = 256,
     ):
         if cancel_event is not None and cancel_event.is_set():
+            self.last_translate_meta = {
+                "stop_reason": "cancelled",
+                "reused_tokens": 0,
+                "trimmed_tokens": 0,
+                "fed_tokens": 0,
+                "gen_tokens": 0,
+                "valid": False,
+            }
             return ""
         has_cache = getattr(self, "_prompt_cache", None) is not None
         is_rolling = has_cache and isinstance(session, _Qwen3Session) and session.max_turns > 0
         if is_rolling:
-            cache_extra = self._prompt_cache[0].offset - self._prefix_len
+            cache_extra = int(self._prompt_cache[0].offset) - self._prefix_len
             gap_exceeded = (
                 start_sample is not None
                 and session.last_end_sample > 0
                 and (start_sample - session.last_end_sample) > int(12.0 * RATE)
             )
             history = getattr(session, "history", None)
+            prior_history = list(history) if history is not None else []
             if gap_exceeded:
                 self._reset_cache()
                 session.turns = 0
                 if history is not None:
                     history.clear()
+                active_history: list[tuple[str, str]] = []
                 prompt_suffix = text_ja + self._suffix_tail
             elif session.turns >= session.max_turns or cache_extra > 420:
-                self._reset_cache()
                 keep_n = max(1, session.max_turns // 2) if session.max_turns >= 2 else 0
-                kept = list(history)[-keep_n:] if (history is not None and keep_n > 0) else []
-                if history is not None:
-                    session.history = deque(kept, maxlen=max(1, session.max_turns))
-                    history = session.history
-                session.turns = len(kept)
+                active_history = prior_history[-keep_n:] if keep_n > 0 else []
                 replay_prefix = "".join(
                     f"{h_ja}{self._suffix_tail}{h_zh}{self._next_turn_prefix}"
-                    for h_ja, h_zh in kept
+                    for h_ja, h_zh in active_history
                 )
                 prompt_suffix = replay_prefix + text_ja + self._suffix_tail
             else:
                 if session.turns == 0:
                     self._reset_cache()
+                active_history = prior_history
                 turn_prefix = self._next_turn_prefix if session.turns > 0 else ""
                 prompt_suffix = turn_prefix + text_ja + self._suffix_tail
+
+            canonical_ids = self._build_canonical_prompt_ids(active_history, text_ja)
             raw = self._run_cached_prompt(
                 prompt_suffix,
                 cancel_event=cancel_event,
                 keep_kv=True,
                 on_delta=on_delta,
+                canonical_ids=canonical_ids,
+                max_tokens=max_tokens,
             )
-            if raw and not (cancel_event is not None and cancel_event.is_set()) and not _KANA.search(raw):
-                session.turns += 1
+            stop_reason = (getattr(self, "last_translate_meta", {}) or {}).get("stop_reason", "eos")
+            if (
+                raw
+                and stop_reason == "eos"
+                and not (cancel_event is not None and cancel_event.is_set())
+                and not _KANA.search(raw)
+            ):
                 if history is not None:
-                    history.append((text_ja, raw))
+                    session.history = deque([*active_history, (text_ja, raw)], maxlen=max(1, session.max_turns))
+                    session.turns = len(session.history)
+                else:
+                    session.turns += 1
                 if end_sample is not None:
                     session.last_end_sample = end_sample
+            elif active_history and stop_reason in ("cancelled", "length_limit"):
+                # Keep prior committed history untouched when an incomplete turn is aborted/truncated.
+                pass
             else:
-                self._reset_cache()
-                session.turns = 0
-                if history is not None:
-                    history.clear()
+                if not active_history:
+                    self._reset_cache()
+                    session.turns = 0
+                    if history is not None:
+                        history.clear()
+                elif history is not None:
+                    session.history = deque(active_history, maxlen=max(1, session.max_turns))
+                    session.turns = len(session.history)
         elif has_cache:
+            canonical_ids = self._build_canonical_prompt_ids([], text_ja)
             raw = self._run_cached_prompt(
                 text_ja + self._suffix_tail,
                 cancel_event=cancel_event,
                 keep_kv=False,
                 on_delta=on_delta,
+                canonical_ids=canonical_ids,
+                max_tokens=max_tokens,
             )
         else:
             raw = self._run_prompt([
@@ -1307,12 +1447,21 @@ class Qwen3Translator:
         if cache is None:
             return ""
         mx = self._mx
-        saved_offset = cache[0].offset
-        turn_prefix = self._next_turn_prefix if saved_offset > self._prefix_len else ""
-        suffix_ids = mx.array(
-            self.tokenizer.encode(turn_prefix + text_ja + self._suffix_tail, add_special_tokens=False),
-            dtype=mx.int32,
-        )
+        prior_history = list(session.history) if isinstance(session, _Qwen3Session) and session.max_turns > 0 else []
+        canonical_ids = self._build_canonical_prompt_ids(prior_history, text_ja)
+        if canonical_ids is not None:
+            feed_list, _, _ = self._sync_cache_to_target(canonical_ids)
+            base_offset = int(cache[0].offset)
+            base_tokens = list(getattr(self, "_cache_tokens", []))
+            suffix_ids = mx.array(feed_list, dtype=mx.int32)
+        else:
+            base_offset = int(cache[0].offset)
+            base_tokens = list(getattr(self, "_cache_tokens", []))
+            turn_prefix = self._next_turn_prefix if base_offset > self._prefix_len else ""
+            suffix_ids = mx.array(
+                self.tokenizer.encode(turn_prefix + text_ja + self._suffix_tail, add_special_tokens=False),
+                dtype=mx.int32,
+            )
 
         def _check_cancel(_processed, _total):
             if cancel_event is not None and cancel_event.is_set():
@@ -1339,9 +1488,11 @@ class Qwen3Translator:
         except _Cancelled:
             return ""
         finally:
-            extra = cache[0].offset - saved_offset
+            extra = int(cache[0].offset) - base_offset
             if extra > 0:
                 self._trim_prompt_cache(cache, extra)
+            if hasattr(self, "_cache_tokens") and int(cache[0].offset) == base_offset:
+                self._cache_tokens = base_tokens
 
         out = self._clean_output(self.tokenizer.decode(tokens))
         return "" if not out or _KANA.search(out) else out
@@ -1535,7 +1686,15 @@ class LocalSession:
         if self.cancelled.is_set() or not partial:
             return
         task = asyncio.create_task(
-            self.emit(CaptionDelta(segment.start_sample, segment.end_sample, partial, segment.segment_id))
+            self.emit(
+                CaptionDelta(
+                    segment.start_sample,
+                    segment.end_sample,
+                    partial,
+                    segment.segment_id,
+                    kind="final_token_stream",
+                )
+            )
         )
         self._delta_tasks.add(task)
         task.add_done_callback(self._delta_tasks.discard)
@@ -1579,6 +1738,7 @@ class LocalSession:
         *,
         gpu_lock=None,
     ) -> str:
+        raw_text = text
         guard_action = "none"
         if item.best_draft_ja:
             draft_norm = _NON_SPEECH_STRIP.sub("", item.best_draft_ja)
@@ -1615,7 +1775,7 @@ class LocalSession:
         if meaningful:
             self._last_ja = text
         if self.record:
-            self.record("asr_end", text_ja=text, **span, **extra)
+            self.record("asr_end", text_ja=text, raw_text_ja=raw_text, **span, **extra)
         return text if meaningful else ""
 
     def translate(self, segment, loop: asyncio.AbstractEventLoop | None = None):
@@ -1638,7 +1798,17 @@ class LocalSession:
                 on_delta=on_delta,
             )
         if self.record:
-            self.record("mt_end", text_zh=text, **vars(segment))
+            mt_meta = getattr(self.backend.translator, "last_translate_meta", None)
+            extra = (
+                {
+                    k: mt_meta[k]
+                    for k in ("stop_reason", "reused_tokens", "fed_tokens", "gen_tokens", "valid")
+                    if k in mt_meta
+                }
+                if isinstance(mt_meta, dict)
+                else {}
+            )
+            self.record("mt_end", text_zh=text, **vars(segment), **extra)
         return text
 
     async def run_translation(self):
@@ -1827,7 +1997,9 @@ class LocalSession:
                                 text_ja=draft_ja,
                                 text_zh=draft_zh,
                             )
-                        await self.emit(CaptionDelta(snap.start_sample, snap.end_sample, draft_zh))
+                        await self.emit(
+                            CaptionDelta(snap.start_sample, snap.end_sample, draft_zh, kind="preview")
+                        )
                     continue
                 if self._mt_input_done:
                     break
@@ -1946,7 +2118,9 @@ class LocalSession:
                                 text_ja=draft_ja,
                                 text_zh=draft_zh,
                             )
-                        await self.emit(CaptionDelta(snap.start_sample, snap.end_sample, draft_zh))
+                        await self.emit(
+                            CaptionDelta(snap.start_sample, snap.end_sample, draft_zh, kind="preview")
+                        )
                     continue
                 if self._input_done:
                     break

@@ -17,6 +17,7 @@ class CaptionDelta:
     end_sample: int
     text_zh: str
     segment_id: int | None = None
+    kind: str | None = None
 
 
 @dataclass(frozen=True)

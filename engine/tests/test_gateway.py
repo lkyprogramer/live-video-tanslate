@@ -296,3 +296,41 @@ def test_64ms_frames_and_caption_delta_contract(config):
         assert c1["type"] == "caption" and c1["seq"] == 1 and c1["text_zh"] == "先看这个。"
         fin = ws.receive_json()
         assert fin["type"] == "finished" and fin["accepted_samples"] == 2048
+
+
+def test_caption_delta_kind_provenance_schema(config):
+    class ProvenanceSession:
+        def __init__(self, emit):
+            self.emit = emit
+            self.samples = 0
+
+        async def accept_pcm(self, frame):
+            self.samples += len(frame) // 2
+
+        async def finish(self):
+            await self.emit(CaptionDelta(0, self.samples, "预览字幕", kind="preview"))
+            await self.emit(CaptionDelta(0, self.samples, "流式终稿", segment_id=1, kind="final_token_stream"))
+            await self.emit(Caption(0, self.samples, "流式终稿。", segment_id=1))
+
+        async def aclose(self):
+            pass
+
+    class ProvenanceBackend(Fake):
+        async def open(self, emit, *, record=None):
+            return ProvenanceSession(emit)
+
+    with client(config, ProvenanceBackend()) as (c, _), websocket(c) as ws:
+        sid = start(ws)["session_id"]
+        ws.send_bytes(bytes(2048))
+        ws.send_json(FIXTURE["finish"])
+        d_prev = ws.receive_json()
+        jsonschema.validate(d_prev, SCHEMA)
+        assert d_prev["delta_kind"] == "preview"
+        d_stream = ws.receive_json()
+        jsonschema.validate(d_stream, SCHEMA)
+        assert d_stream["delta_kind"] == "final_token_stream"
+        cap = ws.receive_json()
+        jsonschema.validate(cap, SCHEMA)
+        assert cap["text_zh"] == "流式终稿。"
+        fin = ws.receive_json()
+        assert fin["type"] == "finished"
