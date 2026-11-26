@@ -87,6 +87,68 @@ inline double now_ms() {
   return duration<double, std::milli>(steady_clock::now().time_since_epoch()).count();
 }
 
+bool is_non_speech_codepoint(uint32_t cp) {
+  if (cp <= 0x20) return true;
+  if ((cp >= 0x21 && cp <= 0x2F) || (cp >= 0x3A && cp <= 0x40) ||
+      (cp >= 0x5B && cp <= 0x60) || (cp >= 0x7B && cp <= 0x7E)) {
+    return true;
+  }
+  switch (cp) {
+    case 0x3000:  // 　
+    case 0x3001:  // 、
+    case 0x3002:  // 。
+    case 0xFF1F:  // ？
+    case 0xFF01:  // ！
+    case 0xFF0C:  // ，
+    case 0xFF0E:  // ．
+    case 0x300C:  // 「
+    case 0x300D:  // 」
+    case 0x300E:  // 『
+    case 0x300F:  // 』
+    case 0xFF08:  // （
+    case 0xFF09:  // ）
+    case 0x30FB:  // ・
+    case 0x2026:  // …
+    case 0x301C:  // 〜
+    case 0xFF5E:  // ～
+    case 0x30FC:  // ー
+      return true;
+    default:
+      return false;
+  }
+}
+
+int count_speech_codepoints(const std::string& s) {
+  int count = 0;
+  const size_t n = s.size();
+  size_t i = 0;
+  while (i < n) {
+    uint8_t c = static_cast<uint8_t>(s[i]);
+    uint32_t cp = 0;
+    size_t step = 1;
+    if ((c & 0x80u) == 0) {
+      cp = c;
+    } else if ((c & 0xE0u) == 0xC0u && i + 1 < n) {
+      cp = ((uint32_t)(c & 0x1Fu) << 6) | (uint32_t)(s[i + 1] & 0x3Fu);
+      step = 2;
+    } else if ((c & 0xF0u) == 0xE0u && i + 2 < n) {
+      cp = ((uint32_t)(c & 0x0Fu) << 12) | ((uint32_t)(s[i + 1] & 0x3Fu) << 6) |
+           (uint32_t)(s[i + 2] & 0x3Fu);
+      step = 3;
+    } else if ((c & 0xF8u) == 0xF0u && i + 3 < n) {
+      cp = ((uint32_t)(c & 0x07u) << 18) | ((uint32_t)(s[i + 1] & 0x3Fu) << 12) |
+           ((uint32_t)(s[i + 2] & 0x3Fu) << 6) | (uint32_t)(s[i + 3] & 0x3Fu);
+      step = 4;
+    } else {
+      i++;
+      continue;
+    }
+    i += step;
+    if (!is_non_speech_codepoint(cp)) count++;
+  }
+  return count;
+}
+
 float fp16_to_f32(uint16_t h) {
   uint32_t sign = (uint32_t)(h & 0x8000u) << 16;
   uint32_t exp = (h >> 10) & 0x1Fu;
@@ -468,7 +530,17 @@ struct RnntDecoder {
     std::vector<float> c;          // [layers * hidden]
   };
 
-  void pred_step(int32_t label, const PredCacheEntry* prev, PredCacheEntry& out) const {
+  struct PredScratch {
+    std::vector<float> x;
+    std::vector<float> gates;
+    std::vector<float> joint_h;
+  };
+
+  void pred_step(
+      int32_t label,
+      const PredCacheEntry* prev,
+      PredCacheEntry& out,
+      PredScratch& scratch) const {
     const int H = hidden;
     out.h.assign(layers * H, 0.0f);
     out.c.assign(layers * H, 0.0f);
@@ -476,37 +548,39 @@ struct RnntDecoder {
       out.h = prev->h;
       out.c = prev->c;
     }
-    std::vector<float> x(embed.data() + (size_t)label * H, embed.data() + (size_t)(label + 1) * H);
-    std::vector<float> gates(4 * H);
+    std::memcpy(scratch.x.data(), embed.data() + (size_t)label * H, (size_t)H * sizeof(float));
     for (int l = 0; l < layers; ++l) {
-      std::memcpy(gates.data(), lstm_b[l].data(), (size_t)4 * H * sizeof(float));
-      cblas_sgemv(CblasRowMajor, CblasNoTrans, 4 * H, H, 1.0f, lstm_ih[l].data(), H, x.data(), 1, 1.0f, gates.data(), 1);
-      cblas_sgemv(CblasRowMajor, CblasNoTrans, 4 * H, H, 1.0f, lstm_hh[l].data(), H, out.h.data() + l * H, 1, 1.0f, gates.data(), 1);
+      std::memcpy(scratch.gates.data(), lstm_b[l].data(), (size_t)4 * H * sizeof(float));
+      cblas_sgemv(CblasRowMajor, CblasNoTrans, 4 * H, H, 1.0f, lstm_ih[l].data(), H, scratch.x.data(), 1, 1.0f, scratch.gates.data(), 1);
+      cblas_sgemv(CblasRowMajor, CblasNoTrans, 4 * H, H, 1.0f, lstm_hh[l].data(), H, out.h.data() + l * H, 1, 1.0f, scratch.gates.data(), 1);
       float* hc = out.h.data() + l * H;
       float* cc = out.c.data() + l * H;
       for (int j = 0; j < H; ++j) {
-        float ig = 1.0f / (1.0f + std::exp(-gates[j]));
-        float fg = 1.0f / (1.0f + std::exp(-gates[H + j]));
-        float gg = std::tanh(gates[2 * H + j]);
-        float og = 1.0f / (1.0f + std::exp(-gates[3 * H + j]));
+        float ig = 1.0f / (1.0f + std::exp(-scratch.gates[j]));
+        float fg = 1.0f / (1.0f + std::exp(-scratch.gates[H + j]));
+        float gg = std::tanh(scratch.gates[2 * H + j]);
+        float og = 1.0f / (1.0f + std::exp(-scratch.gates[3 * H + j]));
         cc[j] = fg * cc[j] + ig * gg;
         hc[j] = og * std::tanh(cc[j]);
-        x[j] = hc[j];
+        scratch.x[j] = hc[j];
       }
     }
     out.pred_proj = joint_pred_b;
-    cblas_sgemv(CblasRowMajor, CblasNoTrans, H, H, 1.0f, joint_pred_w.data(), H, x.data(), 1, 1.0f, out.pred_proj.data(), 1);
+    cblas_sgemv(CblasRowMajor, CblasNoTrans, H, H, 1.0f, joint_pred_w.data(), H, scratch.x.data(), 1, 1.0f, out.pred_proj.data(), 1);
   }
 
-  void joint_logits(const float* enc_vec, const float* pred_proj, float* logits) const {
+  void joint_logits(
+      const float* enc_vec,
+      const float* pred_proj,
+      float* logits,
+      std::vector<float>& h_buf) const {
     const int H = hidden;
-    std::vector<float> h(H);
     for (int j = 0; j < H; ++j) {
       float v = enc_vec[j] + pred_proj[j];
-      h[j] = v > 0.0f ? v : 0.0f;
+      h_buf[j] = v > 0.0f ? v : 0.0f;
     }
     std::memcpy(logits, joint_out_b.data(), (size_t)outputs * sizeof(float));
-    cblas_sgemv(CblasRowMajor, CblasNoTrans, outputs, H, 1.0f, joint_out_w.data(), H, h.data(), 1, 1.0f, logits, 1);
+    cblas_sgemv(CblasRowMajor, CblasNoTrans, outputs, H, 1.0f, joint_out_w.data(), H, h_buf.data(), 1, 1.0f, logits, 1);
   }
 
   int decode_greedy(
@@ -516,14 +590,19 @@ struct RnntDecoder {
       void* user_data,
       std::vector<NemoAneToken>& out_tokens) const {
     out_tokens.clear();
+    PredScratch scratch{
+        std::vector<float>(hidden),
+        std::vector<float>((size_t)4 * hidden),
+        std::vector<float>(hidden),
+    };
     PredCacheEntry cur;
-    pred_step(blank, nullptr, cur);
+    pred_step(blank, nullptr, cur, scratch);
     std::vector<float> logits(outputs);
     for (int t = 0; t < T; ++t) {
       if (cancel_cb && cancel_cb(user_data)) return 1;
       const float* f = enc_proj + (size_t)t * hidden;
       for (int syms = 0; syms < 10; ++syms) {
-        joint_logits(f, cur.pred_proj.data(), logits.data());
+        joint_logits(f, cur.pred_proj.data(), logits.data(), scratch.joint_h);
         int best = 0;
         float best_v = logits[0];
         for (int c = 1; c < outputs; ++c) {
@@ -535,7 +614,7 @@ struct RnntDecoder {
         if (best == blank) break;
         out_tokens.push_back(NemoAneToken{best, t});
         PredCacheEntry next;
-        pred_step(best, &cur, next);
+        pred_step(best, &cur, next, scratch);
         cur = std::move(next);
       }
     }
@@ -562,6 +641,11 @@ struct RnntDecoder {
       void* user_data,
       std::vector<NemoAneToken>& out_tokens) const {
     out_tokens.clear();
+    PredScratch scratch{
+        std::vector<float>(hidden),
+        std::vector<float>((size_t)4 * hidden),
+        std::vector<float>(hidden),
+    };
     const int max_labels = (int)((double)max_ratio * (double)T);
     std::map<std::vector<int32_t>, std::shared_ptr<const PredCacheEntry>> cache;
     std::vector<std::shared_ptr<Hyp>> beam_hyps{std::make_shared<Hyp>(Hyp{{blank}, {}, 0.0, nullptr})};
@@ -594,11 +678,11 @@ struct RnntDecoder {
           pred = it->second;
         } else {
           auto p = std::make_shared<PredCacheEntry>();
-          pred_step(h.labels.back(), h.from ? h.from.get() : nullptr, *p);
+          pred_step(h.labels.back(), h.from ? h.from.get() : nullptr, *p, scratch);
           cache[h.labels] = p;
           pred = std::move(p);
         }
-        joint_logits(enc_proj + (size_t)at[j] * hidden, pred->pred_proj.data(), logits.data());
+        joint_logits(enc_proj + (size_t)at[j] * hidden, pred->pred_proj.data(), logits.data(), scratch.joint_h);
         double top = logits[0], sum = 0.0;
         for (int c = 1; c < outputs; ++c) top = std::max(top, (double)logits[c]);
         for (int c = 0; c < outputs; ++c) sum += std::exp((double)logits[c] - top);
@@ -1036,23 +1120,43 @@ int nemo_ane_transcribe(
 
   if (cancel_cb && cancel_cb(user_data)) return 1;
 
-  double t_dec0 = now_ms();
-  std::vector<NemoAneToken> toks;
-  int rc = use_beam
-      ? ctx->decoder.decode_beam(enc_proj.data(), valid_enc, cancel_cb, user_data, toks)
-      : ctx->decoder.decode_greedy(enc_proj.data(), valid_enc, cancel_cb, user_data, toks);
-  if (rc == 1) return 1;
+    std::string txt;
+    auto detok_vec = [&](const std::vector<NemoAneToken>& v) {
+      std::vector<int32_t> ids(v.size());
+      for (size_t i = 0; i < v.size(); ++i) ids[i] = v[i].token_id;
+      return ctx->detokenizer.text(ids.data(), (int32_t)ids.size());
+    };
 
-  if (out_n_tokens) *out_n_tokens = (int32_t)toks.size();
-  if (out_tokens && max_tokens > 0) {
-    int32_t copy_n = std::min<int32_t>(max_tokens, (int32_t)toks.size());
-    std::memcpy(out_tokens, toks.data(), (size_t)copy_n * sizeof(NemoAneToken));
-  }
+    double t_dec0 = now_ms();
+    std::vector<NemoAneToken> toks;
+    int rc = (use_beam == 1)
+        ? ctx->decoder.decode_beam(enc_proj.data(), valid_enc, cancel_cb, user_data, toks)
+        : ctx->decoder.decode_greedy(enc_proj.data(), valid_enc, cancel_cb, user_data, toks);
+    if (rc == 1) return 1;
 
-  std::vector<int32_t> ids(toks.size());
-  for (size_t i = 0; i < toks.size(); ++i) ids[i] = toks[i].token_id;
-  std::string txt = ctx->detokenizer.text(ids.data(), (int32_t)ids.size());
-  std::snprintf(out_text, out_text_cap, "%s", txt.c_str());
+    txt = detok_vec(toks);
+    if (use_beam == 2) {
+      int g_chars = count_speech_codepoints(txt);
+      double audio_sec = (double)n_samples / 16000.0;
+      if (audio_sec >= 1.5 && (double)g_chars < 3.0 * audio_sec) {
+        std::vector<NemoAneToken> beam_toks;
+        int b_rc = ctx->decoder.decode_beam(enc_proj.data(), valid_enc, cancel_cb, user_data, beam_toks);
+        if (b_rc == 1) return 1;
+        std::string txt_b = detok_vec(beam_toks);
+        if (count_speech_codepoints(txt_b) > g_chars) {
+          toks = std::move(beam_toks);
+          txt = std::move(txt_b);
+        }
+      }
+    }
+
+    if (out_n_tokens) *out_n_tokens = (int32_t)toks.size();
+    if (out_tokens && max_tokens > 0) {
+      int32_t copy_n = std::min<int32_t>(max_tokens, (int32_t)toks.size());
+      std::memcpy(out_tokens, toks.data(), (size_t)copy_n * sizeof(NemoAneToken));
+    }
+
+    std::snprintf(out_text, out_text_cap, "%s", txt.c_str());
   double t_end = now_ms();
   {
     std::lock_guard<std::mutex> lk(ctx->timings_mu);

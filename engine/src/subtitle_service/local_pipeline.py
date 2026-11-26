@@ -21,6 +21,11 @@ RATE = 16000
 _KANA = re.compile(r"[\u3041-\u309f\u30a1-\u30ff\u31f0-\u31ff\uff66-\uff9f]")
 _REPEAT = re.compile(r"(.{2,16}?)\1{3,}")
 _PUNCT_STRIP = re.compile(r"[\s\u3000、。．，？！?!「」『』（）()]+")
+_NON_SPEECH_STRIP = re.compile(r"[\s\u3000、。．，？！?!「」『』（）()・…〜～ー\-—.,:;\"'‘’“”]+")
+
+
+def _has_meaningful_ja(text: str) -> bool:
+    return bool(text and _NON_SPEECH_STRIP.sub("", text))
 VAD_SHA = "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6"
 MODEL_FILES = (
     "encoder-epoch-99-avg-1.int8.onnx", "decoder-epoch-99-avg-1.onnx",
@@ -97,22 +102,29 @@ class _DraftSnapshot:
 
 
 _DRAFT_CLAUSE_END = (
-    "、", "。", "？", "！", "?", "!",
-    "けど", "から", "ので", "って", "よね", "ですね",
-    "ます", "です", "した", "ない", "て", "が", "は", "も", "ね", "よ",
+    "。", "？", "！", "?", "!", "、",
+    "けど", "けれど", "から", "ので", "よね", "ですね",
+    "ます", "です", "した", "ない", "たい", "って",
+    "かな", "だね", "だよ", "でしょ", "じゃん", "もん", "ね", "よ",
 )
 
 
 def _should_emit_draft_ja(prev_ja: str, curr_ja: str) -> bool:
     if not curr_ja or curr_ja == prev_ja:
         return False
-    curr_norm = _PUNCT_STRIP.sub("", curr_ja)
-    if len(curr_norm) < 6:
+    curr_norm = _NON_SPEECH_STRIP.sub("", curr_ja)
+    if len(curr_norm) < 8:
         return False
-    prev_norm = _PUNCT_STRIP.sub("", prev_ja) if prev_ja else ""
-    if prev_norm and len(curr_norm) < len(prev_norm) + 3:
-        return False
-    return len(curr_norm) >= 12 or curr_ja.endswith(_DRAFT_CLAUSE_END)
+    prev_norm = _NON_SPEECH_STRIP.sub("", prev_ja) if prev_ja else ""
+    if prev_norm:
+        if len(curr_norm) < len(prev_norm) + 5:
+            return False
+        if not (
+            curr_norm.startswith(prev_norm[: min(4, len(prev_norm))])
+            or curr_ja.endswith(("。", "？", "！", "?", "!"))
+        ):
+            return False
+    return len(curr_norm) >= 16 or curr_ja.endswith(_DRAFT_CLAUSE_END)
 
 
 @dataclass(frozen=True)
@@ -123,6 +135,42 @@ class _PendingAudio:
     samples: np.ndarray
     has_overlap: bool = False
     dedup_before_sample: int = 0
+    best_draft_ja: str = ""
+    best_draft_end_sample: int = 0
+
+
+def _guard_final_against_draft(
+    final_ja: str,
+    item: _PendingAudio,
+    *,
+    retry_beam_fn=None,
+) -> tuple[str, str]:
+    """Prevent collapsed Final ASR from discarding a substantially longer Draft preview."""
+    draft_ja = item.best_draft_ja
+    if not draft_ja:
+        return final_ja, "none"
+    draft_norm = _NON_SPEECH_STRIP.sub("", draft_ja)
+    final_norm = _NON_SPEECH_STRIP.sub("", final_ja)
+    threshold = max(4, int(len(draft_norm) * 0.55))
+    if len(draft_norm) < 6 or len(final_norm) >= threshold:
+        return final_ja, "none"
+    if retry_beam_fn is not None:
+        beam_ja = retry_beam_fn() or ""
+        beam_norm = _NON_SPEECH_STRIP.sub("", beam_ja)
+        if len(beam_norm) > len(final_norm):
+            final_ja, final_norm = beam_ja, beam_norm
+        if len(final_norm) >= threshold:
+            return final_ja, "beam_recovered"
+    if not final_norm:
+        return draft_ja, "fallback_draft"
+    if (
+        item.best_draft_end_sample > 0
+        and (item.end_sample - item.best_draft_end_sample) >= int(0.4 * RATE)
+        and draft_norm[-3:] not in final_norm
+        and final_norm not in draft_norm
+    ):
+        return f"{draft_ja} {final_ja}".strip(), "merged_draft_tail"
+    return draft_ja, "fallback_draft"
 
 
 def silero_config(vad_path, pause_ms):
@@ -315,7 +363,7 @@ class _SmartSegmenter:
         if released or frame is None or draft_interval_s <= 0:
             return released, None
         snap = self.active_preview_snapshot(
-            min_speech_s=max(1.4, draft_interval_s),
+            min_speech_s=max(1.6, draft_interval_s),
             min_step_s=draft_interval_s,
         )
         return released, snap
@@ -354,9 +402,11 @@ class ReazonRecognizer:
                 record("vad_released", **span)
                 record("asr_start", **span)
             text = self.decode(samples)
+            meaningful = _has_meaningful_ja(text)
             if record:
-                record("asr_end", text_ja=text, **span)
-            if text:
+                extra = {"mt_skipped": "punct_only"} if (text and not meaningful) else {}
+                record("asr_end", text_ja=text, **span, **extra)
+            if meaningful:
                 out.append(RecognizedSegment(segment_id, start, end, text))
         return out
 
@@ -617,7 +667,7 @@ class NeMoAneBridge:
         samples: np.ndarray,
         *,
         pad_samples: int,
-        use_beam: bool,
+        use_beam: bool | int,
         cancel_event: threading.Event | None = None,
         start_sample: int = 0,
         dedup_before_sample: int = 0,
@@ -635,7 +685,7 @@ class NeMoAneBridge:
             audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
             int(audio.size),
             int(pad_samples),
-            1 if use_beam else 0,
+            int(use_beam),
             cb,
             None,
             out_buf,
@@ -836,7 +886,8 @@ class SpeechCppNeMoRecognizer:
         )
         pad_s = pad_samples / float(RATE)
         decoding_str = decoding_override or self._decoding.decode("utf-8")
-        decoding_bytes = decoding_str.encode("utf-8")
+        cpp_decoding_bytes = b"beam" if decoding_str == "hybrid" else decoding_str.encode("utf-8")
+        ane_mode = 0 if decoding_str == "greedy" else (2 if decoding_str == "hybrid" else 1)
         audio = np.ascontiguousarray(samples, dtype=np.float32)
         fallback_reason: str | None = None
         if self._device == "ane":
@@ -846,13 +897,14 @@ class SpeechCppNeMoRecognizer:
                     text_ane = ane.transcribe(
                         audio,
                         pad_samples=pad_samples,
-                        use_beam=(decoding_str != "greedy"),
+                        use_beam=ane_mode,
                         cancel_event=cancel_event,
                         start_sample=start_sample,
                         dedup_before_sample=dedup_before_sample,
                     )
                     self.last_decode_meta = {
                         "backend": "ane",
+                        "decoding": decoding_str,
                         "fallback_reason": None,
                         "timings": getattr(ane, "last_timings", None),
                     }
@@ -881,7 +933,7 @@ class SpeechCppNeMoRecognizer:
             try:
                 ptr = audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
                 self._check_status("set_audio", self._lib.speech_request_set_audio(req, ptr, audio.size, RATE))
-                self._check_status("set_decoding", self._lib.speech_request_set_string(req, self._OPT_DECODING, decoding_bytes))
+                self._check_status("set_decoding", self._lib.speech_request_set_string(req, self._OPT_DECODING, cpp_decoding_bytes))
                 if self._fallback_device == "gpu":
                     self._check_status("set_decode_on_cpu", self._lib.speech_request_set_bool(req, self._OPT_DECODE_ON_CPU, 1))
                 if dedup_before_sample > 0:
@@ -918,6 +970,7 @@ class SpeechCppNeMoRecognizer:
                     text = raw.decode("utf-8", "replace").strip() if raw else ""
                 self.last_decode_meta = {
                     "backend": f"speech_cpp_{self._fallback_device}",
+                    "decoding": decoding_str,
                     "fallback_reason": fallback_reason,
                     "timings": None,
                 }
@@ -947,17 +1000,22 @@ class _Qwen3Session:
         self.max_turns = max_turns
         self.turns = 0
         self.last_end_sample = 0
+        self.history: deque[tuple[str, str]] = deque(maxlen=max(1, max_turns))
 
     def close(self):
         self.turns = 0
         self.last_end_sample = 0
+        self.history.clear()
         self._translator._reset_cache()
 
 
 class Qwen3Translator:
     SYSTEM_PROMPT = (
-        "你是专业日译中视频字幕翻译。只输出自然流畅的简体中文译文，不要解释，不要输出思考过程。"
-        "严禁保留任何日文平假名或片假名：人名与专有名词一律音译为中文汉字，外来片假名借词必须译成对应中文或还原英文单词。"
+        "你是专业日剧与影视字幕翻译，将日语口语台词译为自然流畅的简体中文。只输出中文译文，不要解释，不要输出思考过程。\n"
+        "规则：\n"
+        "1. 严禁保留任何平假名或片假名；外来片假名缩写和日常物品名一律译为中文惯用词，禁止生硬音译；人名与昵称结合上下文保持一致，避免对「〜ちゃん」随意臆测性别。\n"
+        "2. 严格忠实于数字、分数（如「X分のY」）、否定与疑问语气，以及受益/被动语态（「〜てもらう/〜てもらえる」表示承蒙他人帮忙或由别人来做，不可主客颠倒）。\n"
+        "3. 准确保留引号内或「〜って言う/〜にする」转述的措辞原意，结合前文对话补全省略主语与场景义（如店员接待、职场、日常闲聊）。"
     )
     REPAIR_PROMPT = (
         "请将以下日语台词准确翻译为自然流畅的纯简体中文（严禁包含任何平假名或片假名；"
@@ -1171,25 +1229,50 @@ class Qwen3Translator:
             gap_exceeded = (
                 start_sample is not None
                 and session.last_end_sample > 0
-                and (start_sample - session.last_end_sample) > int(5.0 * RATE)
+                and (start_sample - session.last_end_sample) > int(12.0 * RATE)
             )
-            if session.turns == 0 or session.turns >= session.max_turns or cache_extra > 180 or gap_exceeded:
+            history = getattr(session, "history", None)
+            if gap_exceeded:
                 self._reset_cache()
                 session.turns = 0
-            turn_prefix = self._next_turn_prefix if session.turns > 0 else ""
+                if history is not None:
+                    history.clear()
+                prompt_suffix = text_ja + self._suffix_tail
+            elif session.turns >= session.max_turns or cache_extra > 420:
+                self._reset_cache()
+                keep_n = max(1, session.max_turns // 2) if session.max_turns >= 2 else 0
+                kept = list(history)[-keep_n:] if (history is not None and keep_n > 0) else []
+                if history is not None:
+                    session.history = deque(kept, maxlen=max(1, session.max_turns))
+                    history = session.history
+                session.turns = len(kept)
+                replay_prefix = "".join(
+                    f"{h_ja}{self._suffix_tail}{h_zh}{self._next_turn_prefix}"
+                    for h_ja, h_zh in kept
+                )
+                prompt_suffix = replay_prefix + text_ja + self._suffix_tail
+            else:
+                if session.turns == 0:
+                    self._reset_cache()
+                turn_prefix = self._next_turn_prefix if session.turns > 0 else ""
+                prompt_suffix = turn_prefix + text_ja + self._suffix_tail
             raw = self._run_cached_prompt(
-                turn_prefix + text_ja + self._suffix_tail,
+                prompt_suffix,
                 cancel_event=cancel_event,
                 keep_kv=True,
                 on_delta=on_delta,
             )
             if raw and not (cancel_event is not None and cancel_event.is_set()) and not _KANA.search(raw):
                 session.turns += 1
+                if history is not None:
+                    history.append((text_ja, raw))
                 if end_sample is not None:
                     session.last_end_sample = end_sample
             else:
                 self._reset_cache()
                 session.turns = 0
+                if history is not None:
+                    history.clear()
         elif has_cache:
             raw = self._run_cached_prompt(
                 text_ja + self._suffix_tail,
@@ -1414,6 +1497,7 @@ class LocalSession:
         self._pending_draft: _DraftSnapshot | None = None
         self._draft_cancel = threading.Event()
         self._last_draft_ja = ""
+        self._active_draft_best: tuple[int, int, str] | None = None
         ane_runtime = bool(backend.uses_ane_asr and getattr(backend, "ane_runtime_active", True))
         self._use_ane_parallel = ane_runtime
         self._use_gpu_serial = bool(backend.uses_gpu_scheduler or (backend.uses_ane_asr and not ane_runtime))
@@ -1473,6 +1557,66 @@ class LocalSession:
         if meta.get("timings"):
             fields["ane_timings"] = meta["timings"]
         return fields
+
+    def _record_draft_candidate(self, snap: _DraftSnapshot, draft_ja: str) -> None:
+        if not _has_meaningful_ja(draft_ja):
+            return
+        curr_len = len(_NON_SPEECH_STRIP.sub("", draft_ja))
+        best_len = (
+            len(_NON_SPEECH_STRIP.sub("", self._active_draft_best[2]))
+            if self._active_draft_best is not None
+            else 0
+        )
+        if self._active_draft_best is None or curr_len >= best_len:
+            self._active_draft_best = (snap.start_sample, snap.end_sample, draft_ja)
+
+    async def _finalize_asr_result(
+        self,
+        loop: asyncio.AbstractEventLoop,
+        item: _PendingAudio,
+        text: str,
+        span: dict,
+        *,
+        gpu_lock=None,
+    ) -> str:
+        guard_action = "none"
+        if item.best_draft_ja:
+            draft_norm = _NON_SPEECH_STRIP.sub("", item.best_draft_ja)
+            final_norm = _NON_SPEECH_STRIP.sub("", text)
+            threshold = max(4, int(len(draft_norm) * 0.55))
+            if len(draft_norm) >= 6 and len(final_norm) < threshold:
+                if self.backend.uses_speech_cpp_asr:
+                    retry_beam = lambda s=item: _call_with_cancel(
+                        self.backend.recognizer.decode,
+                        s.samples,
+                        cancel_event=self.cancelled,
+                        start_sample=s.start_sample,
+                        dedup_before_sample=s.dedup_before_sample,
+                        decoding_override="beam",
+                        gpu_lock=gpu_lock,
+                    )
+                    self.asr_work = loop.run_in_executor(
+                        self.backend.asr_pool,
+                        lambda fn=retry_beam, t=text, it=item: _guard_final_against_draft(
+                            t, it, retry_beam_fn=fn
+                        ),
+                    )
+                    text, guard_action = await asyncio.shield(self.asr_work)
+                    if self.cancelled.is_set():
+                        return ""
+                else:
+                    text, guard_action = _guard_final_against_draft(text, item)
+        meaningful = _has_meaningful_ja(text)
+        extra = self._asr_trace_fields()
+        if guard_action != "none":
+            extra["draft_guard"] = guard_action
+        if text and not meaningful:
+            extra["mt_skipped"] = "punct_only"
+        if meaningful:
+            self._last_ja = text
+        if self.record:
+            self.record("asr_end", text_ja=text, **span, **extra)
+        return text if meaningful else ""
 
     def translate(self, segment, loop: asyncio.AbstractEventLoop | None = None):
         if self.record:
@@ -1534,11 +1678,15 @@ class LocalSession:
                 text = await asyncio.shield(self.asr_work)
                 if self.cancelled.is_set():
                     break
-                if text:
+                meaningful = _has_meaningful_ja(text)
+                if meaningful:
                     self._last_ja = text
                 if self.record:
-                    self.record("asr_end", text_ja=text, **span, **self._asr_trace_fields())
-                if text:
+                    extra = self._asr_trace_fields()
+                    if text and not meaningful:
+                        extra["mt_skipped"] = "punct_only"
+                    self.record("asr_end", text_ja=text, **span, **extra)
+                if meaningful:
                     self._enqueue_segment(RecognizedSegment(item.segment_id, item.start_sample, item.end_sample, text))
             await self.pending.put(None)
         except Exception as exc:
@@ -1574,10 +1722,9 @@ class LocalSession:
                     text = await asyncio.shield(self.asr_work)
                     if self.cancelled.is_set():
                         break
-                    if text:
-                        self._last_ja = text
-                    if self.record:
-                        self.record("asr_end", text_ja=text, **span, **self._asr_trace_fields())
+                    text = await self._finalize_asr_result(loop, item, text, span, gpu_lock=gpu_lock)
+                    if self.cancelled.is_set():
+                        break
                     if text:
                         seg = RecognizedSegment(item.segment_id, item.start_sample, item.end_sample, text)
                         self._mt_queue.append(seg)
@@ -1601,7 +1748,7 @@ class LocalSession:
                             start_sample=s.start_sample,
                             dedup_before_sample=s.dedup_before_sample,
                             decoding_override="greedy",
-                            pad_ms_override=150,
+                            pad_ms_override=350,
                             gpu_lock=gpu_lock,
                         ),
                     )
@@ -1612,10 +1759,11 @@ class LocalSession:
                         and not self._asr_queue
                         and not self._mt_queue
                         and draft_ja
-                        and _should_emit_draft_ja(self._last_draft_ja, draft_ja)
                     ):
-                        self._pending_draft_ja = (snap, draft_ja)
-                        self._ane_mt_ready.set()
+                        self._record_draft_candidate(snap, draft_ja)
+                        if _should_emit_draft_ja(self._last_draft_ja, draft_ja):
+                            self._pending_draft_ja = (snap, draft_ja)
+                            self._ane_mt_ready.set()
                     continue
                 if self._asr_input_done:
                     break
@@ -1733,10 +1881,9 @@ class LocalSession:
                         break
                     if not self.backend.uses_speech_cpp_asr and item.has_overlap and self._last_ja and text:
                         text = _dedup_boundary_ja(self._last_ja, text)
-                    if text:
-                        self._last_ja = text
-                    if self.record:
-                        self.record("asr_end", text_ja=text, **span, **self._asr_trace_fields())
+                    text = await self._finalize_asr_result(loop, item, text, span)
+                    if self.cancelled.is_set():
+                        break
                     if text:
                         seg = RecognizedSegment(item.segment_id, item.start_sample, item.end_sample, text)
                         self._mt_queue.append(seg)
@@ -1758,7 +1905,7 @@ class LocalSession:
                             start_sample=s.start_sample,
                             dedup_before_sample=s.dedup_before_sample,
                             decoding_override="greedy",
-                            pad_ms_override=150,
+                            pad_ms_override=350,
                         ),
                     )
                     draft_ja = await asyncio.shield(self.asr_work)
@@ -1770,6 +1917,7 @@ class LocalSession:
                         or not draft_ja
                     ):
                         continue
+                    self._record_draft_candidate(snap, draft_ja)
                     if not _should_emit_draft_ja(self._last_draft_ja, draft_ja):
                         continue
                     self.mt_work = loop.run_in_executor(
@@ -1836,22 +1984,31 @@ class LocalSession:
             released = await loop.run_in_executor(vad_pool, self.segmenter.push, frame)
             snap = None
 
+        best_draft: tuple[int, int, str] | None = None
         if self._use_gpu_serial or self._use_ane_parallel:
             if released:
+                best_draft = self._active_draft_best
                 self._draft_cancel.set()
                 self._pending_draft = None
                 if self._use_ane_parallel:
                     self._pending_draft_ja = None
                 self._last_draft_ja = ""
+                self._active_draft_best = None
             elif snap is not None and not self._asr_queue and not self._mt_queue:
                 self._pending_draft = snap
                 (self._ane_asr_ready if self._use_ane_parallel else self._work_ready).set()
 
-        for chunk in released:
+        for idx, chunk in enumerate(released):
             segment_id = next(self.segment_ids)
             start = chunk.start_sample
             samples = chunk.samples
             end = start + len(samples)
+            attach_draft = (
+                idx == 0
+                and best_draft is not None
+                and chunk.dedup_before_sample == 0
+                and abs(start - best_draft[0]) <= int(0.8 * RATE)
+            )
             if self.record:
                 self.record(
                     "vad_released",
@@ -1868,6 +2025,8 @@ class LocalSession:
                 samples,
                 chunk.dedup_before_sample > 0,
                 chunk.dedup_before_sample,
+                best_draft[2] if attach_draft else "",
+                best_draft[1] if attach_draft else 0,
             )
             if self._use_gpu_serial or self._use_ane_parallel:
                 dur = len(samples) / RATE
@@ -1911,6 +2070,7 @@ class LocalSession:
         self.cancelled.set()
         self._draft_cancel.set()
         self._pending_draft = None
+        self._active_draft_best = None
         if self._use_gpu_serial:
             self._work_ready.set()
         if self._use_ane_parallel:

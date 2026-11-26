@@ -31,7 +31,7 @@ class AsrConfig(StrictModel):
     max_segment_s: float = Field(default=0.0, ge=0.0, le=30.0)
     overlap_ms: int = Field(default=350, ge=0, le=1000)
     pad_ms: int = Field(default=350, ge=0, le=1000)
-    decoding: Literal["beam", "greedy"] = "beam"
+    decoding: Literal["beam", "greedy", "hybrid"] = "beam"
     device: Literal["cpu", "gpu", "ane"] = "cpu"
     draft_interval_s: float = Field(default=0.0, ge=0.0, le=5.0)
 
@@ -48,7 +48,7 @@ class AsrConfig(StrictModel):
 class MtConfig(StrictModel):
     type: Literal["hy_mt2_mlx", "qwen3_mt_mlx"]
     model_revision: Revision
-    context_turns: int = Field(default=2, ge=0, le=4)
+    context_turns: int = Field(default=2, ge=0, le=8)
 
 
 class LocalProfile(StrictModel):

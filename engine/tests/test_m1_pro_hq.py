@@ -493,18 +493,20 @@ def test_qwen3_rolling_kv_and_streaming_delta_order(tmp_path, monkeypatch):
     assert out2 == "你好世界" and sess.turns == 2
     assert seen_prompts[1] > seen_prompts[0]
 
-    # Turn 3 hits max_turns=2 -> resets cache back to prefix_len before running!
+    # Turn 3 hits max_turns=2 -> sliding-window replay retains 1 prior turn ("B") instead of hard reset!
     out3 = tr.translate(sess, "C", start_sample=32000, end_sample=48000)
-    assert out3 == "你好世界" and sess.turns == 1
-    assert seen_prompts[2] == seen_prompts[0]
+    assert out3 == "你好世界" and sess.turns == 2
+    assert seen_prompts[2] > seen_prompts[0]
+    assert [x[0] for x in sess.history] == ["B", "C"]
 
-    # >5.0s audio gap resets cache
-    _ = tr.translate(sess, "D", start_sample=48000 + 6 * lp.RATE, end_sample=48000 + 7 * lp.RATE)
+    # >12.0s audio gap clears history and resets cache back to prefix_len
+    _ = tr.translate(sess, "D", start_sample=48000 + 13 * lp.RATE, end_sample=48000 + 14 * lp.RATE)
     assert sess.turns == 1 and seen_prompts[3] == seen_prompts[0]
+    assert [x[0] for x in sess.history] == ["D"]
 
-    # session.close() resets cache strictly to prefix_len
+    # session.close() resets cache strictly to prefix_len and clears history
     sess.close()
-    assert tr._prompt_cache[0].offset == 90
+    assert tr._prompt_cache[0].offset == 90 and len(sess.history) == 0
 
     # Cancel and exception reset cache strictly to prefix_len
     ev = threading.Event()
@@ -746,14 +748,17 @@ def test_stage4_draft_preview_clause_gate_kv_peek_and_preemption(tmp_path, monke
             snaps.append(snap)
     rel, _ = seg.push_and_preview(None, draft_interval_s=1.2)
     finals.extend(rel)
-    assert len(snaps) >= 1 and snaps[0].start_sample == 0 and snaps[0].end_sample >= int(1.4 * lp.RATE)
+    assert len(snaps) >= 1 and snaps[0].start_sample == 0 and snaps[0].end_sample >= int(1.6 * lp.RATE)
     assert len(finals) == 1 and finals[0].start_sample == 0 and len(finals[0].samples) == 48000
 
     # 2. _should_emit_draft_ja SOV clause gate
     assert lp._should_emit_draft_ja("", "これ") is False
+    assert lp._should_emit_draft_ja("", "保育士さんって親は") is False
+    assert lp._should_emit_draft_ja("", "今日は天気が") is False
     assert lp._should_emit_draft_ja("", "私、こんにちはって") is True
+    assert lp._should_emit_draft_ja("私、こんにちはって", "明日も晴れると思うんだよ") is False
     assert lp._should_emit_draft_ja("私、こんにちはって", "私、こんにちはって言") is False
-    assert lp._should_emit_draft_ja("私、こんにちはって", "私、こんにちはって言ってたんだよね。") is True
+    assert lp._should_emit_draft_ja("私、こんにちはって", "私、こんにちはって言ってたんだよ。") is True
 
     # 3. Qwen3Translator.translate_draft non-mutating KV cache invariant
     class FakeSlot:
@@ -1047,7 +1052,7 @@ model_revision = "{REV_B}"
         class recognizer:
             @staticmethod
             def decode(samples, *, cancel_event=None, start_sample=0, dedup_before_sample=0, decoding_override=None, pad_ms_override=None):
-                return "これはテストですが" if decoding_override == "greedy" else "本番です。"
+                return "これはテストですよね" if decoding_override == "greedy" else "本番テストです。"
 
         class translator:
             @staticmethod
@@ -1067,7 +1072,7 @@ model_revision = "{REV_B}"
             lambda ev: emitted.append(ev) or asyncio.sleep(0),
             None,
         )
-        snap = lp._DraftSnapshot(0, np.zeros(8000, dtype=np.float32), 0)
+        snap = lp._DraftSnapshot(0, 8000, np.zeros(8000, dtype=np.float32), 0)
         final_chunk = lp._EmittedChunk(0, np.zeros(16000, dtype=np.float32), 0, "vad_pause")
         sess.segmenter.push_and_preview = lambda frame, draft_interval_s=0.0: (
             ([final_chunk], None) if frame == b"FINAL" else ([], snap)
@@ -1087,7 +1092,7 @@ model_revision = "{REV_B}"
 
     evts = asyncio.run(scenario())
     assert any(isinstance(e, lp.CaptionDelta) and "草稿:" in e.text_zh for e in evts)
-    assert any(isinstance(e, lp.Caption) and e.text_zh == "正式:本番です。" for e in evts)
+    assert any(isinstance(e, lp.Caption) and e.text_zh == "正式:本番テストです。" for e in evts)
 
 
 def test_ane_init_failure_switches_session_to_gpu_serial_scheduler(tmp_path, monkeypatch):
@@ -1439,4 +1444,187 @@ def test_native_nemo_ane_idle_no_keepalive_and_timings():
         assert timings["bucket_mel"] == 256
     finally:
         bridge.close()
+
+
+def test_p0_hybrid_decoding_config_and_native_ane_hybrid_mode():
+    from subtitle_service.config import AsrConfig, MtConfig
+
+    asr_cfg = AsrConfig(
+        type="speech_cpp_nemo",
+        model_file="reazonspeech-nemo-619M-v2-Q8_0.gguf",
+        decoding="hybrid",
+        device="ane",
+        vad_pause_ms=180,
+        max_segment_s=2.8,
+        pad_ms=500,
+    )
+    mt_cfg = MtConfig(
+        type="qwen3_mt_mlx",
+        model_revision=REV_B,
+        context_turns=8,
+    )
+    assert asr_cfg.decoding == "hybrid" and mt_cfg.context_turns == 8
+
+    # speech.cpp fallback maps hybrid -> beam while reporting decoding='hybrid'
+    rec = lp.SpeechCppNeMoRecognizer.__new__(lp.SpeechCppNeMoRecognizer)
+    rec._model = object()
+    rec._pad_samples = 8000
+    rec._pad_s = 0.5
+    rec._decoding = b"hybrid"
+    rec._device = "ane"
+    rec._fallback_device = "gpu"
+    rec._ane = None
+    rec._ane_init_fallback_reason = "ane_unavailable"
+    seen_decoding = []
+
+    class FakeCppLib:
+        def speech_request_new(self, _m, _ptr): return 0
+        def speech_request_free(self, _r): pass
+        def speech_request_set_audio(self, _r, _p, _n, _sr): return 0
+        def speech_request_set_string(self, _r, key, val):
+            if key == rec._OPT_DECODING:
+                seen_decoding.append(val)
+            return 0
+        def speech_request_set_bool(self, _r, _k, _v): return 0
+        def speech_transcribe(self, _r): return 0
+        def speech_request_result(self, _r): return 1
+        def speech_result_untimed(self, _r): return b"1"
+        def speech_result_text(self, _r): return b"\xe3\x81\xaf\xe3\x81\x84\xe3\x80\x82"
+
+    rec._lib = FakeCppLib()
+    rec._check_status = lambda _op, st: st
+    out = rec.decode(np.zeros(lp.RATE, dtype=np.float32))
+    assert out == "はい。"
+    assert seen_decoding == [b"beam"]
+    assert rec.last_decode_meta["decoding"] == "hybrid"
+
+    ane_dir = ROOT / ".model-cache/nemo-ane"
+    gguf_path = ROOT / ".model-cache/speech-cpp/reazonspeech-nemo-619M-v2-Q8_0.gguf"
+    if lp.NeMoAneBridge.is_ready(ane_dir) and gguf_path.is_file():
+        bridge = lp.NeMoAneBridge(ane_dir, gguf_path)
+        try:
+            c0 = bridge.eval_count()
+            _ = bridge.transcribe(np.zeros(2 * lp.RATE, dtype=np.float32), pad_samples=8000, use_beam=2)
+            assert bridge.eval_count() == c0 + 1
+        finally:
+            bridge.close()
+
+
+def test_p0_draft_regression_guard_recovers_collapsed_final():
+    pcm = np.zeros(lp.RATE * 3, dtype=np.float32)
+
+    # 1. Sufficient final passes through unchanged without invoking beam retry
+    item_ok = lp._PendingAudio(
+        1, 0, lp.RATE * 3, pcm, best_draft_ja="来週末どうするの？", best_draft_end_sample=int(lp.RATE * 2.0)
+    )
+    called = []
+    txt, act = lp._guard_final_against_draft(
+        "来週末どうするの？どうしよう。",
+        item_ok,
+        retry_beam_fn=lambda: called.append(True) or "unused",
+    )
+    assert act == "none" and txt == "来週末どうするの？どうしよう。" and not called
+
+    # 2. Collapsed final recovered by beam retry
+    item_collapsed = lp._PendingAudio(
+        2, 0, lp.RATE * 4, pcm, best_draft_ja="麻美、来週末どうすんの。", best_draft_end_sample=int(lp.RATE * 2.5)
+    )
+    txt, act = lp._guard_final_against_draft(
+        "どう",
+        item_collapsed,
+        retry_beam_fn=lambda: "麻美、来週末どうすんの？どうしようかな。",
+    )
+    assert act == "beam_recovered" and txt == "麻美、来週末どうすんの？どうしようかな。"
+
+    # 3. Two-speaker loud suffix merges preserved draft prefix + tail final when beam also collapsed
+    item_split_speakers = lp._PendingAudio(
+        3, 0, lp.RATE * 4, pcm, best_draft_ja="麻美、そろそろ寝なさい。", best_draft_end_sample=int(lp.RATE * 2.4)
+    )
+    txt, act = lp._guard_final_against_draft(
+        "はい。",
+        item_split_speakers,
+        retry_beam_fn=lambda: "はい。",
+    )
+    assert act == "merged_draft_tail" and txt == "麻美、そろそろ寝なさい。 はい。"
+
+    # 4. Empty final falls back to draft cleanly
+    txt, act = lp._guard_final_against_draft("", item_split_speakers, retry_beam_fn=lambda: "")
+    assert act == "fallback_draft" and txt == "麻美、そろそろ寝なさい。"
+
+
+def test_p1_pure_punctuation_asr_skipped_before_mt():
+    from concurrent.futures import ThreadPoolExecutor
+
+    class DummyBackend:
+        profile = type("Prof", (), {
+            "asr": type("Asr", (), {"max_segment_s": 0.0, "overlap_ms": 0, "draft_interval_s": 0.0})(),
+        })()
+        uses_mlx_asr = False
+        uses_speech_cpp_asr = True
+        uses_gpu_speech_cpp = False
+        uses_ane_asr = True
+        uses_gpu_scheduler = False
+        ane_runtime_active = True
+        _gpu_fallback_lock = threading.Lock()
+        vad_pool = ThreadPoolExecutor(max_workers=1)
+        asr_pool = ThreadPoolExecutor(max_workers=1)
+        mt_pool = ThreadPoolExecutor(max_workers=1)
+        asr_outputs = iter(["。", "！？", "こんにちは"])
+        mt_calls = []
+
+        class recognizer:
+            last_decode_meta = {"backend": "ane", "fallback_reason": None, "timings": None}
+
+            @classmethod
+            def decode(cls, *_args, **_kwargs):
+                return next(DummyBackend.asr_outputs)
+
+        class translator:
+            @staticmethod
+            def translate(_sess, text_ja, **_kwargs):
+                DummyBackend.mt_calls.append(text_ja)
+                return f"ZH:{text_ja}"
+
+    traces = []
+    emitted = []
+
+    async def scenario():
+        sess = lp.LocalSession(
+            DummyBackend(),
+            object(),
+            type("Sess", (), {"close": lambda self: None})(),
+            lambda ev: emitted.append(ev) or asyncio.sleep(0),
+            lambda stage, **kw: traces.append({"stage": stage, **kw}),
+        )
+        chunks = [
+            lp._EmittedChunk(i * 16000, np.zeros(16000, dtype=np.float32), 0, "vad_natural")
+            for i in range(3)
+        ]
+        idx = 0
+
+        def fake_push(frame):
+            nonlocal idx
+            if frame is not None and idx < len(chunks):
+                ch = chunks[idx]
+                idx += 1
+                return [ch]
+            return []
+
+        sess.segmenter.push = fake_push
+        for _ in range(3):
+            await sess.accept_pcm(b"\x00\x00" * 1600)
+        await sess.finish()
+        await sess.aclose()
+        DummyBackend.vad_pool.shutdown()
+        DummyBackend.asr_pool.shutdown()
+        DummyBackend.mt_pool.shutdown()
+
+    asyncio.run(scenario())
+    assert DummyBackend.mt_calls == ["こんにちは"]
+    assert [e.text_zh for e in emitted] == ["ZH:こんにちは"]
+    asr_ends = [t for t in traces if t["stage"] == "asr_end"]
+    assert len(asr_ends) == 3
+    assert asr_ends[0].get("mt_skipped") == "punct_only"
+    assert asr_ends[1].get("mt_skipped") == "punct_only"
+    assert "mt_skipped" not in asr_ends[2]
 
