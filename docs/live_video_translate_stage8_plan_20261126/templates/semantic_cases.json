@@ -1,0 +1,15 @@
+{
+  "schema_version": "stage8-semantic-fixtures-v1",
+  "purpose": "Synthetic regression and protocol smoke only; not an independent quality benchmark",
+  "human_verified": false,
+  "cases": [
+    {"id": "passive-agent", "ja": "先輩に怒られた。", "meaning": "说话人受到前辈责备", "reject_meaning": "前辈受到说话人责备"},
+    {"id": "negation-scope", "ja": "田中さんに電話したわけじゃない。", "meaning": "并不是给田中打过电话", "reject_meaning": "已经给田中打了电话"},
+    {"id": "number-correction", "ja": "250円じゃなくて、2,500円。", "meaning": "不是250日元，是2500日元", "reject_meaning": "250和2500互换、漏掉纠正关系"},
+    {"id": "era-term", "ja": "ポケベルが鳴った。", "meaning": "传呼机或BP机响了", "reject_meaning": "手机、手表或短信凭空替代"},
+    {"id": "home-response", "context_ja": "ただいま。", "ja": "おかえり。", "meaning": "欢迎回来/回来啦，回应回家者", "reject_meaning": "再见"},
+    {"id": "overfamiliar", "ja": "初対面なのに、なれなれしい。", "meaning": "初次见面却太自来熟/过分亲热", "reject_meaning": "友好温馨的正面评价而丢掉嫌弃"},
+    {"id": "short-yes", "ja": "うん。", "meaning": "嗯/是，依语境", "reject_meaning": "因为字少无条件删除"},
+    {"id": "separate-repeat", "context_ja": "人物A：はい。", "ja": "人物B：はい。", "meaning": "另一个人的独立回应", "reject_meaning": "仅因同字重复而去重删除"}
+  ]
+}

@@ -1,0 +1,2066 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.example.invalid/stage8/contracts-v1",
+  "title": "Stage8 data contracts - proposed, no model implementation",
+  "description": "Select a definition with $ref and retain $defs; semantic cross-field checks are required by 11_machine_contracts.md.",
+  "$defs": {
+    "Artifact": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "Model": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "backend": {
+          "type": "string"
+        },
+        "precision": {
+          "type": "string"
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Artifact"
+          }
+        },
+        "tokenizer_sha256": {
+          "type": "string"
+        },
+        "template_sha256": {
+          "type": "string"
+        },
+        "license_verified": {
+          "type": "boolean"
+        },
+        "trust_remote_code": {
+          "type": "boolean"
+        },
+        "stop_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "required": [
+        "key",
+        "repository",
+        "revision",
+        "backend",
+        "precision",
+        "artifacts",
+        "tokenizer_sha256",
+        "template_sha256",
+        "license_verified",
+        "trust_remote_code",
+        "stop_ids"
+      ],
+      "additionalProperties": false
+    },
+    "Hardware": {
+      "type": "object",
+      "properties": {
+        "chip": {
+          "type": "string"
+        },
+        "cpu_cores": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "gpu_cores": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "ram_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "macos_version": {
+          "type": "string"
+        },
+        "chrome_version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "chip",
+        "cpu_cores",
+        "gpu_cores",
+        "ram_bytes",
+        "macos_version",
+        "chrome_version"
+      ],
+      "additionalProperties": false
+    },
+    "Bundle": {
+      "type": "object",
+      "properties": {
+        "bundle_key": {
+          "type": "string"
+        },
+        "native_sha256": {
+          "type": "string"
+        },
+        "extension_sha256": {
+          "type": "string"
+        },
+        "observer_sha256": {
+          "type": "string"
+        },
+        "profile_sha256": {
+          "type": "string"
+        },
+        "profile_path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "bundle_key",
+        "native_sha256",
+        "extension_sha256",
+        "observer_sha256",
+        "profile_sha256",
+        "profile_path"
+      ],
+      "additionalProperties": false
+    },
+    "Runtime": {
+      "type": "object",
+      "properties": {
+        "python_version": {
+          "type": "string"
+        },
+        "mlx": {
+          "type": "string"
+        },
+        "mlx_lm": {
+          "type": "string"
+        },
+        "mlx_audio": {
+          "type": "string"
+        },
+        "transformers": {
+          "type": "string"
+        },
+        "lock_sha256": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "python_version",
+        "mlx",
+        "mlx_lm",
+        "mlx_audio",
+        "transformers",
+        "lock_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "Data": {
+      "type": "object",
+      "properties": {
+        "dataset_id": {
+          "type": "string"
+        },
+        "episode_id": {
+          "type": "string"
+        },
+        "split": {
+          "enum": [
+            "dev",
+            "regression",
+            "holdout",
+            "soak"
+          ]
+        },
+        "media_path": {
+          "type": "string"
+        },
+        "media_sha256": {
+          "type": "string"
+        },
+        "audio_track": {
+          "type": "string"
+        },
+        "pcm_path": {
+          "type": "string"
+        },
+        "pcm_sha256": {
+          "type": "string"
+        },
+        "sample_rate": {
+          "const": 16000
+        },
+        "channels": {
+          "const": 1
+        },
+        "resample_downmix_recipe": {
+          "type": "string"
+        },
+        "semantic_units_path": {
+          "type": "string"
+        },
+        "semantic_units_sha256": {
+          "type": "string"
+        },
+        "reference_human_verified": {
+          "type": "boolean"
+        },
+        "scene_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "holdout_sealed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "episode_id",
+        "split",
+        "media_path",
+        "media_sha256",
+        "audio_track",
+        "pcm_path",
+        "pcm_sha256",
+        "sample_rate",
+        "channels",
+        "resample_downmix_recipe",
+        "semantic_units_path",
+        "semantic_units_sha256",
+        "reference_human_verified",
+        "scene_count",
+        "holdout_sealed"
+      ],
+      "additionalProperties": false
+    },
+    "Budgets": {
+      "type": "object",
+      "properties": {
+        "final_request_timeout_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "preview_expiry_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verify_max_extra_wait_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reserve_mt_p95_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "reserve_transport_p95_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "final_request_timeout_ms",
+        "preview_expiry_ms",
+        "verify_max_extra_wait_ms",
+        "reserve_mt_p95_ms",
+        "reserve_transport_p95_ms"
+      ],
+      "additionalProperties": false
+    },
+    "Execution": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "offline",
+            "ws_replay",
+            "chrome",
+            "native_probe"
+          ]
+        },
+        "output_dir": {
+          "type": "string"
+        },
+        "duration_s": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "allow_download": {
+          "type": "boolean"
+        },
+        "allow_remote_audio_upload": {
+          "type": "boolean"
+        },
+        "allow_privileged_telemetry": {
+          "type": "boolean"
+        },
+        "allow_default_switch": {
+          "type": "boolean"
+        },
+        "allow_git_commit": {
+          "type": "boolean"
+        },
+        "allow_git_push": {
+          "type": "boolean"
+        },
+        "paired_order": {
+          "type": "string"
+        },
+        "repetitions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bootstrap_seed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "mode",
+        "output_dir",
+        "duration_s",
+        "allow_download",
+        "allow_remote_audio_upload",
+        "allow_privileged_telemetry",
+        "allow_default_switch",
+        "allow_git_commit",
+        "allow_git_push",
+        "paired_order",
+        "repetitions",
+        "bootstrap_seed"
+      ],
+      "additionalProperties": false
+    },
+    "RequestKey": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "epoch": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "caption_id": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "request_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "session_id",
+        "epoch",
+        "caption_id",
+        "revision",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "Span": {
+      "type": "object",
+      "properties": {
+        "target_start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "input_start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "input_end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "captured_end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sample_rate": {
+          "const": 16000
+        }
+      },
+      "required": [
+        "target_start",
+        "target_end",
+        "input_start",
+        "input_end",
+        "captured_end",
+        "sample_rate"
+      ],
+      "additionalProperties": false
+    },
+    "Distribution": {
+      "type": "object",
+      "properties": {
+        "eligible_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "missing_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "p50_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "p95_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "success_only_p50_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "success_only_p95_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "eligible_n",
+        "missing_n",
+        "p50_ms",
+        "p95_ms",
+        "success_only_p50_ms",
+        "success_only_p95_ms"
+      ],
+      "additionalProperties": false
+    },
+    "ArmMetrics": {
+      "type": "object",
+      "properties": {
+        "eligible_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "final_visible_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "first_useful_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "final_by_2000ms_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "e3e4_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "critical_miss_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "semantic_flip_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "erased_chars_per_min": {
+          "type": "number"
+        },
+        "first_useful_dom": {
+          "$ref": "#/$defs/Distribution"
+        },
+        "unit_end_final_dom": {
+          "$ref": "#/$defs/Distribution"
+        }
+      },
+      "required": [
+        "eligible_units",
+        "final_visible_units",
+        "first_useful_units",
+        "final_by_2000ms_units",
+        "e3e4_units",
+        "critical_miss_units",
+        "semantic_flip_units",
+        "erased_chars_per_min",
+        "first_useful_dom",
+        "unit_end_final_dom"
+      ],
+      "additionalProperties": false
+    },
+    "Manifest": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "stage8-manifest-v1"
+        },
+        "template_only": {
+          "type": "boolean"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "experiment_id": {
+          "type": "string"
+        },
+        "baseline_sha": {
+          "type": "string"
+        },
+        "actual_repo_sha": {
+          "type": "string"
+        },
+        "patch_sha256": {
+          "type": "string"
+        },
+        "bundle": {
+          "$ref": "#/$defs/Bundle"
+        },
+        "hardware": {
+          "$ref": "#/$defs/Hardware"
+        },
+        "runtime": {
+          "$ref": "#/$defs/Runtime"
+        },
+        "data": {
+          "$ref": "#/$defs/Data"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Model"
+          }
+        },
+        "roles": {
+          "type": "object",
+          "properties": {
+            "asr_primary": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "asr_gpu_fallback": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "asr_challenger": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "asr_primary",
+            "asr_gpu_fallback",
+            "asr_challenger",
+            "mt"
+          ],
+          "additionalProperties": false
+        },
+        "arm": {
+          "type": "object",
+          "properties": {
+            "arm_id": {
+              "type": "string"
+            },
+            "baseline_role": {
+              "enum": [
+                "deployed",
+                "corrected",
+                "candidate",
+                "subtitles_off"
+              ]
+            },
+            "parameters": {
+              "type": "object"
+            },
+            "rendered_prompt_policy_sha256": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "arm_id",
+            "baseline_role",
+            "parameters",
+            "rendered_prompt_policy_sha256"
+          ],
+          "additionalProperties": false
+        },
+        "thresholds": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "budgets": {
+          "$ref": "#/$defs/Budgets"
+        },
+        "execution": {
+          "$ref": "#/$defs/Execution"
+        },
+        "review": {
+          "type": "object",
+          "properties": {
+            "blind_model_identity": {
+              "type": "boolean"
+            },
+            "human_verified": {
+              "type": "boolean"
+            },
+            "reviewer_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "status": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "INCONCLUSIVE",
+                "BLOCKED"
+              ]
+            },
+            "reason_code": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "blind_model_identity",
+            "human_verified",
+            "reviewer_count",
+            "status",
+            "reason_code"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "template_only",
+        "run_id",
+        "experiment_id",
+        "baseline_sha",
+        "actual_repo_sha",
+        "patch_sha256",
+        "bundle",
+        "hardware",
+        "runtime",
+        "data",
+        "models",
+        "roles",
+        "arm",
+        "thresholds",
+        "budgets",
+        "execution",
+        "review"
+      ],
+      "additionalProperties": false
+    },
+    "Event": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "stage8-event-v1"
+        },
+        "synthetic_fixture": {
+          "type": "boolean"
+        },
+        "event_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "experiment_id": {
+          "type": "string"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RequestKey"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parent_request_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "preview",
+            "final",
+            "shadow",
+            "resource"
+          ]
+        },
+        "event": {
+          "enum": [
+            "capture_frame",
+            "vad_start",
+            "vad_end",
+            "segment_release",
+            "asr_enqueue",
+            "asr_start",
+            "asr_end",
+            "asr_select",
+            "mt_enqueue",
+            "mt_start",
+            "mt_prefill_end",
+            "mt_first_token",
+            "mt_last_content_token",
+            "mt_eos",
+            "mt_end",
+            "final_token_stream",
+            "final_accept",
+            "resolved_failure",
+            "ws_send",
+            "ws_receive",
+            "dom_visible",
+            "dom_update",
+            "dom_remove",
+            "cancel",
+            "drop",
+            "error",
+            "resource_sample"
+          ]
+        },
+        "clock_domain": {
+          "enum": [
+            "server_monotonic",
+            "browser_performance"
+          ]
+        },
+        "ts_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Span"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_revision": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text_hash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variant": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "metrics": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "schema_version",
+        "synthetic_fixture",
+        "event_id",
+        "run_id",
+        "experiment_id",
+        "key",
+        "parent_request_id",
+        "kind",
+        "event",
+        "clock_domain",
+        "ts_ns",
+        "span",
+        "source_revision",
+        "text",
+        "text_hash",
+        "model_key",
+        "variant",
+        "metrics"
+      ],
+      "additionalProperties": false
+    },
+    "SemanticUnit": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "stage8-unit-v1"
+        },
+        "dataset_id": {
+          "type": "string"
+        },
+        "episode_id": {
+          "type": "string"
+        },
+        "scene_id": {
+          "type": "string"
+        },
+        "unit_id": {
+          "type": "string"
+        },
+        "pcm_sha256": {
+          "type": "string"
+        },
+        "start_sample": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_sample": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "speaker_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reference_ja": {
+          "type": "string"
+        },
+        "reference_zh_variants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "intelligible": {
+          "type": "boolean"
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "exclusion_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "human_verified": {
+          "type": "boolean"
+        },
+        "annotation_version": {
+          "type": "string"
+        },
+        "protected": {
+          "type": "boolean"
+        },
+        "protected_facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fact_id": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fact_id",
+              "description"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "dataset_id",
+        "episode_id",
+        "scene_id",
+        "unit_id",
+        "pcm_sha256",
+        "start_sample",
+        "end_sample",
+        "speaker_ids",
+        "reference_ja",
+        "reference_zh_variants",
+        "intelligible",
+        "eligible",
+        "exclusion_reason",
+        "human_verified",
+        "annotation_version",
+        "protected",
+        "protected_facts"
+      ],
+      "additionalProperties": false
+    },
+    "Judgment": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "stage8-judgment-v1"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "unit_id": {
+          "type": "string"
+        },
+        "reviewer_id": {
+          "type": "string"
+        },
+        "reviewer_type": {
+          "enum": [
+            "human",
+            "ai"
+          ]
+        },
+        "adjudicated": {
+          "type": "boolean"
+        },
+        "human_verified": {
+          "type": "boolean"
+        },
+        "caption_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "first_useful_dom_event_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "first_stable_dom_event_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "final_dom_event_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "visible",
+            "empty",
+            "rejected",
+            "timeout",
+            "pipeline_error",
+            "censored_user_action"
+          ]
+        },
+        "severity_max": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "critical_miss": {
+          "type": "boolean"
+        },
+        "semantic_flip": {
+          "type": "boolean"
+        },
+        "root_cause": {
+          "enum": [
+            "asr",
+            "mt",
+            "segmentation",
+            "display",
+            "uncertain",
+            "none"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "protected_fact_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "run_id",
+        "unit_id",
+        "reviewer_id",
+        "reviewer_type",
+        "adjudicated",
+        "human_verified",
+        "caption_ids",
+        "first_useful_dom_event_id",
+        "first_stable_dom_event_id",
+        "final_dom_event_id",
+        "outcome",
+        "severity_max",
+        "critical_miss",
+        "semantic_flip",
+        "root_cause",
+        "notes",
+        "protected_fact_errors"
+      ],
+      "additionalProperties": false
+    },
+    "ClockAnchor": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "stage8-clock-v1"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "epoch": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "anchor_id": {
+          "type": "string"
+        },
+        "browser_send_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "server_receive_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "server_send_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "browser_receive_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "capture_sample": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "media_position_s": {
+          "type": "number"
+        },
+        "browser_capture_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mapping_uncertainty_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "pcm_alignment_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "valid": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema_version",
+        "run_id",
+        "session_id",
+        "epoch",
+        "anchor_id",
+        "browser_send_ns",
+        "server_receive_ns",
+        "server_send_ns",
+        "browser_receive_ns",
+        "capture_sample",
+        "media_position_s",
+        "browser_capture_ns",
+        "mapping_uncertainty_ms",
+        "pcm_alignment_sha256",
+        "valid"
+      ],
+      "additionalProperties": false
+    },
+    "Aggregate": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "stage8-aggregate-v1"
+        },
+        "run_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "thresholds_sha256": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "INCONCLUSIVE",
+            "BLOCKED"
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "identities": {
+          "type": "object",
+          "properties": {
+            "deployed_bundle_key": {
+              "type": "string"
+            },
+            "corrected_bundle_key": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "candidate_bundle_key": {
+              "type": "string"
+            },
+            "observer_sha256": {
+              "type": "string"
+            },
+            "semantic_units_sha256": {
+              "type": "string"
+            },
+            "scorer_sha256": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "deployed_bundle_key",
+            "corrected_bundle_key",
+            "candidate_bundle_key",
+            "observer_sha256",
+            "semantic_units_sha256",
+            "scorer_sha256"
+          ],
+          "additionalProperties": false
+        },
+        "proofs": {
+          "type": "object",
+          "properties": {
+            "raw_complete": {
+              "type": "boolean"
+            },
+            "hashes_verified": {
+              "type": "boolean"
+            },
+            "causality_verified": {
+              "type": "boolean"
+            },
+            "clock_valid": {
+              "type": "boolean"
+            },
+            "max_clock_uncertainty_ms": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "cache_protocol_pass": {
+              "type": "boolean"
+            },
+            "lifecycle_tests_pass": {
+              "type": "boolean"
+            },
+            "human_verified": {
+              "type": "boolean"
+            },
+            "human_reviewer_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "holdout_scenes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "holdout_programs_or_episodes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "holdout_minutes": {
+              "type": "number"
+            },
+            "holdout_first_use": {
+              "type": "boolean"
+            },
+            "soak_completed": {
+              "type": "boolean"
+            },
+            "protected_review_complete": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "raw_complete",
+            "hashes_verified",
+            "causality_verified",
+            "clock_valid",
+            "max_clock_uncertainty_ms",
+            "cache_protocol_pass",
+            "lifecycle_tests_pass",
+            "human_verified",
+            "human_reviewer_count",
+            "holdout_scenes",
+            "holdout_programs_or_episodes",
+            "holdout_minutes",
+            "holdout_first_use",
+            "soak_completed",
+            "protected_review_complete"
+          ],
+          "additionalProperties": false
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "deployed": {
+              "$ref": "#/$defs/ArmMetrics"
+            },
+            "candidate": {
+              "$ref": "#/$defs/ArmMetrics"
+            }
+          },
+          "required": [
+            "deployed",
+            "candidate"
+          ],
+          "additionalProperties": false
+        },
+        "quality_comparison": {
+          "type": "object",
+          "properties": {
+            "relative_critical_reduction_deployed": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "improvement_ci95_deployed": {
+              "type": "array",
+              "items": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "protected_new_e4": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "protected_key_regressions": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "relative_critical_reduction_deployed",
+            "improvement_ci95_deployed",
+            "protected_new_e4",
+            "protected_key_regressions"
+          ],
+          "additionalProperties": false
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "candidate_swap_growth_mib": {
+              "type": "number"
+            },
+            "max_yellow_red_pressure_s": {
+              "type": "number"
+            },
+            "sustained_swap_growth": {
+              "type": "boolean"
+            },
+            "sustained_queue_growth": {
+              "type": "boolean"
+            },
+            "video_drop_rate_candidate": {
+              "type": "number"
+            },
+            "resource_abort": {
+              "type": "boolean"
+            },
+            "environment_confounded": {
+              "type": "boolean"
+            },
+            "video_drop_rate_subtitles_off": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "candidate_swap_growth_mib",
+            "max_yellow_red_pressure_s",
+            "sustained_swap_growth",
+            "sustained_queue_growth",
+            "video_drop_rate_candidate",
+            "resource_abort",
+            "environment_confounded",
+            "video_drop_rate_subtitles_off"
+          ],
+          "additionalProperties": false
+        },
+        "integrity": {
+          "type": "object",
+          "properties": {
+            "new_disconnects": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "new_overloads": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "old_epoch_commits": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "silent_final_drops": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "out_of_order_final_accepts": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "new_disconnects",
+            "new_overloads",
+            "old_epoch_commits",
+            "silent_final_drops",
+            "out_of_order_final_accepts"
+          ],
+          "additionalProperties": false
+        },
+        "evidence_files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Artifact"
+          }
+        },
+        "metrics_cohort": {
+          "const": "holdout"
+        },
+        "soak_metrics": {
+          "type": "object",
+          "properties": {
+            "deployed": {
+              "$ref": "#/$defs/ArmMetrics"
+            },
+            "candidate": {
+              "$ref": "#/$defs/ArmMetrics"
+            }
+          },
+          "required": [
+            "deployed",
+            "candidate"
+          ],
+          "additionalProperties": false
+        },
+        "dev_attribution": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "run_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "corrected": {
+                  "$ref": "#/$defs/ArmMetrics"
+                },
+                "candidate": {
+                  "$ref": "#/$defs/ArmMetrics"
+                },
+                "relative_critical_reduction": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "run_ids",
+                "corrected",
+                "candidate",
+                "relative_critical_reduction"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "cohort_runs": {
+          "type": "object",
+          "properties": {
+            "holdout": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "soak": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "interaction": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "regression": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "subtitles_off": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dev_attribution": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "holdout",
+            "soak",
+            "interaction",
+            "regression",
+            "subtitles_off",
+            "dev_attribution"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "run_ids",
+        "thresholds_sha256",
+        "status",
+        "reason_codes",
+        "identities",
+        "proofs",
+        "metrics",
+        "quality_comparison",
+        "resources",
+        "integrity",
+        "evidence_files",
+        "metrics_cohort",
+        "soak_metrics",
+        "dev_attribution",
+        "cohort_runs"
+      ],
+      "additionalProperties": false
+    },
+    "Thresholds": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "units": {
+          "type": "object",
+          "properties": {
+            "latency": {
+              "type": "string"
+            },
+            "cer": {
+              "type": "string"
+            },
+            "memory": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "latency",
+            "cer",
+            "memory"
+          ],
+          "additionalProperties": false
+        },
+        "required_holdout_scenes": {
+          "type": "number",
+          "minimum": 0
+        },
+        "required_holdout_programs_or_episodes": {
+          "type": "number",
+          "minimum": 0
+        },
+        "required_holdout_minutes": {
+          "type": "number",
+          "minimum": 0
+        },
+        "human_reviewers": {
+          "type": "number",
+          "minimum": 0
+        },
+        "paired_bootstrap_resamples": {
+          "type": "number",
+          "minimum": 0
+        },
+        "paired_bootstrap_seed": {
+          "type": "number",
+          "minimum": 0
+        },
+        "default_quality": {
+          "type": "object",
+          "properties": {
+            "critical_error_relative_reduction_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "improvement_ci_lower_must_be_positive": {
+              "type": "boolean"
+            },
+            "protected_new_e4_max": {
+              "type": "number",
+              "minimum": 0
+            },
+            "unit_end_to_final_dom_p95_cap_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "latency_delta_p95_max_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "latency_delta_p95_max_fraction": {
+              "type": "number",
+              "minimum": 0
+            },
+            "delta_rule": {
+              "type": "string"
+            },
+            "first_useful_p95_same_delta_rule": {
+              "type": "boolean"
+            },
+            "semantic_miss_or_flip_increase_allowed": {
+              "type": "boolean"
+            },
+            "protected_key_information_regressions_max": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "critical_error_relative_reduction_min",
+            "improvement_ci_lower_must_be_positive",
+            "protected_new_e4_max",
+            "unit_end_to_final_dom_p95_cap_ms",
+            "latency_delta_p95_max_ms",
+            "latency_delta_p95_max_fraction",
+            "delta_rule",
+            "first_useful_p95_same_delta_rule",
+            "semantic_miss_or_flip_increase_allowed",
+            "protected_key_information_regressions_max"
+          ],
+          "additionalProperties": false
+        },
+        "default_latency": {
+          "type": "object",
+          "properties": {
+            "first_useful_p50_relative_reduction_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "first_useful_p95_relative_reduction_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "quality_regression_allowed": {
+              "type": "boolean"
+            },
+            "final_latency_rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "first_useful_p50_relative_reduction_min",
+            "first_useful_p95_relative_reduction_min",
+            "quality_regression_allowed",
+            "final_latency_rule"
+          ],
+          "additionalProperties": false
+        },
+        "opt_in_quality": {
+          "type": "object",
+          "properties": {
+            "critical_error_rule": {
+              "type": "string"
+            },
+            "unit_end_to_final_dom_p95_cap_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "latency_delta_p95_max_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "first_useful_delta_p95_max_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "default_switch_requires_separate_approval": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "critical_error_rule",
+            "unit_end_to_final_dom_p95_cap_ms",
+            "latency_delta_p95_max_ms",
+            "first_useful_delta_p95_max_ms",
+            "default_switch_requires_separate_approval"
+          ],
+          "additionalProperties": false
+        },
+        "component_screening": {
+          "type": "object",
+          "properties": {
+            "asr_cer_absolute_reduction_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "asr_target_error_relative_reduction_alternative": {
+              "type": "number",
+              "minimum": 0
+            },
+            "asr_insertions_bgm_critical_misses_increase_allowed": {
+              "type": "boolean"
+            },
+            "mt_p95_advisory_target_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "component_pass_is_not_release_pass": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "asr_cer_absolute_reduction_min",
+            "asr_target_error_relative_reduction_alternative",
+            "asr_insertions_bgm_critical_misses_increase_allowed",
+            "mt_p95_advisory_target_ms",
+            "component_pass_is_not_release_pass"
+          ],
+          "additionalProperties": false
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "swap_growth_stop_mib": {
+              "type": "number",
+              "minimum": 0
+            },
+            "yellow_or_red_pressure_stop_s": {
+              "type": "number",
+              "minimum": 0
+            },
+            "model_working_set_initial_advisory_gib": {
+              "type": "number",
+              "minimum": 0
+            },
+            "model_working_set_upper_conditional_gib": {
+              "type": "number",
+              "minimum": 0
+            },
+            "system_headroom_advisory_gib": {
+              "type": "number",
+              "minimum": 0
+            },
+            "disk_free_advisory_floor_gib": {
+              "type": "number",
+              "minimum": 0
+            },
+            "gpu_lane_offered_load_advisory_max": {
+              "type": "number",
+              "minimum": 0
+            },
+            "video_drop_rate_increase_max_percentage_points": {
+              "type": "number",
+              "minimum": 0
+            },
+            "sustained_swap_or_queue_growth_allowed": {
+              "type": "boolean"
+            },
+            "trend_bucket_s": {
+              "type": "number",
+              "minimum": 0
+            },
+            "sustained_growth_consecutive_buckets": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "swap_growth_stop_mib",
+            "yellow_or_red_pressure_stop_s",
+            "model_working_set_initial_advisory_gib",
+            "model_working_set_upper_conditional_gib",
+            "system_headroom_advisory_gib",
+            "disk_free_advisory_floor_gib",
+            "gpu_lane_offered_load_advisory_max",
+            "video_drop_rate_increase_max_percentage_points",
+            "sustained_swap_or_queue_growth_allowed",
+            "trend_bucket_s",
+            "sustained_growth_consecutive_buckets"
+          ],
+          "additionalProperties": false
+        },
+        "lifecycle": {
+          "type": "object",
+          "properties": {
+            "new_disconnects_max": {
+              "type": "number",
+              "minimum": 0
+            },
+            "new_overloads_max": {
+              "type": "number",
+              "minimum": 0
+            },
+            "old_epoch_commits_max": {
+              "type": "number",
+              "minimum": 0
+            },
+            "silent_final_drops_max": {
+              "type": "number",
+              "minimum": 0
+            },
+            "pending_preview_max_per_session": {
+              "type": "number",
+              "minimum": 0
+            },
+            "pending_asr_verify_max_per_session": {
+              "type": "number",
+              "minimum": 0
+            },
+            "out_of_order_final_accepts_max": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "new_disconnects_max",
+            "new_overloads_max",
+            "old_epoch_commits_max",
+            "silent_final_drops_max",
+            "pending_preview_max_per_session",
+            "pending_asr_verify_max_per_session",
+            "out_of_order_final_accepts_max"
+          ],
+          "additionalProperties": false
+        },
+        "native_optimization_entry": {
+          "type": "object",
+          "properties": {
+            "critical_path_fraction_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "attributable_p95_ms_alternative": {
+              "type": "number",
+              "minimum": 0
+            },
+            "same_case_p95_improvement_target_fraction": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "critical_path_fraction_min",
+            "attributable_p95_ms_alternative",
+            "same_case_p95_improvement_target_fraction"
+          ],
+          "additionalProperties": false
+        },
+        "availability": {
+          "type": "object",
+          "properties": {
+            "final_visible_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "first_useful_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "final_by_2000ms_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "coverage_max_absolute_decrease": {
+              "type": "number",
+              "minimum": 0
+            },
+            "missing_latency": {
+              "type": "string"
+            },
+            "quantile_method": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "final_visible_min",
+            "first_useful_min",
+            "final_by_2000ms_min",
+            "coverage_max_absolute_decrease",
+            "missing_latency",
+            "quantile_method"
+          ],
+          "additionalProperties": false
+        },
+        "clock": {
+          "type": "object",
+          "properties": {
+            "max_mapping_uncertainty_ms": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "max_mapping_uncertainty_ms"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "status",
+        "units",
+        "required_holdout_scenes",
+        "required_holdout_programs_or_episodes",
+        "required_holdout_minutes",
+        "human_reviewers",
+        "paired_bootstrap_resamples",
+        "paired_bootstrap_seed",
+        "default_quality",
+        "default_latency",
+        "opt_in_quality",
+        "component_screening",
+        "resources",
+        "lifecycle",
+        "native_optimization_entry",
+        "availability",
+        "clock"
+      ],
+      "additionalProperties": false
+    },
+    "GateDecision": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "stage8-gate-decision-v1"
+        },
+        "gate_scope": {
+          "enum": [
+            "G0",
+            "G1",
+            "G2",
+            "G3",
+            "G4",
+            "G5"
+          ]
+        },
+        "profile_decision": {
+          "enum": [
+            "keep_deployed",
+            "default_quality_candidate",
+            "default_latency_candidate",
+            "opt_in_quality_candidate",
+            "no_decision"
+          ]
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "INCONCLUSIVE",
+            "BLOCKED"
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "aggregate_sha256": {
+          "type": "string"
+        },
+        "thresholds_sha256": {
+          "type": "string"
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "check_id": {
+                "type": "string"
+              },
+              "passed": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "observed": {},
+              "required": {},
+              "evidence_keys": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason_code": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "check_id",
+              "passed",
+              "observed",
+              "required",
+              "evidence_keys",
+              "reason_code"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "gate_scope",
+        "profile_decision",
+        "status",
+        "reason_codes",
+        "aggregate_sha256",
+        "thresholds_sha256",
+        "checks"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

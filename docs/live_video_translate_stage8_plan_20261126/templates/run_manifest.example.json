@@ -1,0 +1,148 @@
+{
+  "schema_version": "stage8-manifest-v1",
+  "template_only": true,
+  "run_id": "REPLACE_UNIQUE_RUN_ID",
+  "experiment_id": "REPLACE_EXPERIMENT_ID",
+  "baseline_sha": "7ea13865c8c3673a1463495058a200723b153111",
+  "actual_repo_sha": "REPLACE_SHA",
+  "patch_sha256": "REPLACE_SHA256_OR_CLEAN",
+  "bundle": {
+    "bundle_key": "REPLACE_BUNDLE_KEY",
+    "native_sha256": "REPLACE_NATIVE_HASH",
+    "extension_sha256": "REPLACE_EXTENSION_HASH",
+    "observer_sha256": "REPLACE_OBSERVER_HASH",
+    "profile_sha256": "REPLACE_ACTUAL_PROFILE_HASH",
+    "profile_path": "/ABS/REPLACE_PROFILE"
+  },
+  "hardware": {
+    "chip": "REPLACE_OBSERVED_CHIP",
+    "cpu_cores": null,
+    "gpu_cores": null,
+    "ram_bytes": null,
+    "macos_version": "REPLACE_VERSION",
+    "chrome_version": "REPLACE_VERSION"
+  },
+  "runtime": {
+    "python_version": "REPLACE_VERSION",
+    "mlx": "0.32.4",
+    "mlx_lm": "0.31.3",
+    "mlx_audio": "0.6.7",
+    "transformers": "5.22.1",
+    "lock_sha256": "REPLACE_SHA256"
+  },
+  "data": {
+    "dataset_id": "REPLACE_DATASET_ID",
+    "episode_id": "REPLACE_EPISODE_ID",
+    "split": "dev",
+    "media_path": "/ABS/REPLACE_MEDIA",
+    "media_sha256": "REPLACE_SHA256",
+    "audio_track": "REPLACE_TRACK",
+    "pcm_path": "/ABS/REPLACE_PCM",
+    "pcm_sha256": "REPLACE_SHA256",
+    "sample_rate": 16000,
+    "channels": 1,
+    "resample_downmix_recipe": "REPLACE_COMMAND_AND_TOOL_VERSION",
+    "semantic_units_path": "/ABS/REPLACE_UNITS",
+    "semantic_units_sha256": "REPLACE_SHA256",
+    "reference_human_verified": false,
+    "scene_count": null,
+    "holdout_sealed": true
+  },
+  "models": [
+    {
+      "key": "nemo-baseline",
+      "repository": "reazon-research/reazonspeech-nemo-v2",
+      "revision": "REPLACE_CONVERSION_SOURCE_REVISION",
+      "backend": "native_coreml_and_speechcpp_metal",
+      "precision": "REPLACE_VERIFIED_PRECISION",
+      "artifacts": [
+        {
+          "path": "/ABS/REPLACE_NEMO_GGUF",
+          "sha256": "REPLACE_SHA256"
+        },
+        {
+          "path": "/ABS/REPLACE_COREML_ASSET_HASH_MANIFEST",
+          "sha256": "REPLACE_SHA256"
+        }
+      ],
+      "tokenizer_sha256": "REPLACE_SHA256",
+      "template_sha256": "not_applicable",
+      "license_verified": false,
+      "trust_remote_code": false,
+      "stop_ids": []
+    },
+    {
+      "key": "qwen4b-q4",
+      "repository": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+      "revision": "50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b",
+      "backend": "mlx_lm",
+      "precision": "4bit",
+      "artifacts": [
+        {
+          "path": "/ABS/REPLACE_WEIGHTS_HASH_MANIFEST",
+          "sha256": "REPLACE_SHA256"
+        }
+      ],
+      "tokenizer_sha256": "REPLACE_SHA256",
+      "template_sha256": "REPLACE_SHA256",
+      "license_verified": false,
+      "trust_remote_code": false,
+      "stop_ids": []
+    }
+  ],
+  "roles": {
+    "asr_primary": "nemo-baseline",
+    "asr_gpu_fallback": "nemo-baseline",
+    "asr_challenger": null,
+    "mt": "qwen4b-q4"
+  },
+  "arm": {
+    "arm_id": "mt-b0",
+    "baseline_role": "deployed",
+    "parameters": {
+      "decoding": "hybrid",
+      "device": "ane",
+      "draft_interval_s": 1.2,
+      "vad_pause_ms": 180,
+      "max_segment_s": 2.8,
+      "overlap_ms": 350,
+      "pad_ms": 500,
+      "context_turns": 4,
+      "sampling": "greedy",
+      "max_output_tokens": 256
+    },
+    "rendered_prompt_policy_sha256": "REPLACE_SHA256"
+  },
+  "thresholds": {
+    "path": "/ABS/REPLACE_LOCKED_THRESHOLDS",
+    "sha256": "REPLACE_SHA256"
+  },
+  "budgets": {
+    "final_request_timeout_ms": 2000,
+    "preview_expiry_ms": 900,
+    "verify_max_extra_wait_ms": 120,
+    "reserve_mt_p95_ms": null,
+    "reserve_transport_p95_ms": null
+  },
+  "execution": {
+    "mode": "offline",
+    "output_dir": "/ABS/REPLACE_NEW_RUN_DIR",
+    "duration_s": null,
+    "allow_download": false,
+    "allow_remote_audio_upload": false,
+    "allow_privileged_telemetry": false,
+    "allow_default_switch": false,
+    "allow_git_commit": false,
+    "allow_git_push": false,
+    "paired_order": "ABBA",
+    "repetitions": 3,
+    "bootstrap_seed": 20261126
+  },
+  "review": {
+    "blind_model_identity": true,
+    "human_verified": false,
+    "reviewer_count": 0,
+    "status": "BLOCKED",
+    "reason_code": "TEMPLATE_NOT_AN_EXPERIMENT"
+  }
+}

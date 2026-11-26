@@ -1,0 +1,85 @@
+{
+  "schema_version": "stage8-gates-v1",
+  "status": "PROPOSED_LOCK_BEFORE_CANDIDATE_RUNS",
+  "units": {
+    "latency": "ms",
+    "cer": "ratio_0_to_1",
+    "memory": "MiB"
+  },
+  "required_holdout_scenes": 10,
+  "required_holdout_programs_or_episodes": 1,
+  "required_holdout_minutes": 15,
+  "human_reviewers": 1,
+  "paired_bootstrap_resamples": 2000,
+  "paired_bootstrap_seed": 20261126,
+  "default_quality": {
+    "critical_error_relative_reduction_min": 0.25,
+    "improvement_ci_lower_must_be_positive": true,
+    "protected_new_e4_max": 0,
+    "unit_end_to_final_dom_p95_cap_ms": 1200,
+    "latency_delta_p95_max_ms": 100,
+    "latency_delta_p95_max_fraction": 0.1,
+    "delta_rule": "both_caps_apply_use_the_smaller",
+    "first_useful_p95_same_delta_rule": true,
+    "semantic_miss_or_flip_increase_allowed": false,
+    "protected_key_information_regressions_max": 0
+  },
+  "default_latency": {
+    "first_useful_p50_relative_reduction_min": 0.2,
+    "first_useful_p95_relative_reduction_min": 0.2,
+    "quality_regression_allowed": false,
+    "final_latency_rule": "same_as_default_quality"
+  },
+  "opt_in_quality": {
+    "critical_error_rule": "same_as_default_quality",
+    "unit_end_to_final_dom_p95_cap_ms": 1500,
+    "latency_delta_p95_max_ms": 300,
+    "first_useful_delta_p95_max_ms": 300,
+    "default_switch_requires_separate_approval": true
+  },
+  "component_screening": {
+    "asr_cer_absolute_reduction_min": 0.02,
+    "asr_target_error_relative_reduction_alternative": 0.2,
+    "asr_insertions_bgm_critical_misses_increase_allowed": false,
+    "mt_p95_advisory_target_ms": 600,
+    "component_pass_is_not_release_pass": true
+  },
+  "resources": {
+    "swap_growth_stop_mib": 256,
+    "yellow_or_red_pressure_stop_s": 10,
+    "model_working_set_initial_advisory_gib": 12,
+    "model_working_set_upper_conditional_gib": 18,
+    "system_headroom_advisory_gib": 6,
+    "disk_free_advisory_floor_gib": 20,
+    "gpu_lane_offered_load_advisory_max": 0.7,
+    "video_drop_rate_increase_max_percentage_points": 1,
+    "sustained_swap_or_queue_growth_allowed": false,
+    "trend_bucket_s": 60,
+    "sustained_growth_consecutive_buckets": 3
+  },
+  "lifecycle": {
+    "new_disconnects_max": 0,
+    "new_overloads_max": 0,
+    "old_epoch_commits_max": 0,
+    "silent_final_drops_max": 0,
+    "pending_preview_max_per_session": 1,
+    "pending_asr_verify_max_per_session": 1,
+    "out_of_order_final_accepts_max": 0
+  },
+  "native_optimization_entry": {
+    "critical_path_fraction_min": 0.2,
+    "attributable_p95_ms_alternative": 50,
+    "same_case_p95_improvement_target_fraction": 0.15
+  },
+  "availability": {
+    "final_visible_min": 0.98,
+    "first_useful_min": 0.95,
+    "final_by_2000ms_min": 0.95,
+    "coverage_max_absolute_decrease": 0.005,
+    "missing_latency": "positive_infinity_encoded_as_null",
+    "quantile_method": "nearest_rank_fixed_eligible_units"
+  },
+  "clock": {
+    "max_mapping_uncertainty_ms": 20
+  }
+}
