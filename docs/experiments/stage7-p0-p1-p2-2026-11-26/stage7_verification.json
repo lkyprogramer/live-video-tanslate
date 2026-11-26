@@ -1,0 +1,307 @@
+{
+  "part_a_full_45m_asr": {
+    "wall_s": 90.8,
+    "config": {
+      "decoding": "hybrid",
+      "vad_pause_ms": 180,
+      "max_segment_s": 2.8,
+      "overlap_ms": 350,
+      "pad_ms": 500
+    },
+    "total_vad_chunks": 947,
+    "kept_speech_segments": 876,
+    "punct_only_skipped": 33,
+    "fallback_count": 0,
+    "backends": {
+      "ane": 947
+    },
+    "asr_latency_ms": {
+      "p50": 39.7,
+      "p95": 160.28,
+      "predict_p50": 22.27,
+      "decode_p50": 15.25,
+      "decode_p95": 134.36
+    },
+    "overall": {
+      "dist": 3679,
+      "ref_len": 9937,
+      "hyp_len": 8461,
+      "cer": 0.3702
+    },
+    "by_15m": {
+      "0-15m": {
+        "dist": 1572,
+        "ref_len": 4062,
+        "hyp_len": 3376,
+        "cer": 0.387
+      },
+      "15-30m": {
+        "dist": 1255,
+        "ref_len": 3876,
+        "hyp_len": 3103,
+        "cer": 0.3238
+      },
+      "30-45m": {
+        "dist": 852,
+        "ref_len": 1999,
+        "hyp_len": 1982,
+        "cer": 0.4262
+      }
+    },
+    "missed_dialogue_cues": 11,
+    "missed_dialogue_pct": 1.68,
+    "missed_substantive_pct": 0.76,
+    "vs_stage6": {
+      "stage6_cer": 0.4549,
+      "cer_delta": -0.0847,
+      "stage6_hyp_len": 6992,
+      "stage7_hyp_len": 8461,
+      "recovered_chars": 1469
+    }
+  },
+  "part_b_full_654_arm_b_mt": {
+    "cues": 654,
+    "wall_s": 305.3,
+    "sliding_template_exact": true,
+    "context_turns": 4,
+    "mt_p50_ms": 466.5,
+    "mt_p95_ms": 701.9,
+    "kana_leaks": 0,
+    "chrf_30s_blocks_mean": 0.2019,
+    "chrf_full_concat": 0.3163,
+    "chrf_by_15m": {
+      "0-15m": 0.2116,
+      "15-30m": 0.1907,
+      "30-45m": 0.2033
+    },
+    "vs_stage6": {
+      "stage6_chrf_30s": 0.1974,
+      "chrf_30s_delta": 0.0045,
+      "stage6_chrf_full": 0.3083,
+      "chrf_full_delta": 0.008
+    },
+    "e3_e4_hard_18_comparison": [
+      {
+        "cue_idx": 3,
+        "error_class": "E4",
+        "start_s": 17.952,
+        "jp": "しばらく行ってないでしょ たまには 顔見せてあげな？",
+        "stage6_oracle_zh": "你很久没见面了吧，不如偶尔看看我吧？",
+        "stage7_oracle_zh": "你已经好一阵没见面了吧，要不要偶尔看看我？",
+        "gold_zh": "我还在想耶 你很久没去了吧？ / 偶尔也去看看她嘛 好"
+      },
+      {
+        "cue_idx": 640,
+        "error_class": "E3",
+        "start_s": 2191.523,
+        "jp": "ポケベルだ",
+        "stage6_oracle_zh": "手机啊",
+        "stage7_oracle_zh": "手机啊",
+        "gold_zh": "应该是在我们上托儿所时流行的吧？ / 呼叫器"
+      },
+      {
+        "cue_idx": 644,
+        "error_class": "E4",
+        "start_s": 2204.536,
+        "jp": "〔｢５･１｣で｢ナ｣〕",
+        "stage6_oracle_zh": "【5·1】的【纳】",
+        "stage7_oracle_zh": "【输入“5.1”，然后按“N”】",
+        "gold_zh": "要先按＊2＊2 / 再按51才会打出NA"
+      },
+      {
+        "cue_idx": 81,
+        "error_class": "E3",
+        "start_s": 289.156,
+        "jp": "そういえば 保育士さんって 子供迎えに来た親に",
+        "stage6_oracle_zh": "对了，保育员阿姨是让来接孩子的家长",
+        "stage7_oracle_zh": "对了，保育员阿姨是去接孩子家长的。",
+        "gold_zh": "这么说来 听说保育员 / 都会对来接小孩的家长说 \"欢迎回来\""
+      },
+      {
+        "cue_idx": 82,
+        "error_class": "E3",
+        "start_s": 292.159,
+        "jp": "｢おかえりなさい｣って 言うんだって｡ ふ～ん｡",
+        "stage6_oracle_zh": "“欢迎回来”这么说啊。嗯～。",
+        "stage7_oracle_zh": "居然说“欢迎回来”呢，嗯。",
+        "gold_zh": "都会对来接小孩的家长说 \"欢迎回来\" / 是喔 / 因为很多家长是下班回去接小孩 没错"
+      },
+      {
+        "cue_idx": 84,
+        "error_class": "E3",
+        "start_s": 298.165,
+        "jp": "｢いってらっしゃい｣って 送り出すんだって｡",
+        "stage6_oracle_zh": "“再见了”用来送别对方。",
+        "stage7_oracle_zh": "居然说“再见啦”送人出门呢。",
+        "gold_zh": "然后早上好像会说\"路上小心\" 送家长离开 / 因为他们会直接去上班"
+      },
+      {
+        "cue_idx": 89,
+        "error_class": "E3",
+        "start_s": 310.611,
+        "jp": "だって ｢ありがとうございました｣ じゃないもんね｡ そう｡",
+        "stage6_oracle_zh": "毕竟不是说“谢谢”，对吧？是的。",
+        "stage7_oracle_zh": "毕竟不是说“谢谢”啊，对吧？是的。",
+        "gold_zh": "我懂 毕竟也不能说\"谢谢惠顾\"嘛 / 对 说\"辛苦了\"也很奇怪"
+      },
+      {
+        "cue_idx": 92,
+        "error_class": "E3",
+        "start_s": 318.118,
+        "jp": "じゃあ ｢いってらっしゃい｣にする？",
+        "stage6_oracle_zh": "那我们说“再见”吧？",
+        "stage7_oracle_zh": "那我们说“请慢走”如何？",
+        "gold_zh": "那要改说\"路上小心\"吗 / 铁定会被骂"
+      },
+      {
+        "cue_idx": 98,
+        "error_class": "E3",
+        "start_s": 337.137,
+        "jp": "例えば シャーペン１本買うのにも",
+        "stage6_oracle_zh": "比如，买一支沙尔佩恩",
+        "stage7_oracle_zh": "比如买一支莎普恩笔也要——",
+        "gold_zh": "比方说 连要买一枝自动铅笔 / 也得向自己部门的系长和课长"
+      },
+      {
+        "cue_idx": 220,
+        "error_class": "E3",
+        "start_s": 718.185,
+        "jp": "いらっしゃいませ 何名様ですか？",
+        "stage6_oracle_zh": "欢迎光临，您是哪位？",
+        "stage7_oracle_zh": "欢迎光临，几位客人？",
+        "gold_zh": "欢迎光临 请问几位？ / 总共三位"
+      },
+      {
+        "cue_idx": 227,
+        "error_class": "E3",
+        "start_s": 742.642,
+        "jp": "お～ そんな経つかぁ｡",
+        "stage6_oracle_zh": "哦～ 这种事你也知道吗？",
+        "stage7_oracle_zh": "哦～ 这么久啊。",
+        "gold_zh": "所以有十三年没见了吧？ / 天啊 有那么久了喔？ / 好夸张 你们今天怎么会约？"
+      },
+      {
+        "cue_idx": 231,
+        "error_class": "E3",
+        "start_s": 753.653,
+        "jp": "あ～ 時間どうする？ どうしよっか｡",
+        "stage6_oracle_zh": "啊～ 时间怎么办？ 怎么办呢？",
+        "stage7_oracle_zh": "啊～ 时间怎么办？ 怎么办呢？",
+        "gold_zh": "那你们要唱多久？ 你们觉得呢？ / 那就先唱两小时？"
+      },
+      {
+        "cue_idx": 237,
+        "error_class": "E3",
+        "start_s": 772.172,
+        "jp": "来た 何なら 部屋もここだった｡",
+        "stage6_oracle_zh": "来了，既然这样，房间也在这儿。",
+        "stage7_oracle_zh": "来过，要说我那时候，房间也在这儿呢。",
+        "gold_zh": "没错 而且好像也是这个包厢 / 对了"
+      },
+      {
+        "cue_idx": 238,
+        "error_class": "E4",
+        "start_s": 775.175,
+        "jp": "あ そうだ でさ 福ちゃんがさ",
+        "stage6_oracle_zh": "啊，对了，话说起来，福子她啊。",
+        "stage7_oracle_zh": "啊，对了，话说起福-chan来。",
+        "gold_zh": "对了 / 然后我记得小福 好像还有唱\"粉雪\"还是什么的"
+      },
+      {
+        "cue_idx": 111,
+        "error_class": "E3",
+        "start_s": 379.613,
+        "jp": "ちなみに彼女は今 他人の湯飲み を無許可で使っている",
+        "stage6_oracle_zh": "顺便说一下，她现在正擅自使用别人的汤瓶。",
+        "stage7_oracle_zh": "顺便说一下，她现在正擅自使用别人的一次性饮水杯。",
+        "gold_zh": "是说 她现在就未经许可 擅用别人的茶杯"
+      },
+      {
+        "cue_idx": 421,
+        "error_class": "E3",
+        "start_s": 1342.642,
+        "jp": "人生の 30分の１でしかないじゃん｡",
+        "stage6_oracle_zh": "人生的三分之一而已啊。",
+        "stage7_oracle_zh": "不过，对一个人来说，一年顶多只是人生的一三十分啊。",
+        "gold_zh": "但对三十岁的人来说 一年不就只是人生的三十分之一吗 / 就是因为一年的相对长度 会这样越来越短"
+      },
+      {
+        "cue_idx": 423,
+        "error_class": "E3",
+        "start_s": 1349.148,
+        "jp": "早く感じるようになるんだって｡ 確かに そのくらい早いよね｡",
+        "stage6_oracle_zh": "会很快就能感受到啊。确实，快到这种程度了吧。",
+        "stage7_oracle_zh": "会感觉过得越来越快了。确实，快到这种程度也挺正常的。",
+        "gold_zh": "才会觉得时间过得很快 原来喔 / 感觉上的确有那么快 没错 / 像最近连一天过去都会觉得很快耶"
+      },
+      {
+        "cue_idx": 21,
+        "error_class": "E3",
+        "start_s": 90.658,
+        "jp": "いいなぁ 運んでもらえて｡",
+        "stage6_oracle_zh": "真不错，能让我顺顺利利地得到呢。",
+        "stage7_oracle_zh": "真不错，还能让我帮忙搬。",
+        "gold_zh": "嗯 没有耶 / 真好 都有人载"
+      }
+    ]
+  },
+  "part_c_live_5m_ws_replay": {
+    "captions": 104,
+    "draft_sent_count": 44,
+    "ws_deltas_count": 272,
+    "warnings": {
+      "translation_invalid": 1
+    },
+    "gateway_filtered": {
+      "translation_invalid": 1
+    },
+    "punct_only_skipped": 2,
+    "fallback_count": 0,
+    "draft_guard_counts": {},
+    "kana_leaks": 0,
+    "hops_ms": {
+      "vad_end_to_release_p50": 193.86,
+      "ane_asr_p50": 58.91,
+      "ane_asr_p95": 181.68,
+      "gpu_mt_p50": 335.27,
+      "gpu_mt_p95": 506.06
+    },
+    "e2e_s": {
+      "seg_start_to_first_ws_delta_p50": 2.294,
+      "seg_start_to_first_ws_delta_p95": 3.583,
+      "seg_end_to_final_ws_p50": 0.696,
+      "seg_end_to_final_ws_p95": 1.056
+    },
+    "draft_stability": {
+      "paired_captions": 103,
+      "first_delta_to_final_edit_ratio_p50": 0.5,
+      "heavy_rewrite_ge_0_7_pct": 31.07
+    },
+    "accuracy_0_300s": {
+      "asr_cer": {
+        "dist": 403,
+        "ref_len": 1082,
+        "hyp_len": 1031,
+        "cer": 0.3725
+      },
+      "chrf_30s_blocks_mean": 0.2028
+    },
+    "stage6_0_300s_reference": {
+      "stage6_captions_300s": 70,
+      "stage6_cer_300s": 0.4667,
+      "stage6_chrf_30s_blocks_mean_300s": 0.192
+    },
+    "replay": {
+      "id": "ep01-0-300s",
+      "eof": true,
+      "captions": 104,
+      "warnings": 1,
+      "max_send_late_ms": 36.94,
+      "drain_seconds": 0.20759508299670415
+    },
+    "resources": {
+      "srv_peak_rss_mib": 1932.1,
+      "srv_peak_cpu_pct": 61.3
+    }
+  }
+}
