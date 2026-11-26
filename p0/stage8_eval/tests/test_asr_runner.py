@@ -1,0 +1,67 @@
+"""Tests for T4: same-span ASR runner failure retention, collar accounting, and CLI guards."""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import numpy as np
+
+from subtitle_service.quality_types import ASRHypothesis, AudioSpan, TokenSpan
+
+
+def test_asr_runner_retains_empty_and_accounts_collar(tmp_path):
+    from p0.stage8_eval.bench_asr import run_asr_units
+
+    class StubAsr:
+        def transcribe(self, pcm_f32, span: AudioSpan, options: dict) -> ASRHypothesis:
+            if span.target_start == 32000:
+                return ASRHypothesis(span, "", "stub-asr", "v1", [], {"total_ms": 12.0}, [])
+            return ASRHypothesis(
+                span,
+                "はい。",
+                "stub-asr",
+                "v1",
+                [TokenSpan(1, "はい。", span.target_start, span.target_end, "aligned")],
+                {"total_ms": 20.0},
+                [],
+            )
+
+    pcm = np.zeros(64000, dtype=np.float32)
+    units = [
+        {"unit_id": "u1", "start_sample": 0, "end_sample": 16000, "reference_ja": "はい。"},
+        {"unit_id": "u2", "start_sample": 32000, "end_sample": 48000, "reference_ja": "うん。"},
+    ]
+    res = run_asr_units(StubAsr(), pcm, units, left_context_s=0.0, right_collar_ms=160)
+    assert len(res["rows"]) == 2
+    assert res["summary"]["empty_count"] == 1
+    assert res["summary"]["extra_collar_delay_ms"] == 160.0
+    assert res["summary"]["cer_v2"]["N"] == 4  # both "はい" and "うん" kept!
+
+
+def test_asr_cli_rejects_manifest_mismatch(tmp_path):
+    manifest_p = tmp_path / "m.json"
+    manifest_p.write_text(
+        json.dumps({"arm": {"arm_id": "asr-b0"}, "execution": {"output_dir": str(tmp_path / "o")}}),
+        encoding="utf-8",
+    )
+    wt_root = Path(__file__).resolve().parents[3]
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "p0.stage8_eval.bench_asr",
+            "--manifest",
+            str(manifest_p),
+            "--arm",
+            "wrong",
+            "--out",
+            str(tmp_path / "o"),
+        ],
+        cwd=wt_root,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 2

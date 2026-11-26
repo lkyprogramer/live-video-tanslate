@@ -1,0 +1,86 @@
+{
+  "schema_version": "stage8-model-registry-v1",
+  "models": {
+    "qwen4b-q8": {
+      "key": "qwen4b-q8",
+      "repository": "mlx-community/Qwen3-4B-Instruct-2507-8bit",
+      "revision": "0e42af58449718de7931ee04f28191fbe6c43a56",
+      "snapshot_dir": ".model-cache/hub/models--mlx-community--Qwen3-4B-Instruct-2507-8bit/snapshots/0e42af58449718de7931ee04f28191fbe6c43a56",
+      "backend": "mlx_lm",
+      "precision": "8bit",
+      "artifacts": [
+        {
+          "path": ".model-cache/hub/models--mlx-community--Qwen3-4B-Instruct-2507-8bit/snapshots/0e42af58449718de7931ee04f28191fbe6c43a56/config.json",
+          "sha256": "68ce9c3e88935e44b3d9388317f021b90c52cb799b868a361d12857bd1b3b80b"
+        },
+        {
+          "path": ".model-cache/hub/models--mlx-community--Qwen3-4B-Instruct-2507-8bit/snapshots/0e42af58449718de7931ee04f28191fbe6c43a56/model.safetensors",
+          "sha256": "a6d98b6b22bd3928f0a9e38aea84c085e678bba1e03d028f21cbf6e0f6ed9f2c"
+        },
+        {
+          "path": ".model-cache/hub/models--mlx-community--Qwen3-4B-Instruct-2507-8bit/snapshots/0e42af58449718de7931ee04f28191fbe6c43a56/tokenizer.json",
+          "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4"
+        },
+        {
+          "path": ".model-cache/hub/models--mlx-community--Qwen3-4B-Instruct-2507-8bit/snapshots/0e42af58449718de7931ee04f28191fbe6c43a56/tokenizer_config.json",
+          "sha256": "355f2b4e5bad7b01f11ef6cb68ebc176f61b95c3276092ea225b1bea0e01e95c"
+        }
+      ],
+      "license_verified": true,
+      "trust_remote_code": false,
+      "stop_ids": [
+        151645,
+        151643
+      ]
+    },
+    "qwen3-asr-1.7b-8bit": {
+      "key": "qwen3-asr-1.7b-8bit",
+      "repository": "mlx-community/Qwen3-ASR-1.7B-8bit",
+      "revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+      "snapshot_dir": ".model-cache/hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+      "backend": "mlx_audio_qwen3_asr",
+      "precision": "8bit",
+      "artifacts": [
+        {
+          "path": ".model-cache/hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/a8379a2e2f9e313c9292cdf1af4055ab56d50d55/config.json",
+          "sha256": "1b76b3b6c655fc54595da025f7a96474ad9fa86363303fbdd61a7d8483ccfaf7"
+        },
+        {
+          "path": ".model-cache/hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/a8379a2e2f9e313c9292cdf1af4055ab56d50d55/model.safetensors",
+          "sha256": "bf304b009cc7eca79283056f787b44c952d24ac22cec787b39732bba3c23c13c"
+        },
+        {
+          "path": ".model-cache/hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/a8379a2e2f9e313c9292cdf1af4055ab56d50d55/tokenizer_config.json",
+          "sha256": "4942d005604266809309cabc9f4e9cb89ce855d59b14681fdc0e1cc62ea26c4c"
+        }
+      ],
+      "license_verified": true,
+      "trust_remote_code": false,
+      "stop_ids": []
+    },
+    "whisper-large-v3-turbo": {
+      "key": "whisper-large-v3-turbo",
+      "repository": "mlx-community/whisper-large-v3-turbo",
+      "revision": "a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb",
+      "snapshot_dir": ".model-cache/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb",
+      "backend": "mlx_audio_whisper",
+      "precision": "fp16",
+      "artifacts": [
+        {
+          "path": ".model-cache/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb/config.json",
+          "sha256": "b34fc29e4e11e0a25e812775dd67f4dd16fc2c8eb43d28ae25ff7d660ecb6379"
+        },
+        {
+          "path": ".model-cache/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb/weights.safetensors",
+          "sha256": "951ed3fc1203e6a62467abb2144a96ce7eafca8fa77e3704fdb8635ff3e7f8a6"
+        }
+      ],
+      "license_verified": true,
+      "trust_remote_code": false,
+      "stop_ids": [],
+      "processor_repository": "openai/whisper-large-v3-turbo",
+      "processor_revision": "41f01f3fe87f28c78e2fbf8b568835947dd65ed9",
+      "processor_dir": ".model-cache/hub/models--openai--whisper-large-v3-turbo/snapshots/41f01f3fe87f28c78e2fbf8b568835947dd65ed9"
+    }
+  }
+}
