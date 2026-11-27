@@ -84,6 +84,44 @@ def test_asr_runner_separates_ane_error_from_ok_latency():
     assert res["summary"]["latency_ok_p95_ms"] == 60.0
 
 
+def test_p1b_scene_grouping_unique_assignment_and_overlap_detector():
+    from p0.stage8_eval.run_p1b_vad_2x2 import (
+        assign_segments_to_scenes,
+        detect_unprotected_overlaps,
+        group_contiguous_scenes,
+    )
+
+    cues = [
+        {"cue_idx": 1, "start_s": 1.0, "end_s": 2.0, "clean_text": "あ"},
+        {"cue_idx": 2, "start_s": 2.5, "end_s": 3.5, "clean_text": "い"},
+        {"cue_idx": 3, "start_s": 6.0, "end_s": 7.0, "clean_text": "う"},
+    ]
+    scenes = group_contiguous_scenes(cues, gap_s=2.0)
+    assert len(scenes) == 2
+    assert scenes[0]["reference_ja"] == "あい"
+    assert scenes[1]["reference_ja"] == "う"
+
+    segs = [
+        {"start_sample": 16000, "end_sample": 56000, "text_ja": "あい"},
+        {"start_sample": 96000, "end_sample": 112000, "text_ja": "う"},
+        {"start_sample": 200000, "end_sample": 216000, "text_ja": "孤立"},
+    ]
+    by_sc, orphans = assign_segments_to_scenes(segs, scenes, margin_s=0.5)
+    assert len(by_sc["sc-001"]) == 1
+    assert len(by_sc["sc-002"]) == 1
+    assert len(orphans) == 1 and orphans[0]["text_ja"] == "孤立"
+
+    overlaps = detect_unprotected_overlaps([
+        {"start_sample": 0, "end_sample": 40000, "dedup_before_sample": 0, "cut_reason": "energy_valley"},
+        {"start_sample": 34400, "end_sample": 64000, "dedup_before_sample": 40000, "cut_reason": "vad_tail"},
+        {"start_sample": 50000, "end_sample": 80000, "dedup_before_sample": 0, "cut_reason": "vad_natural"},
+    ])
+    assert len(overlaps) == 1
+    assert overlaps[0]["chunk_idx"] == 2
+    assert overlaps[0]["prev_end_sample"] == 64000
+    assert overlaps[0]["cut_reason"] == "vad_natural"
+
+
 def test_asr_cli_rejects_manifest_mismatch(tmp_path):
     manifest_p = tmp_path / "m.json"
     manifest_p.write_text(
