@@ -45,28 +45,38 @@ def legacy_chrf4_score(hyp: str, ref: str, *, max_n: int = 4, beta: float = 2.0)
     return round(total_f / max(1, used_n), 4)
 
 
-CHRF2_STANDARD_SIGNATURE = "nrefs:1|case:mixed|eff:yes|nc:6|nw:0|space:no|version:pure-py-chrf2"
+CHRF2_STANDARD_SIGNATURE = "nrefs:1|case:mixed|eff:yes|nc:6|nw:0|space:no|version:pure-py-chrf2-v2"
 
 
 def chrf2_standard_0_100(hyp: str, ref: str, *, order: int = 6, beta: float = 2.0) -> float:
-    """Standard SacreBLEU character chrF2 (nc=6, nw=0, no-whitespace, 0-100 scale)."""
+    """Standard SacreBLEU character chrF2 (nc=6, nw=0, eff=yes, no-whitespace, 0-100 scale)."""
     h = "".join(hyp.split())
     r = "".join(ref.split())
     if not h or not r:
         return 0.0
-    total_f = 0.0
+    sum_p = 0.0
+    sum_r = 0.0
+    eff_order = 0
     for n in range(1, order + 1):
-        if len(h) < n or len(r) < n:
+        n_hyp = max(0, len(h) - n + 1)
+        n_ref = max(0, len(r) - n + 1)
+        if n_hyp == 0 and n_ref == 0:
             continue
-        hc = Counter(h[i : i + n] for i in range(len(h) - n + 1))
-        rc = Counter(r[i : i + n] for i in range(len(r) - n + 1))
-        overlap = sum((hc & rc).values())
-        if overlap > 0:
-            prec = overlap / max(1, sum(hc.values()))
-            rec = overlap / max(1, sum(rc.values()))
-            b2 = beta * beta
-            total_f += (1.0 + b2) * prec * rec / (b2 * prec + rec)
-    return round((total_f / float(order)) * 100.0, 4)
+        eff_order += 1
+        if n_hyp > 0 and n_ref > 0:
+            hc = Counter(h[i : i + n] for i in range(n_hyp))
+            rc = Counter(r[i : i + n] for i in range(n_ref))
+            overlap = sum((hc & rc).values())
+            sum_p += overlap / n_hyp
+            sum_r += overlap / n_ref
+    if eff_order == 0:
+        return 0.0
+    avg_p = sum_p / eff_order
+    avg_r = sum_r / eff_order
+    if avg_p == 0.0 and avg_r == 0.0:
+        return 0.0
+    b2 = beta * beta
+    return round(((1.0 + b2) * avg_p * avg_r / (b2 * avg_p + avg_r)) * 100.0, 4)
 
 
 def mt_arm_identity(

@@ -102,13 +102,28 @@ def run_a0_vad_projection(
 
     ref_all = "".join(u["reference_ja"] for u in units)
     hyp_all = "".join(r["hyp_ja"] for r in rows)
+    cer_v2_concat = score_asr(ref_all, hyp_all, "cer_v2")
+    sum_s = sum(int(r["S"]) for r in rows)
+    sum_d = sum(int(r["D"]) for r in rows)
+    sum_i = sum(int(r["I"]) for r in rows)
+    sum_n = sum(int(r["N"]) for r in rows)
+    cer_v2_per_unit = {
+        "S": sum_s,
+        "D": sum_d,
+        "I": sum_i,
+        "N": sum_n,
+        "cer": round((sum_s + sum_d + sum_i) / max(1, sum_n), 4),
+    }
     return {
         "summary": {
             "units": len(rows),
             "vad_total_chunks": len(chunks),
             "vad_kept_segments": len(vad_segs),
             "empty_count": empty_units,
-            "cer_v2": score_asr(ref_all, hyp_all, "cer_v2"),
+            "empty_unit_count": empty_units,
+            "cer_v2": cer_v2_concat,
+            "cer_v2_concat": cer_v2_concat,
+            "cer_v2_per_unit": cer_v2_per_unit,
             "legacy_cer": score_asr(ref_all, hyp_all, "legacy_cer"),
         },
         "rows": rows,

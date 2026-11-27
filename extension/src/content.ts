@@ -1,4 +1,5 @@
 import type { Owner, Player, View } from './internal';
+import { shouldApplyDeltaUpdate, type DeltaKind } from './preview_guard';
 
 declare const SUBTITLE_DIAGNOSTICS: boolean;
 
@@ -18,6 +19,7 @@ function install() {
   let sessionId = '';
   let seq = 0;
   let activeDeltaSeq = 0;
+  let activeDeltaKind: DeltaKind | undefined;
   let lastNotice: Player | undefined;
   let ticker: number | undefined;
   let hideCurr: number | undefined;
@@ -123,6 +125,7 @@ function install() {
     clearTimeout(hideCurr);
     clearTimeout(hidePrev);
     activeDeltaSeq = 0;
+    activeDeltaKind = undefined;
     if (SUBTITLE_DIAGNOSTICS) {
       if (currCue) cueRemoveReasons.set(cueKey(currCue), reason);
       if (prevCue) cueRemoveReasons.set(cueKey(prevCue), reason);
@@ -135,7 +138,18 @@ function install() {
     label.removeAttribute('data-streaming');
   }
 
-  function showDelta(text: string, cueSeq: number, deltaKind?: 'preview' | 'final_token_stream') {
+  function showDelta(text: string, cueSeq: number, deltaKind?: DeltaKind) {
+    const effectiveKind: DeltaKind = deltaKind ?? 'preview';
+    if (
+      activeDeltaSeq === cueSeq &&
+      activeDeltaKind &&
+      !shouldApplyDeltaUpdate(
+        { seq: activeDeltaSeq, kind: activeDeltaKind, text: label.textContent ?? '' },
+        { seq: cueSeq, kind: effectiveKind, text },
+      )
+    ) {
+      return;
+    }
     clearTimeout(hideCurr);
     if (activeDeltaSeq !== cueSeq) {
       clearTimeout(hidePrev);
@@ -158,12 +172,13 @@ function install() {
       }
       activeDeltaSeq = cueSeq;
     }
+    activeDeltaKind = effectiveKind;
     if (SUBTITLE_DIAGNOSTICS) {
       currCue = {
         session_id: sessionId,
         seq: cueSeq,
         epoch,
-        kind: deltaKind ?? 'preview',
+        kind: effectiveKind,
         text_zh: text,
       };
     }
@@ -176,6 +191,7 @@ function install() {
       label.textContent = '';
       label.removeAttribute('data-streaming');
       activeDeltaSeq = 0;
+      activeDeltaKind = undefined;
       if (SUBTITLE_DIAGNOSTICS) currCue = undefined;
     }, 4500);
     position();
@@ -198,6 +214,7 @@ function install() {
     clearTimeout(hideCurr);
     const finalizedInPlace = finalizeSeq > 0 && finalizeSeq === activeDeltaSeq;
     activeDeltaSeq = 0;
+    activeDeltaKind = undefined;
     if (!finalizedInPlace) {
       clearTimeout(hidePrev);
       if (SUBTITLE_DIAGNOSTICS && prevCue) {

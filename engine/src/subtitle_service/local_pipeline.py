@@ -1427,7 +1427,8 @@ class Qwen3Translator:
             ])
         if cancel_event is not None and cancel_event.is_set():
             return ""
-        if raw and _KANA.search(raw):
+        stop_reason = (getattr(self, "last_translate_meta", {}) or {}).get("stop_reason", "eos")
+        if raw and stop_reason == "eos" and _KANA.search(raw):
             repaired = self._run_prompt(
                 [
                     {"role": "system", "content": self.SYSTEM_PROMPT},
@@ -1436,6 +1437,10 @@ class Qwen3Translator:
                 cancel_event=cancel_event,
             )
             if repaired:
+                if isinstance(getattr(self, "last_translate_meta", None), dict) and not _KANA.search(repaired):
+                    self.last_translate_meta["valid"] = True
+                    self.last_translate_meta["stop_reason"] = "eos"
+                    self.last_translate_meta["repaired"] = True
                 return repaired
         return raw
 
@@ -1468,6 +1473,7 @@ class Qwen3Translator:
                 raise _Cancelled()
 
         tokens: list[int] = []
+        hit_eos = False
         try:
             for tok, _ in self._generate_step(
                 suffix_ids,
@@ -1483,6 +1489,7 @@ class Qwen3Translator:
                     return ""
                 tid = int(tok)
                 if tid in self._eos_ids:
+                    hit_eos = True
                     break
                 tokens.append(tid)
         except _Cancelled:
@@ -1494,6 +1501,8 @@ class Qwen3Translator:
             if hasattr(self, "_cache_tokens") and int(cache[0].offset) == base_offset:
                 self._cache_tokens = base_tokens
 
+        if not hit_eos:
+            return ""
         out = self._clean_output(self.tokenizer.decode(tokens))
         return "" if not out or _KANA.search(out) else out
 
@@ -1797,8 +1806,12 @@ class LocalSession:
                 end_sample=segment.end_sample,
                 on_delta=on_delta,
             )
+        mt_meta = getattr(self.backend.translator, "last_translate_meta", None)
+        is_invalid = isinstance(mt_meta, dict) and (
+            mt_meta.get("stop_reason") in ("length_limit", "cancelled", "error")
+            or mt_meta.get("valid") is False
+        )
         if self.record:
-            mt_meta = getattr(self.backend.translator, "last_translate_meta", None)
             extra = (
                 {
                     k: mt_meta[k]
@@ -1808,7 +1821,11 @@ class LocalSession:
                 if isinstance(mt_meta, dict)
                 else {}
             )
+            if is_invalid:
+                extra["dropped_reason"] = str(mt_meta.get("stop_reason") or "invalid")
             self.record("mt_end", text_zh=text, **vars(segment), **extra)
+        if is_invalid:
+            return ""
         return text
 
     async def run_translation(self):

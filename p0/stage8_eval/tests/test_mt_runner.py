@@ -167,3 +167,73 @@ def test_cli_rejects_manifest_mismatch(tmp_path):
         text=True,
     )
     assert proc.returncode == 2
+
+
+def test_chrf2_standard_effective_order_short_strings():
+    from p0.stage8_eval.bench_mt import CHRF2_STANDARD_SIGNATURE, chrf2_standard_0_100
+
+    assert "eff:yes" in CHRF2_STANDARD_SIGNATURE
+    assert chrf2_standard_0_100("我", "我") == 100.0
+    assert chrf2_standard_0_100("你好", "你好") == 100.0
+    assert chrf2_standard_0_100("今天天气很好", "今天天气很好") == 100.0
+    partial = chrf2_standard_0_100("我", "我们")
+    assert 0.0 < partial < 100.0
+    assert chrf2_standard_0_100("", "我") == 0.0
+    assert chrf2_standard_0_100("我", "") == 0.0
+
+
+def test_t5_reuse_rejects_mismatched_experiment_key(tmp_path):
+    from p0.stage8_eval.run_t5_batch2 import LOCKED_M2_CONFIG, _reuse_asr, _reuse_m2
+
+    art = tmp_path / "model.safetensors"
+    art.write_bytes(b"weights")
+    reg = {
+        "schema_version": "stage8-model-registry-v1",
+        "models": {
+            "qwen4b-q8": {
+                "key": "qwen4b-q8",
+                "repository": "org/qwen4b-q8",
+                "revision": "a" * 40,
+                "artifacts": [{"path": str(art), "sha256": ""}],
+                "license_verified": True,
+                "trust_remote_code": False,
+            },
+            "qwen3-asr-1.7b-8bit": {
+                "key": "qwen3-asr-1.7b-8bit",
+                "repository": "org/qwen-asr",
+                "revision": "b" * 40,
+                "artifacts": [{"path": str(art), "sha256": ""}],
+                "license_verified": True,
+                "trust_remote_code": False,
+            },
+        },
+    }
+
+    (tmp_path / "m2_qwen4b_q8_120.json").write_text(
+        json.dumps({"experiment_key": "k_old", "summary": {"cues": 120}}),
+        encoding="utf-8",
+    )
+    (tmp_path / "m2_qwen4b_q8_654.json").write_text(
+        json.dumps({"experiment_key": "k_old", "config": LOCKED_M2_CONFIG, "summary": {"cues": 654}, "hard_cases": []}),
+        encoding="utf-8",
+    )
+    assert _reuse_m2(reg, tmp_path, expected_experiment_key="k_new") is None
+    reused_m2 = _reuse_m2(reg, tmp_path, expected_experiment_key="k_old")
+    assert reused_m2 is not None
+    assert reused_m2["config"] == LOCKED_M2_CONFIG
+    assert reused_m2["run_status"] == "COMPLETED"
+    assert reused_m2["gate_status"] == "SCREENING_ONLY"
+
+    nemo_ref = [{"unit_id": "u1", "reference_ja": "はい", "hyp_ja": "はい", "S": 0, "D": 0, "I": 0, "N": 2}]
+    asr_payload = {
+        "experiment_key": "asr_old",
+        "summary": {"units": 1},
+        "rows": [{"unit_id": "u1", "reference_ja": "はい", "hyp_ja": "いいえ", "S": 2, "D": 0, "I": 1, "N": 2}],
+    }
+    (tmp_path / "qwen3_asr_1.7b_8bit_dev60.json").write_text(json.dumps(asr_payload), encoding="utf-8")
+    assert _reuse_asr("qwen3-asr-1.7b-8bit", reg, nemo_ref, tmp_path, expected_experiment_key="asr_new") is None
+    reused_asr = _reuse_asr("qwen3-asr-1.7b-8bit", reg, nemo_ref, tmp_path, expected_experiment_key="asr_old")
+    assert reused_asr is not None
+    assert reused_asr["run_status"] == "COMPLETED"
+    assert reused_asr["gate_status"] == "FAIL"
+    assert reused_asr["vs_nemo_oracle_hybrid"]["net_edit_delta"] == 3

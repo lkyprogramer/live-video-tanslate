@@ -78,10 +78,13 @@ def run_asr_units(
 
     rows: list[dict[str, Any]] = []
     latencies: list[float] = []
+    ok_latencies: list[float] = []
     predict_ms: list[float] = []
     decode_ms: list[float] = []
     buckets: dict[int, int] = {}
     empty_count = 0
+    failed_unit_count = 0
+    error_flags_count: dict[str, int] = {}
     collar_delays: list[float] = []
     peak_mlx = 0.0
 
@@ -105,8 +108,16 @@ def run_asr_units(
         txt = hyp.text_ja.strip()
         if not txt:
             empty_count += 1
+        flags = [str(fl) for fl in (hyp.flags or [])]
+        is_failed = any(fl.startswith("ane_error_") or fl == "error" for fl in flags)
         tot_ms = float(hyp.timing.get("total_ms", 0.0))
         latencies.append(tot_ms)
+        if is_failed:
+            failed_unit_count += 1
+        else:
+            ok_latencies.append(tot_ms)
+        for fl in flags:
+            error_flags_count[fl] = error_flags_count.get(fl, 0) + 1
         if "predict_ms" in hyp.timing:
             predict_ms.append(float(hyp.timing["predict_ms"]))
         if "decode_ms" in hyp.timing:
@@ -140,19 +151,37 @@ def run_asr_units(
     hyp_all = "".join(r["hyp_ja"] for r in rows)
     cer_v2_full = score_asr(ref_all, hyp_all, "cer_v2")
     legacy_full = score_asr(ref_all, hyp_all, "legacy_cer")
+    sum_s = sum(int(r["S"]) for r in rows)
+    sum_d = sum(int(r["D"]) for r in rows)
+    sum_i = sum(int(r["I"]) for r in rows)
+    sum_n = sum(int(r["N"]) for r in rows)
+    cer_v2_per_unit = {
+        "S": sum_s,
+        "D": sum_d,
+        "I": sum_i,
+        "N": sum_n,
+        "cer": round((sum_s + sum_d + sum_i) / max(1, sum_n), 4),
+    }
     summary = {
         "units": len(rows),
         "empty_count": empty_count,
+        "empty_unit_count": empty_count,
+        "failed_unit_count": failed_unit_count,
+        "error_flags_count": error_flags_count,
         "left_context_s": left_context_s,
         "right_collar_ms": right_collar_ms,
         "extra_collar_delay_ms": round(sum(collar_delays) / max(1, len(collar_delays)), 2),
         "latency_p50_ms": nearest_rank_quantile(latencies, 0.50),
         "latency_p95_ms": nearest_rank_quantile(latencies, 0.95),
+        "latency_ok_p50_ms": nearest_rank_quantile(ok_latencies, 0.50) if ok_latencies else None,
+        "latency_ok_p95_ms": nearest_rank_quantile(ok_latencies, 0.95) if ok_latencies else None,
         "predict_p50_ms": nearest_rank_quantile(predict_ms, 0.50) if predict_ms else None,
         "decode_p50_ms": nearest_rank_quantile(decode_ms, 0.50) if decode_ms else None,
         "buckets": buckets,
         "peak_mlx_mib": round(peak_mlx, 2) if peak_mlx > 0 else None,
         "cer_v2": cer_v2_full,
+        "cer_v2_concat": cer_v2_full,
+        "cer_v2_per_unit": cer_v2_per_unit,
         "legacy_cer": legacy_full,
     }
     return {"summary": summary, "rows": rows}

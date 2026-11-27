@@ -334,3 +334,73 @@ def test_caption_delta_kind_provenance_schema(config):
         assert cap["text_zh"] == "流式终稿。"
         fin = ws.receive_json()
         assert fin["type"] == "finished"
+
+
+def test_length_limit_translation_not_emitted_over_websocket(config):
+    from concurrent.futures import ThreadPoolExecutor
+    from types import SimpleNamespace
+    from subtitle_service import local_pipeline as lp
+
+    class TruncatingTranslator:
+        def __init__(self):
+            self.calls = 0
+            self.last_translate_meta = {}
+
+        def translate(self, _sess, _text_ja, **_kwargs):
+            self.calls += 1
+            if self.calls == 1:
+                self.last_translate_meta = {"stop_reason": "length_limit", "valid": False, "gen_tokens": 256}
+                return "截断的中文译文"
+            self.last_translate_meta = {"stop_reason": "eos", "valid": True, "gen_tokens": 4}
+            return "完整中文。"
+
+    class StubBackend(Fake):
+        def __init__(self):
+            super().__init__()
+            self.uses_ane_asr = False
+            self.uses_gpu_scheduler = False
+            self.uses_speech_cpp_asr = False
+            self.profile = SimpleNamespace(asr=SimpleNamespace(max_segment_s=0.0, overlap_ms=350, draft_interval_s=0.0))
+            self.translator = TruncatingTranslator()
+            self.vad_pool = ThreadPoolExecutor(max_workers=1)
+            self.asr_pool = ThreadPoolExecutor(max_workers=1)
+            self.mt_pool = ThreadPoolExecutor(max_workers=1)
+
+        async def open(self, emit, *, record=None):
+            sess = lp.LocalSession(self, object(), lp._NoopSession(), emit, record)
+            sess._enqueue_segment(lp.RecognizedSegment(1, 0, 1600, "テスト一"))
+            sess._enqueue_segment(lp.RecognizedSegment(2, 1600, 3200, "テスト二"))
+
+            async def _accept(_frame):
+                pass
+
+            async def _finish():
+                await sess.pending.put(None)
+                if sess.mt_task is not None:
+                    await sess.mt_task
+
+            sess.accept_pcm = _accept
+            sess.finish = _finish
+            return sess
+
+        async def aclose(self):
+            self.vad_pool.shutdown()
+            self.asr_pool.shutdown()
+            self.mt_pool.shutdown()
+
+    backend = StubBackend()
+    try:
+        with client(config, backend) as (c, _), websocket(c) as ws:
+            start(ws)
+            ws.send_bytes(bytes(6400))
+            ws.send_json(FIXTURE["finish"])
+            cap = ws.receive_json()
+            jsonschema.validate(cap, SCHEMA)
+            assert cap["type"] == "caption"
+            assert cap["text_zh"] == "完整中文。"
+            fin = ws.receive_json()
+            assert fin["type"] == "finished"
+    finally:
+        backend.vad_pool.shutdown()
+        backend.asr_pool.shutdown()
+        backend.mt_pool.shutdown()

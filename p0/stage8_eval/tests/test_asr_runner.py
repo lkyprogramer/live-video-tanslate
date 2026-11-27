@@ -37,8 +37,51 @@ def test_asr_runner_retains_empty_and_accounts_collar(tmp_path):
     res = run_asr_units(StubAsr(), pcm, units, left_context_s=0.0, right_collar_ms=160)
     assert len(res["rows"]) == 2
     assert res["summary"]["empty_count"] == 1
+    assert res["summary"]["empty_unit_count"] == 1
     assert res["summary"]["extra_collar_delay_ms"] == 160.0
     assert res["summary"]["cer_v2"]["N"] == 4  # both "はい" and "うん" kept!
+
+
+def test_asr_runner_reports_per_unit_and_concat_cer_separately():
+    from p0.stage8_eval.bench_asr import run_asr_units
+
+    class SplitAsr:
+        def transcribe(self, pcm_f32, span: AudioSpan, options: dict) -> ASRHypothesis:
+            txt = "猫犬" if span.target_start == 0 else ""
+            return ASRHypothesis(span, txt, "stub-asr", "v1", [], {"total_ms": 15.0}, [])
+
+    pcm = np.zeros(64000, dtype=np.float32)
+    units = [
+        {"unit_id": "u1", "start_sample": 0, "end_sample": 16000, "reference_ja": "猫"},
+        {"unit_id": "u2", "start_sample": 32000, "end_sample": 48000, "reference_ja": "犬"},
+    ]
+    res = run_asr_units(SplitAsr(), pcm, units)
+    assert res["summary"]["cer_v2_concat"]["cer"] == 0.0
+    assert res["summary"]["cer_v2_per_unit"]["cer"] == 1.0
+    assert res["summary"]["empty_unit_count"] == 1
+
+
+def test_asr_runner_separates_ane_error_from_ok_latency():
+    from p0.stage8_eval.bench_asr import run_asr_units
+
+    class ErrAsr:
+        def transcribe(self, pcm_f32, span: AudioSpan, options: dict) -> ASRHypothesis:
+            if span.target_start == 0:
+                return ASRHypothesis(span, "", "stub-asr", "v1", [], {"total_ms": 1.0}, ["ane_error_2"])
+            tot = 50.0 if span.target_start == 16000 else 60.0
+            return ASRHypothesis(span, "はい。", "stub-asr", "v1", [], {"total_ms": tot}, [])
+
+    pcm = np.zeros(64000, dtype=np.float32)
+    units = [
+        {"unit_id": "u1", "start_sample": 0, "end_sample": 16000, "reference_ja": "はい。"},
+        {"unit_id": "u2", "start_sample": 16000, "end_sample": 32000, "reference_ja": "はい。"},
+        {"unit_id": "u3", "start_sample": 32000, "end_sample": 48000, "reference_ja": "はい。"},
+    ]
+    res = run_asr_units(ErrAsr(), pcm, units)
+    assert res["summary"]["failed_unit_count"] == 1
+    assert res["summary"]["error_flags_count"] == {"ane_error_2": 1}
+    assert res["summary"]["latency_ok_p50_ms"] == 50.0
+    assert res["summary"]["latency_ok_p95_ms"] == 60.0
 
 
 def test_asr_cli_rejects_manifest_mismatch(tmp_path):

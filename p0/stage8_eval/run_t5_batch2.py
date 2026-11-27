@@ -20,15 +20,15 @@ import numpy as np  # noqa: E402
 from huggingface_hub import HfApi, snapshot_download  # noqa: E402
 
 from p0.stage8_eval.bench_asr import run_asr_units  # noqa: E402
-from p0.stage8_eval.bench_mt import run_mt_cues  # noqa: E402
-from p0.stage8_eval.contracts import sha256_file  # noqa: E402
+from p0.stage8_eval.bench_mt import mt_arm_identity, run_mt_cues  # noqa: E402
+from p0.stage8_eval.contracts import canonical_json_sha256, sha256_file  # noqa: E402
 from p0.stage8_eval.model_adapters import (  # noqa: E402
     Qwen3AsrMlxAdapter,
     Qwen3MlxMTAdapter,
     WhisperMlxAdapter,
     resolve_model,
 )
-from p0.stage8_eval.run_t3_batch2 import SHORT_FAITHFUL_PROMPT, load_stratified_120_cues  # noqa: E402
+from p0.stage8_eval.run_t3_batch2 import load_stratified_120_cues  # noqa: E402
 from subtitle_service.local_pipeline import Qwen3Translator  # noqa: E402
 
 PERF_PROBE = Path(__file__).resolve().parents[1] / "perf_probe"
@@ -45,6 +45,45 @@ from analyze_stage6_stage3_accuracy import (  # noqa: E402
 VAD_PATH = CACHE_ROOT / "reazonspeech-assets/silero_vad.onnx"
 STAGE6_ATTR_PATH = MAIN_ROOT / "docs/experiments/stage6-ep01-2026-11-26/stage3_accuracy_attribution.json"
 REGISTRY_PATH = Path(__file__).resolve().parent / "model_registry.json"
+LOCKED_M2_CONFIG: dict[str, Any] = {
+    "prompt": "stage7",
+    "context_turns": 4,
+    "repetition_penalty": 1.08,
+    "use_kv_cache": True,
+    "enable_kana_mask": True,
+    "max_output_tokens": 256,
+}
+
+
+def m2_experiment_key(entry: dict[str, Any], *, dataset_sha256: str) -> str:
+    return mt_arm_identity(
+        model_key=str(entry["key"]),
+        revision=str(entry["revision"]),
+        system_prompt=Qwen3Translator.SYSTEM_PROMPT,
+        context_turns=int(LOCKED_M2_CONFIG["context_turns"]),
+        repetition_penalty=float(LOCKED_M2_CONFIG["repetition_penalty"]),
+        use_kv_cache=bool(LOCKED_M2_CONFIG["use_kv_cache"]),
+        enable_kana_mask=bool(LOCKED_M2_CONFIG["enable_kana_mask"]),
+        dataset_sha256=dataset_sha256,
+    )
+
+
+def asr_experiment_key(
+    entry: dict[str, Any],
+    *,
+    units_sha256: str,
+    pcm_sha256: str,
+    left_context_s: float = 0.0,
+    right_collar_ms: int = 0,
+) -> str:
+    return canonical_json_sha256({
+        "model_key": str(entry["key"]),
+        "revision": str(entry["revision"]),
+        "units_sha256": units_sha256,
+        "pcm_sha256": pcm_sha256,
+        "left_context_s": left_context_s,
+        "right_collar_ms": right_collar_ms,
+    })
 
 
 def download_and_register() -> dict[str, Any]:
@@ -146,23 +185,18 @@ def download_and_register() -> dict[str, Any]:
     return reg
 
 
-def screen_m2_q8(reg: dict[str, Any], out_dir: Path) -> dict[str, Any]:
+def screen_m2_q8(reg: dict[str, Any], out_dir: Path, *, expected_experiment_key: str | None = None) -> dict[str, Any]:
     entry = resolve_model("qwen4b-q8", reg)
     snap = Path(entry["snapshot_dir"])
 
-    t3_sum_path = MAIN_ROOT / "p0/evidence/stage8-batch2-20261126/t3_mt/t3_mt_summary.json"
+    dataset_sha = sha256_file(JP_SRT_PATH)
+    exp_key = expected_experiment_key or m2_experiment_key(entry, dataset_sha256=dataset_sha)
     sys_prompt = Qwen3Translator.SYSTEM_PROMPT
-    ctx_turns = 4
-    rep = 1.08
-    use_kv = True
-    if t3_sum_path.is_file():
-        t3 = json.loads(t3_sum_path.read_text(encoding="utf-8"))
-        win = t3.get("m1_winner") or {}
-        if win.get("prompt") == "short":
-            sys_prompt = SHORT_FAITHFUL_PROMPT
-        ctx_turns = int(win.get("context_turns", 4))
-        rep = float(win.get("repetition_penalty", 1.08))
-        use_kv = bool(win.get("use_kv_cache", True))
+    ctx_turns = int(LOCKED_M2_CONFIG["context_turns"])
+    rep = float(LOCKED_M2_CONFIG["repetition_penalty"])
+    use_kv = bool(LOCKED_M2_CONFIG["use_kv_cache"])
+    enable_kana = bool(LOCKED_M2_CONFIG["enable_kana_mask"])
+    max_toks = int(LOCKED_M2_CONFIG["max_output_tokens"])
 
     s6_attr = json.loads(STAGE6_ATTR_PATH.read_text(encoding="utf-8"))
     hard_ids = {int(x["cue_idx"]) for x in s6_attr["per_cue_labels"] if x.get("primary_tag") in ("E3", "E4")}
@@ -178,26 +212,39 @@ def screen_m2_q8(reg: dict[str, Any], out_dir: Path) -> dict[str, Any]:
         system_prompt=sys_prompt,
         context_turns=ctx_turns,
         repetition_penalty=rep,
-        enable_kana_mask=True,
+        enable_kana_mask=enable_kana,
         use_kv_cache=use_kv,
-        max_tokens=256,
+        max_tokens=max_toks,
     )
     try:
-        smoke = run_mt_cues(ad, cues_hard18, gold_zh, context_turns=0, max_tokens=256, hard_cue_ids=hard_ids)
+        smoke = run_mt_cues(ad, cues_hard18, gold_zh, context_turns=0, max_tokens=max_toks, hard_cue_ids=hard_ids)
         if smoke["summary"]["valid_count"] < 16:
-            return {"status": "FAIL", "reason": "smoke_protocol_failed", "smoke_summary": smoke["summary"]}
-        res_120 = run_mt_cues(ad, cues_120, gold_zh, context_turns=ctx_turns, max_tokens=256, hard_cue_ids=hard_ids)
-        res_654 = run_mt_cues(ad, jp_dialogue, gold_zh, context_turns=ctx_turns, max_tokens=256, main_end_s=MAIN_END_S, hard_cue_ids=hard_ids)
+            return {
+                "run_status": "COMPLETED",
+                "gate_status": "FAIL",
+                "reason": "smoke_protocol_failed",
+                "experiment_key": exp_key,
+                "config": dict(LOCKED_M2_CONFIG),
+                "smoke_summary": smoke["summary"],
+            }
+        res_120 = run_mt_cues(ad, cues_120, gold_zh, context_turns=ctx_turns, max_tokens=max_toks, hard_cue_ids=hard_ids)
+        res_654 = run_mt_cues(ad, jp_dialogue, gold_zh, context_turns=ctx_turns, max_tokens=max_toks, main_end_s=MAIN_END_S, hard_cue_ids=hard_ids)
     finally:
         ad.close()
 
+    res_120["experiment_key"] = exp_key
+    res_120["config"] = dict(LOCKED_M2_CONFIG)
+    res_654["experiment_key"] = exp_key
+    res_654["config"] = dict(LOCKED_M2_CONFIG)
     (out_dir / "m2_qwen4b_q8_120.json").write_text(json.dumps(res_120, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out_dir / "m2_qwen4b_q8_654.json").write_text(json.dumps(res_654, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return {
-        "status": "PASS",
+        "run_status": "COMPLETED",
+        "gate_status": "SCREENING_ONLY",
+        "experiment_key": exp_key,
         "model": entry["repository"],
         "revision": entry["revision"],
-        "config": {"context_turns": ctx_turns, "repetition_penalty": rep, "use_kv_cache": use_kv},
+        "config": dict(LOCKED_M2_CONFIG),
         "smoke_18": smoke["summary"],
         "stratified_120": res_120["summary"],
         "full_654": res_654["summary"],
@@ -208,14 +255,24 @@ def screen_m2_q8(reg: dict[str, Any], out_dir: Path) -> dict[str, Any]:
 def _complementarity(nemo_rows: list[dict], cand_rows: list[dict]) -> dict[str, Any]:
     nemo_by_id = {r["unit_id"]: r for r in nemo_rows}
     fixed = regressed = both_err = both_ok = 0
+    better = worse = tie = net_edit_delta = 0
     examples_fixed = []
     examples_regressed = []
     for cr in cand_rows:
         nr = nemo_by_id.get(cr["unit_id"])
         if not nr:
             continue
-        n_err = (nr["S"] + nr["D"] + nr["I"]) > 0
-        c_err = (cr["S"] + cr["D"] + cr["I"]) > 0
+        ne = int(nr["S"]) + int(nr["D"]) + int(nr["I"])
+        ce = int(cr["S"]) + int(cr["D"]) + int(cr["I"])
+        net_edit_delta += ce - ne
+        if ce < ne:
+            better += 1
+        elif ce > ne:
+            worse += 1
+        else:
+            tie += 1
+        n_err = ne > 0
+        c_err = ce > 0
         if n_err and not c_err:
             fixed += 1
             examples_fixed.append({"unit_id": cr["unit_id"], "ref": cr["reference_ja"], "nemo": nr["hyp_ja"], "cand": cr["hyp_ja"]})
@@ -231,12 +288,25 @@ def _complementarity(nemo_rows: list[dict], cand_rows: list[dict]) -> dict[str, 
         "regressed_nemo_correct": regressed,
         "both_err": both_err,
         "both_ok": both_ok,
+        "better_units": better,
+        "worse_units": worse,
+        "tie_units": tie,
+        "net_edit_delta": net_edit_delta,
         "examples_fixed": examples_fixed[:8],
         "examples_regressed": examples_regressed[:5],
     }
 
 
-def screen_asr_challenger(key: str, reg: dict[str, Any], pcm_f32: np.ndarray, units: list[dict], nemo_ref_rows: list[dict], out_dir: Path) -> dict[str, Any]:
+def screen_asr_challenger(
+    key: str,
+    reg: dict[str, Any],
+    pcm_f32: np.ndarray,
+    units: list[dict],
+    nemo_ref_rows: list[dict],
+    out_dir: Path,
+    *,
+    expected_experiment_key: str = "",
+) -> dict[str, Any]:
     entry = resolve_model(key, reg)
     snap = Path(entry["snapshot_dir"])
     print(f"[T5][ASR] Screening {key} ({entry['repository']}) on frozen 60 units...", flush=True)
@@ -250,14 +320,19 @@ def screen_asr_challenger(key: str, reg: dict[str, Any], pcm_f32: np.ndarray, un
     finally:
         ad.close()
 
+    if expected_experiment_key:
+        res["experiment_key"] = expected_experiment_key
     (out_dir / f"{key.replace('-', '_')}_dev60.json").write_text(
         json.dumps(res, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     comp = _complementarity(nemo_ref_rows, res["rows"])
     ja_re = re.compile(r"[\u3041-\u309f\u30a1-\u30ff\u4e00-\u9fff]")
     ja_rows = sum(1 for r in res["rows"] if ja_re.search(r["hyp_ja"]))
+    gate_status = "FAIL" if comp["net_edit_delta"] >= 0 else "SCREENING_ONLY"
     return {
-        "status": "PASS",
+        "run_status": "COMPLETED",
+        "gate_status": gate_status,
+        "experiment_key": expected_experiment_key,
         "model": entry["repository"],
         "revision": entry["revision"],
         "ja_output_rows": ja_rows,
@@ -266,7 +341,7 @@ def screen_asr_challenger(key: str, reg: dict[str, Any], pcm_f32: np.ndarray, un
     }
 
 
-def _reuse_m2(reg: dict[str, Any], out_dir: Path) -> dict[str, Any] | None:
+def _reuse_m2(reg: dict[str, Any], out_dir: Path, *, expected_experiment_key: str) -> dict[str, Any] | None:
     p120 = out_dir / "m2_qwen4b_q8_120.json"
     p654 = out_dir / "m2_qwen4b_q8_654.json"
     if not (p120.is_file() and p654.is_file()):
@@ -274,30 +349,51 @@ def _reuse_m2(reg: dict[str, Any], out_dir: Path) -> dict[str, Any] | None:
     entry = resolve_model("qwen4b-q8", reg)
     r120 = json.loads(p120.read_text(encoding="utf-8"))
     r654 = json.loads(p654.read_text(encoding="utf-8"))
+    if (
+        r120.get("experiment_key") != expected_experiment_key
+        or r654.get("experiment_key") != expected_experiment_key
+    ):
+        return None
     return {
-        "status": "PASS",
+        "run_status": "COMPLETED",
+        "gate_status": "SCREENING_ONLY",
         "reused": True,
+        "experiment_key": expected_experiment_key,
         "model": entry["repository"],
         "revision": entry["revision"],
+        "config": r654.get("config") or dict(LOCKED_M2_CONFIG),
         "stratified_120": r120["summary"],
         "full_654": r654["summary"],
         "hard_cases": r654["hard_cases"],
     }
 
 
-def _reuse_asr(key: str, reg: dict[str, Any], nemo_ref: list[dict], out_dir: Path) -> dict[str, Any] | None:
+def _reuse_asr(
+    key: str,
+    reg: dict[str, Any],
+    nemo_ref: list[dict],
+    out_dir: Path,
+    *,
+    expected_experiment_key: str,
+) -> dict[str, Any] | None:
     p = out_dir / f"{key.replace('-', '_')}_dev60.json"
     if not p.is_file():
         return None
     entry = resolve_model(key, reg)
     res = json.loads(p.read_text(encoding="utf-8"))
+    if res.get("experiment_key") != expected_experiment_key:
+        return None
+    comp = _complementarity(nemo_ref, res["rows"])
+    gate_status = "FAIL" if comp["net_edit_delta"] >= 0 else "SCREENING_ONLY"
     return {
-        "status": "PASS",
+        "run_status": "COMPLETED",
+        "gate_status": gate_status,
         "reused": True,
+        "experiment_key": expected_experiment_key,
         "model": entry["repository"],
         "revision": entry["revision"],
         "summary": res["summary"],
-        "vs_nemo_oracle_hybrid": _complementarity(nemo_ref, res["rows"]),
+        "vs_nemo_oracle_hybrid": comp,
     }
 
 
@@ -311,13 +407,22 @@ def main(argv: list[str] | None = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     reg = download_and_register()
-    pcm_f32 = np.frombuffer((ev_dir / "ep01_16k.pcm").read_bytes(), dtype="<i2").astype(np.float32) / 32768.0
-    units = [json.loads(ln) for ln in (ev_dir / "ep01_dev60_units.jsonl").read_text(encoding="utf-8").splitlines() if ln.strip()]
+    pcm_path = ev_dir / "ep01_16k.pcm"
+    units_path = ev_dir / "ep01_dev60_units.jsonl"
+    pcm_sha = sha256_file(pcm_path)
+    units_sha = sha256_file(units_path)
+    dataset_sha = sha256_file(JP_SRT_PATH)
+    pcm_f32 = np.frombuffer(pcm_path.read_bytes(), dtype="<i2").astype(np.float32) / 32768.0
+    units = [json.loads(ln) for ln in units_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
     nemo_ref = json.loads((ev_dir / "t4_asr/a0_oracle_hybrid_pad500.json").read_text(encoding="utf-8"))["rows"]
 
-    m2_res = (_reuse_m2(reg, out_dir) if args.reuse_existing else None) or screen_m2_q8(reg, out_dir)
-    a3_res = (_reuse_asr("qwen3-asr-1.7b-8bit", reg, nemo_ref, out_dir) if args.reuse_existing else None) or screen_asr_challenger("qwen3-asr-1.7b-8bit", reg, pcm_f32, units, nemo_ref, out_dir)
-    a4_res = (_reuse_asr("whisper-large-v3-turbo", reg, nemo_ref, out_dir) if args.reuse_existing else None) or screen_asr_challenger("whisper-large-v3-turbo", reg, pcm_f32, units, nemo_ref, out_dir)
+    m2_key = m2_experiment_key(resolve_model("qwen4b-q8", reg), dataset_sha256=dataset_sha)
+    a3_key = asr_experiment_key(resolve_model("qwen3-asr-1.7b-8bit", reg), units_sha256=units_sha, pcm_sha256=pcm_sha)
+    a4_key = asr_experiment_key(resolve_model("whisper-large-v3-turbo", reg), units_sha256=units_sha, pcm_sha256=pcm_sha)
+
+    m2_res = (_reuse_m2(reg, out_dir, expected_experiment_key=m2_key) if args.reuse_existing else None) or screen_m2_q8(reg, out_dir, expected_experiment_key=m2_key)
+    a3_res = (_reuse_asr("qwen3-asr-1.7b-8bit", reg, nemo_ref, out_dir, expected_experiment_key=a3_key) if args.reuse_existing else None) or screen_asr_challenger("qwen3-asr-1.7b-8bit", reg, pcm_f32, units, nemo_ref, out_dir, expected_experiment_key=a3_key)
+    a4_res = (_reuse_asr("whisper-large-v3-turbo", reg, nemo_ref, out_dir, expected_experiment_key=a4_key) if args.reuse_existing else None) or screen_asr_challenger("whisper-large-v3-turbo", reg, pcm_f32, units, nemo_ref, out_dir, expected_experiment_key=a4_key)
 
     summary = {
         "schema_version": "stage8-t5-g3-screening-v1",
