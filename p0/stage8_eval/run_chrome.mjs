@@ -24,6 +24,7 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 const ROOT = resolve(import.meta.dirname, '../..');
+const ENGINE_ROOT = process.env.ENGINE_ROOT ? resolve(process.env.ENGINE_ROOT) : ROOT;
 const manifestPath = resolve(args.manifest);
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 
@@ -66,11 +67,12 @@ const CACHE_ROOT = process.env.MODEL_CACHE_ROOT || (
 );
 
 await mkdir(outDir, { recursive: true });
+await writeFile(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 const scratchDir = await mkdtemp(join(tmpdir(), 'stage8-chrome-'));
 const extDir = process.env.EXT_DIAG_DIR || join(scratchDir, 'ext-diag');
 if (!process.env.EXT_DIAG_DIR) {
   execFileSync('node', ['build.mjs'], {
-    cwd: join(ROOT, 'extension'),
+    cwd: join(ENGINE_ROOT, 'extension'),
     env: { ...process.env, SUBTITLE_DIAGNOSTIC_DIST: extDir },
     stdio: 'inherit',
   });
@@ -411,10 +413,10 @@ try {
     await writeFile(modelTrace, '');
 
     service = spawn(PYTHON_BIN, ['-m', 'subtitle_service.cli', '--config', tempTomlPath], {
-      cwd: ROOT,
+      cwd: ENGINE_ROOT,
       env: {
         ...process.env,
-        PYTHONPATH: `${ROOT}:${join(ROOT, 'engine/src')}`,
+        PYTHONPATH: `${ENGINE_ROOT}:${join(ENGINE_ROOT, 'engine/src')}`,
         HF_HOME: CACHE_ROOT,
         SUBTITLE_TOKEN_FILE: tokenFile,
         SUBTITLE_BENCH_TRACE: modelTrace,
