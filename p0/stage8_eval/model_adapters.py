@@ -8,8 +8,14 @@ import importlib
 import json
 from pathlib import Path
 import re
+import shutil
+import socket
+import subprocess
+import tempfile
 import time
 from typing import Any, Protocol
+import urllib.error
+import urllib.request
 
 import numpy as np
 
@@ -552,6 +558,192 @@ class WhisperMlxAdapter:
         self.model = None
         gc.collect()
         mx.clear_cache()
+
+
+INDEX_TRANSLATE_ZH_TEMPLATE = "请将以下文本翻译为中文，直接输出翻译结果，不要进行任何解释。\n\n{source}"
+
+
+def build_llama_server_cmd(
+    gguf_path: Path,
+    port: int,
+    *,
+    llama_server_bin: str = "llama-server",
+    ctx_size: int = 4096,
+) -> list[str]:
+    """Build localhost-only text-translation command for llama-server (never loads mmproj)."""
+    return [
+        llama_server_bin,
+        "-m",
+        str(gguf_path),
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(port),
+        "-ngl",
+        "99",
+        "-c",
+        str(ctx_size),
+        "--jinja",
+        "--chat-template-kwargs",
+        '{"enable_thinking":false}',
+        "--no-webui",
+    ]
+
+
+class LlamaServerMTAdapter:
+    """Isolated localhost Metal sidecar MT adapter backed by llama.cpp llama-server."""
+
+    def __init__(
+        self,
+        gguf_path: Path,
+        *,
+        model_key: str = "index-translate-2b-q4km",
+        llama_server_bin: str = "llama-server",
+        ctx_size: int = 4096,
+        max_tokens: int = 256,
+        startup_timeout_s: float = 60.0,
+    ) -> None:
+        resolved_bin = shutil.which(llama_server_bin)
+        if not resolved_bin:
+            raise RuntimeError(f"llama-server binary not found: {llama_server_bin!r}")
+        self.gguf_path = Path(gguf_path)
+        if not self.gguf_path.is_file():
+            raise RuntimeError(f"GGUF file missing: {self.gguf_path}")
+        self.model_key = model_key
+        self.default_max_tokens = int(max_tokens)
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            self.port = int(sock.getsockname()[1])
+
+        fd, log_name = tempfile.mkstemp(prefix="llama-server-", suffix=".log")
+        self._log_path = Path(log_name)
+        self._log_file = open(fd, "w", encoding="utf-8")
+        cmd = build_llama_server_cmd(
+            self.gguf_path,
+            self.port,
+            llama_server_bin=resolved_bin,
+            ctx_size=ctx_size,
+        )
+        self._proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=self._log_file,
+            text=True,
+        )
+        t0 = time.monotonic()
+        ready = False
+        while time.monotonic() - t0 < startup_timeout_s:
+            if self._proc.poll() is not None:
+                break
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{self.port}/health", timeout=1.0) as resp:
+                    if resp.status == 200:
+                        ready = True
+                        break
+            except Exception:
+                time.sleep(0.2)
+        if not ready:
+            self._log_file.flush()
+            tail = self._log_path.read_text(encoding="utf-8", errors="replace")[-3000:]
+            rc = self._proc.poll()
+            self.close()
+            raise RuntimeError(f"llama-server failed to become ready (rc={rc}):\n{tail}")
+
+    def _sample_rss_mib(self) -> float:
+        if self._proc.poll() is not None:
+            return 0.0
+        try:
+            out = subprocess.check_output(["ps", "-o", "rss=", "-p", str(self._proc.pid)], text=True).strip()
+            return round(float(out) / 1024.0, 2) if out else 0.0
+        except Exception:
+            return 0.0
+
+    def translate_turn(
+        self,
+        text_ja: str,
+        *,
+        history: list[tuple[str, str]] = (),
+        start_sample: int | None = None,
+        end_sample: int | None = None,
+        max_tokens: int | None = None,
+    ) -> TranslationResult:
+        del start_sample, end_sample
+        effective_max = int(max_tokens or self.default_max_tokens)
+        messages: list[dict[str, str]] = []
+        for h_ja, h_zh in history:
+            messages.append({"role": "user", "content": INDEX_TRANSLATE_ZH_TEMPLATE.format(source=h_ja)})
+            messages.append({"role": "assistant", "content": h_zh})
+        messages.append({"role": "user", "content": INDEX_TRANSLATE_ZH_TEMPLATE.format(source=text_ja)})
+
+        payload = json.dumps({
+            "messages": messages,
+            "temperature": 0.0,
+            "top_k": 1,
+            "max_tokens": effective_max,
+            "chat_template_kwargs": {"enable_thinking": False},
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/v1/chat/completions",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        t0 = time.perf_counter()
+        try:
+            with urllib.request.urlopen(req, timeout=30.0) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except (urllib.error.URLError, TimeoutError) as exc:
+            wall_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+            return TranslationResult(
+                text_zh="",
+                stop_reason="error",
+                metrics={"latency_ms": wall_ms, "error": str(exc), "rss_mib": self._sample_rss_mib()},
+                valid=False,
+            )
+        wall_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+
+        choice = (data.get("choices") or [{}])[0]
+        raw_text = str(((choice.get("message") or {}).get("content")) or "")
+        finish_reason = str(choice.get("finish_reason") or "")
+        stop_reason = "eos" if finish_reason == "stop" else ("length_limit" if finish_reason == "length" else "error")
+
+        think_leak = ("<think>" in raw_text) or ("</think>" in raw_text)
+        out = raw_text.strip()
+        kana_leak = bool(_KANA_RE.search(out))
+        is_zh = bool(gateway_chinese(out))
+        valid = (stop_reason == "eos") and bool(out) and (not think_leak) and (not kana_leak) and is_zh
+
+        timings = data.get("timings") or {}
+        usage = data.get("usage") or {}
+        metrics = {
+            "latency_ms": wall_ms,
+            "prompt_ms": round(float(timings.get("prompt_ms", 0.0)), 2),
+            "predicted_ms": round(float(timings.get("predicted_ms", 0.0)), 2),
+            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+            "gen_tokens": int(usage.get("completion_tokens", 0)),
+            "rss_mib": self._sample_rss_mib(),
+            "think_leak": think_leak,
+            "kana_leak": kana_leak,
+            "history_turns": len(history),
+            "raw_text": raw_text,
+        }
+        return TranslationResult(text_zh=out, stop_reason=stop_reason, metrics=metrics, valid=valid)
+
+    def close(self) -> None:
+        proc = getattr(self, "_proc", None)
+        if proc is not None and proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=5)
+        log_file = getattr(self, "_log_file", None)
+        if log_file is not None and not log_file.closed:
+            log_file.close()
+        log_path = getattr(self, "_log_path", None)
+        if log_path is not None:
+            log_path.unlink(missing_ok=True)
 
 
 def load_mt_adapter(model_key: str, manifest: dict[str, Any], registry: dict[str, Any] | None = None) -> MTAdapter:

@@ -237,3 +237,37 @@ def test_t5_reuse_rejects_mismatched_experiment_key(tmp_path):
     assert reused_asr["run_status"] == "COMPLETED"
     assert reused_asr["gate_status"] == "FAIL"
     assert reused_asr["vs_nemo_oracle_hybrid"]["net_edit_delta"] == 3
+
+
+def test_llama_server_mt_adapter_cmd_and_no_mmproj(tmp_path):
+    from p0.stage8_eval.contracts import sha256_file
+    from p0.stage8_eval.model_adapters import build_llama_server_cmd, resolve_model
+
+    gguf = tmp_path / "Index-Translate-2B.Q4_K_M.gguf"
+    gguf.write_bytes(b"GGUFdummy")
+    cmd = build_llama_server_cmd(gguf, 18899)
+    assert "--host" in cmd and cmd[cmd.index("--host") + 1] == "127.0.0.1"
+    assert "--port" in cmd and cmd[cmd.index("--port") + 1] == "18899"
+    assert "--jinja" in cmd
+    assert "--chat-template-kwargs" in cmd
+    assert '{"enable_thinking":false}' in cmd
+    assert all("mmproj" not in tok for tok in cmd)
+
+    reg = {
+        "schema_version": "stage8-model-registry-v1",
+        "models": {
+            "index-translate-2b-q4km": {
+                "key": "index-translate-2b-q4km",
+                "repository": "IndexTeam/Index-Translate-2B-GGUF",
+                "revision": "3a0eca6ce931d88d00614d427ab3ed8ff0743902",
+                "backend": "llama_server_metal",
+                "precision": "Q4_K_M",
+                "artifacts": [{"path": str(gguf), "sha256": sha256_file(gguf)}],
+                "license_verified": True,
+                "trust_remote_code": False,
+            }
+        },
+    }
+    entry = resolve_model("index-translate-2b-q4km", reg)
+    assert entry["precision"] == "Q4_K_M"
+    assert len(entry["artifacts"]) == 1

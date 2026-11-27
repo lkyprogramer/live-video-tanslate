@@ -81,6 +81,23 @@
       "processor_repository": "openai/whisper-large-v3-turbo",
       "processor_revision": "41f01f3fe87f28c78e2fbf8b568835947dd65ed9",
       "processor_dir": ".model-cache/hub/models--openai--whisper-large-v3-turbo/snapshots/41f01f3fe87f28c78e2fbf8b568835947dd65ed9"
+    },
+    "index-translate-2b-q4km": {
+      "key": "index-translate-2b-q4km",
+      "repository": "IndexTeam/Index-Translate-2B-GGUF",
+      "revision": "3a0eca6ce931d88d00614d427ab3ed8ff0743902",
+      "snapshot_dir": ".model-cache/hub/models--IndexTeam--Index-Translate-2B-GGUF/snapshots/3a0eca6ce931d88d00614d427ab3ed8ff0743902",
+      "backend": "llama_server_metal",
+      "precision": "Q4_K_M",
+      "artifacts": [
+        {
+          "path": ".model-cache/hub/models--IndexTeam--Index-Translate-2B-GGUF/snapshots/3a0eca6ce931d88d00614d427ab3ed8ff0743902/Index-Translate-2B.Q4_K_M.gguf",
+          "sha256": "044b313d29342bd3b2c77cbb64023ca0d209bd9b3247763f9d162767ef2d746a"
+        }
+      ],
+      "license_verified": true,
+      "trust_remote_code": false,
+      "stop_ids": []
     }
   }
 }
