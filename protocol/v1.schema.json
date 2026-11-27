@@ -14,6 +14,9 @@
       "$ref": "#/$defs/caption_delta"
     },
     {
+      "$ref": "#/$defs/caption_discard"
+    },
+    {
       "$ref": "#/$defs/finish"
     },
     {
@@ -174,6 +177,33 @@
         "start_sample",
         "end_sample",
         "text_zh"
+      ],
+      "additionalProperties": false
+    },
+    "caption_discard": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "caption_discard"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "seq",
+        "reason"
       ],
       "additionalProperties": false
     },

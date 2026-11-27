@@ -176,10 +176,104 @@ def test_chrf2_standard_effective_order_short_strings():
     assert chrf2_standard_0_100("我", "我") == 100.0
     assert chrf2_standard_0_100("你好", "你好") == 100.0
     assert chrf2_standard_0_100("今天天气很好", "今天天气很好") == 100.0
-    partial = chrf2_standard_0_100("我", "我们")
-    assert 0.0 < partial < 100.0
+    # Upstream SacreBLEU effective_order=True exact parity vectors for unequal short strings
+    assert chrf2_standard_0_100("我", "我们") == 55.5556
+    assert chrf2_standard_0_100("我们", "我") == 83.3333
     assert chrf2_standard_0_100("", "我") == 0.0
     assert chrf2_standard_0_100("我", "") == 0.0
+
+
+def test_v4_invalid_final_gets_zero_delivered_score_and_infinite_latency():
+    from p0.stage8_eval.bench_mt import run_mt_cues
+    from p0.stage8_eval.run_p2_index2b_screen import _score_predictions
+    from subtitle_service.quality_types import TranslationResult
+
+    class ExactTextTruncatingAdapter:
+        def translate_turn(self, text_ja: str, *, history, start_sample=None, end_sample=None, max_tokens=256):
+            return TranslationResult("今天天气很好", "length_limit", {"latency_ms": 20.0}, valid=False)
+
+    cues = [{"cue_idx": 1, "start_s": 0.0, "end_s": 1.0, "clean_text": "今日はいい天気"}]
+    gold = [{"cue_idx": 1, "start_s": 0.0, "end_s": 1.0, "clean_text": "今天天气很好"}]
+    out = run_mt_cues(ExactTextTruncatingAdapter(), cues, gold, context_turns=0)
+    s = out["summary"]
+    assert s["valid_count"] == 0
+    assert s["delivered"]["chrf2_full_concat"] == 0.0
+    assert s["delivered"]["completion_p95_ms"] is None
+    assert s["sacrebleu_chrf2_0_100"]["full_concat"] == 0.0
+    assert s["mt_p95_ms"] is None
+    assert s["diagnostic_raw"]["chrf2_full_concat"] == 100.0
+    assert s["diagnostic_raw"]["attempt_p95_ms"] == 20.0
+    assert s["valid_only"]["count"] == 0
+    assert s["valid_only"]["chrf2_concat"] if "chrf2_concat" in s["valid_only"] else s["valid_only"]["chrf2_full_concat"] is None
+
+    rows = [
+        {
+            "primary_tag": "E3",
+            "gold_zh": "今天天气很好",
+            "cand": {
+                "text_zh": "今天天气很好",
+                "stop_reason": "length_limit",
+                "valid": False,
+                "latency_ms": 20.0,
+                "mem_mib": 100.0,
+                "think_leak": False,
+                "kana_leak": False,
+            },
+        }
+    ]
+    p2s = _score_predictions(rows, field="cand")
+    assert p2s["valid_count"] == 0
+    assert p2s["chrf2_concat"] == 0.0
+    assert p2s["chrf2_case_mean"] == 0.0
+    assert p2s["latency_p95_ms"] is None
+    assert p2s["diagnostic_raw"]["chrf2_concat"] == 100.0
+    assert p2s["diagnostic_raw"]["attempt_p95_ms"] == 20.0
+
+
+def test_p2_eval_adapter_keeps_empty_input_in_denominator():
+    from p0.stage8_eval.run_p2_index2b_screen import _eval_adapter
+    from subtitle_service.quality_types import TranslationResult
+
+    class DummyAdapter:
+        def translate_turn(self, src: str, *, history, max_tokens: int):
+            return TranslationResult("好的", "eos", {"latency_ms": 15.0}, valid=True)
+
+    res = _eval_adapter(
+        DummyAdapter(),
+        [
+            {"cue_idx": 1, "clean_jp": "はい", "live_asr_ja": ""},
+            {"cue_idx": 2, "clean_jp": "ええ", "live_asr_ja": "ええ"},
+        ],
+        track="live_asr_ja",
+    )
+    assert set(res.keys()) == {1, 2}
+    assert res[1]["stop_reason"] == "empty_input"
+    assert res[1]["valid"] is False
+    assert res[1]["latency_ms"] is None
+    assert res[2]["valid"] is True
+
+
+def test_v4_valid_only_aligns_gold_by_timestamp_not_cue_idx():
+    from p0.stage8_eval.bench_mt import chrf2_standard_0_100, run_mt_cues
+    from subtitle_service.quality_types import TranslationResult
+
+    class SelectiveAdapter:
+        def translate_turn(self, text_ja: str, *, history, start_sample=None, end_sample=None, max_tokens=256):
+            if text_ja == "BAD":
+                return TranslationResult("错误。", "length_limit", {"latency_ms": 50.0}, valid=False)
+            return TranslationResult("正确译文。", "eos", {"latency_ms": 20.0}, valid=True)
+
+    # JP cue_idx=2 aligns in time with ZH cue_idx=1 (simulating skipped credit/title lines in ZH SRT)
+    jp_cues = [
+        {"cue_idx": 1, "start_s": 0.0, "end_s": 1.0, "clean_text": "BAD"},
+        {"cue_idx": 2, "start_s": 2.0, "end_s": 3.0, "clean_text": "GOOD"},
+    ]
+    zh_gold = [
+        {"cue_idx": 1, "start_s": 2.0, "end_s": 3.0, "clean_text": "正确译文。"},
+    ]
+    out = run_mt_cues(SelectiveAdapter(), jp_cues, zh_gold, context_turns=0)
+    assert out["summary"]["valid_only"]["count"] == 1
+    assert out["summary"]["valid_only"]["chrf2_full_concat"] == chrf2_standard_0_100("正确译文。", "正确译文。")
 
 
 def test_t5_reuse_rejects_mismatched_experiment_key(tmp_path):

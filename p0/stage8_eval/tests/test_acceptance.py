@@ -8,9 +8,9 @@ from pathlib import Path
 from p0.stage8_eval.acceptance import evaluate_gates
 
 THRESHOLDS = json.loads(
-    Path(
-        "/Users/luo/Documents/github/jp-live-video-tanslate/"
-        "docs/live_video_translate_stage8_plan_20261126/templates/thresholds.proposed.json"
+    (
+        Path(__file__).resolve().parents[3]
+        / "docs/live_video_translate_stage8_plan_20261126/templates/thresholds.proposed.json"
     ).read_text(encoding="utf-8")
 )
 
@@ -19,17 +19,33 @@ def _passing_report() -> dict:
     return {
         "thresholds_sha256": "th123",
         "roles": {
-            "subtitles_off": {"media_sha256": "m1", "thresholds_sha256": "th123", "drop_rate_pct": 4.0},
-            "deployed": {
+            "subtitles_off": {
+                "manifest_present": True,
                 "media_sha256": "m1",
                 "thresholds_sha256": "th123",
+                "duration_s": 120.0,
+                "current_time_s": 120.0,
+                "total_frames": 3600,
+                "drop_rate_pct": 4.0,
+            },
+            "deployed": {
+                "manifest_present": True,
+                "media_sha256": "m1",
+                "thresholds_sha256": "th123",
+                "duration_s": 120.0,
+                "current_time_s": 120.0,
+                "total_frames": 3600,
                 "dom_events": {"total": 20, "streaming": 10, "final": 10},
                 "availability": {"final_visible_rate": 0.99, "first_useful_rate": 0.96, "final_by_2000ms_rate": 0.97},
                 "dom_latency": {"unit_end_to_final_dom_p95_ms": 900.0},
             },
             "candidate": {
+                "manifest_present": True,
                 "media_sha256": "m1",
                 "thresholds_sha256": "th123",
+                "duration_s": 120.0,
+                "current_time_s": 120.0,
+                "total_frames": 3600,
                 "swap_growth_mib": 0.0,
                 "resource_abort": False,
                 "lifecycle": {
@@ -132,3 +148,74 @@ def test_all_timeouts_filtered_cannot_pass():
     out = evaluate_gates(rep, THRESHOLDS)
     assert out["verdict"] == "FAIL"
     assert out["gates"]["g0_identity_and_dom"]["status"] == "FAIL"
+
+
+def test_v1_v2_missing_telemetry_zero_frames_short_playback_and_empty_holdout_cannot_pass():
+    # Reproduces GPT audit counterexample: missing lifecycle/swap/abort/manifest, 0.25s/120s, total_frames=0, streaming-only DOM
+    counter = {
+        "thresholds_sha256": "th123",
+        "roles": {
+            "subtitles_off": {
+                "manifest_present": False,
+                "duration_s": 120.0,
+                "current_time_s": 120.0,
+                "total_frames": 0,
+                "drop_rate_pct": None,
+            },
+            "deployed": {
+                "manifest_present": False,
+                "duration_s": 120.0,
+                "current_time_s": 0.25,
+                "total_frames": 0,
+                "dom_events": {"total": 1, "streaming": 1, "final": 0},
+            },
+            "candidate": {
+                "manifest_present": False,
+                "duration_s": 120.0,
+                "current_time_s": 0.25,
+                "total_frames": 0,
+                "swap_growth_mib": None,
+                "resource_abort": None,
+                "lifecycle": None,
+                "dom_events": {"total": 1, "streaming": 1, "final": 0},
+            },
+        },
+        "comparison": {},
+        "holdout": {"reuse_count": 1, "critical_error_relative_reduction": 0.5, "paired_bootstrap": {"n": 0, "ci95_low": 0.2}},
+        "human_review": {"verified": True, "protected_new_e4": 0, "protected_key_info_regressions": 0},
+    }
+    out = evaluate_gates(counter, THRESHOLDS)
+    assert out["stability_verdict"] == "BLOCKED"
+    assert out["verdict"] == "BLOCKED"
+    assert out["gates"]["g0_identity_and_dom"]["status"] == "BLOCKED"
+    assert out["gates"]["g1_lifecycle"]["status"] == "BLOCKED"
+    assert out["gates"]["g3_resources"]["status"] == "BLOCKED"
+    assert out["gates"]["g4_quality_and_review"]["status"] == "BLOCKED"
+
+
+def test_v1_omitted_manifest_duration_frames_and_protected_review_fields_cannot_pass():
+    # Omitted manifest_present / None duration_s / None total_frames must BLOCK G0 & G3
+    rep = _passing_report()
+    del rep["roles"]["candidate"]["manifest_present"]
+    assert evaluate_gates(rep, THRESHOLDS)["gates"]["g0_identity_and_dom"]["status"] == "BLOCKED"
+
+    rep2 = _passing_report()
+    rep2["roles"]["candidate"]["duration_s"] = None
+    assert evaluate_gates(rep2, THRESHOLDS)["gates"]["g0_identity_and_dom"]["status"] == "BLOCKED"
+
+    rep3 = _passing_report()
+    rep3["roles"]["candidate"]["total_frames"] = None
+    out3 = evaluate_gates(rep3, THRESHOLDS)
+    assert out3["gates"]["g0_identity_and_dom"]["status"] == "BLOCKED"
+    assert out3["gates"]["g3_resources"]["status"] == "BLOCKED"
+
+    rep4 = _passing_report()
+    del rep4["roles"]["subtitles_off"]["media_sha256"]
+    assert evaluate_gates(rep4, THRESHOLDS)["gates"]["g0_identity_and_dom"]["status"] == "BLOCKED"
+
+    # Missing protected fields inside human_review={verified: True} must NOT default to 0 PASS
+    rep5 = _passing_report()
+    rep5["human_review"] = {"verified": True}
+    out5 = evaluate_gates(rep5, THRESHOLDS)
+    assert out5["verdict"] == "INCONCLUSIVE"
+    assert "PROTECTED_REVIEW_FIELDS_MISSING" in out5["gates"]["g4_quality_and_review"]["reasons"]

@@ -18,6 +18,12 @@ test('wire fixtures match start and accept only zh-Hans ready', () => {
   assert.deepEqual(serverEvent(JSON.stringify({ ...baseDelta, delta_kind: 'preview' })), { ...baseDelta, delta_kind: 'preview' });
   assert.deepEqual(serverEvent(JSON.stringify({ ...baseDelta, delta_kind: 'final_token_stream' })), { ...baseDelta, delta_kind: 'final_token_stream' });
   assert.equal(serverEvent(JSON.stringify({ ...baseDelta, delta_kind: 'bogus' })), undefined);
+  assert.deepEqual(
+    serverEvent(JSON.stringify({ type: 'caption_discard', session_id: 's1', seq: 1, reason: 'length_limit' })),
+    { type: 'caption_discard', session_id: 's1', seq: 1, reason: 'length_limit' },
+  );
+  assert.equal(serverEvent(JSON.stringify({ type: 'caption_discard', session_id: 's1', seq: 0, reason: 'length_limit' })), undefined);
+  assert.equal(serverEvent(JSON.stringify({ type: 'caption_discard', session_id: 's1', seq: 1, reason: '' })), undefined);
 });
 
 for (const rate of [44100, 48000]) {

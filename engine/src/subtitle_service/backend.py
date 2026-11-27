@@ -21,6 +21,14 @@ class CaptionDelta:
 
 
 @dataclass(frozen=True)
+class CaptionDiscard:
+    start_sample: int
+    end_sample: int
+    reason: str
+    segment_id: int | None = None
+
+
+@dataclass(frozen=True)
 class Warning:
     code: str
 
@@ -32,7 +40,7 @@ class BackendError(Exception):
         super().__init__(code)
 
 
-CaptionSink = Callable[[Caption | CaptionDelta | Warning | BackendError], Awaitable[None]]
+CaptionSink = Callable[[Caption | CaptionDelta | CaptionDiscard | Warning | BackendError], Awaitable[None]]
 DiagnosticSink = Callable[..., None]
 
 

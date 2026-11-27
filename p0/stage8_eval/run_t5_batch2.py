@@ -12,7 +12,7 @@ import sys
 import time
 from typing import Any
 
-MAIN_ROOT = Path("/Users/luo/Documents/github/jp-live-video-tanslate")
+MAIN_ROOT = Path(__file__).resolve().parents[2]
 CACHE_ROOT = MAIN_ROOT / ".model-cache"
 os.environ["HF_HOME"] = str(CACHE_ROOT)
 
@@ -20,7 +20,7 @@ import numpy as np  # noqa: E402
 from huggingface_hub import HfApi, snapshot_download  # noqa: E402
 
 from p0.stage8_eval.bench_asr import run_asr_units  # noqa: E402
-from p0.stage8_eval.bench_mt import mt_arm_identity, run_mt_cues  # noqa: E402
+from p0.stage8_eval.bench_mt import CHRF2_STANDARD_SIGNATURE, mt_arm_identity, run_mt_cues  # noqa: E402
 from p0.stage8_eval.contracts import canonical_json_sha256, sha256_file  # noqa: E402
 from p0.stage8_eval.model_adapters import (  # noqa: E402
     Qwen3AsrMlxAdapter,
@@ -55,8 +55,16 @@ LOCKED_M2_CONFIG: dict[str, Any] = {
 }
 
 
-def m2_experiment_key(entry: dict[str, Any], *, dataset_sha256: str) -> str:
-    return mt_arm_identity(
+def m2_experiment_key(
+    entry: dict[str, Any],
+    *,
+    dataset_sha256: str,
+    gold_sha256: str = "",
+    cohort_name: str = "default",
+    max_output_tokens: int = int(LOCKED_M2_CONFIG["max_output_tokens"]),
+    scorer_signature: str = CHRF2_STANDARD_SIGNATURE,
+) -> str:
+    base_key = mt_arm_identity(
         model_key=str(entry["key"]),
         revision=str(entry["revision"]),
         system_prompt=Qwen3Translator.SYSTEM_PROMPT,
@@ -66,6 +74,13 @@ def m2_experiment_key(entry: dict[str, Any], *, dataset_sha256: str) -> str:
         enable_kana_mask=bool(LOCKED_M2_CONFIG["enable_kana_mask"]),
         dataset_sha256=dataset_sha256,
     )
+    return canonical_json_sha256({
+        "base_key": base_key,
+        "gold_sha256": gold_sha256,
+        "cohort_name": cohort_name,
+        "max_output_tokens": int(max_output_tokens),
+        "scorer_signature": scorer_signature,
+    })
 
 
 def asr_experiment_key(
@@ -177,20 +192,37 @@ def download_and_register() -> dict[str, Any]:
             reg_entry["processor_dir"] = str(proc_snap)
         registry_models[sp["key"]] = reg_entry
 
+    existing_models: dict[str, Any] = {}
+    if REGISTRY_PATH.is_file():
+        existing_models = dict((json.loads(REGISTRY_PATH.read_text(encoding="utf-8")) or {}).get("models") or {})
+    merged_models = {**existing_models, **registry_models}
     reg = {
         "schema_version": "stage8-model-registry-v1",
-        "models": registry_models,
+        "models": merged_models,
     }
     REGISTRY_PATH.write_text(json.dumps(reg, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return reg
 
 
-def screen_m2_q8(reg: dict[str, Any], out_dir: Path, *, expected_experiment_key: str | None = None) -> dict[str, Any]:
+def screen_m2_q8(
+    reg: dict[str, Any],
+    out_dir: Path,
+    *,
+    expected_experiment_key: str | None = None,
+    expected_120_key: str | None = None,
+    expected_654_key: str | None = None,
+) -> dict[str, Any]:
     entry = resolve_model("qwen4b-q8", reg)
     snap = Path(entry["snapshot_dir"])
 
     dataset_sha = sha256_file(JP_SRT_PATH)
-    exp_key = expected_experiment_key or m2_experiment_key(entry, dataset_sha256=dataset_sha)
+    gold_sha = sha256_file(ZH_SRT_PATH)
+    key_120 = expected_120_key or expected_experiment_key or m2_experiment_key(
+        entry, dataset_sha256=dataset_sha, gold_sha256=gold_sha, cohort_name="stratified_120"
+    )
+    key_654 = expected_654_key or expected_experiment_key or m2_experiment_key(
+        entry, dataset_sha256=dataset_sha, gold_sha256=gold_sha, cohort_name="full_654"
+    )
     sys_prompt = Qwen3Translator.SYSTEM_PROMPT
     ctx_turns = int(LOCKED_M2_CONFIG["context_turns"])
     rep = float(LOCKED_M2_CONFIG["repetition_penalty"])
@@ -223,7 +255,7 @@ def screen_m2_q8(reg: dict[str, Any], out_dir: Path, *, expected_experiment_key:
                 "run_status": "COMPLETED",
                 "gate_status": "FAIL",
                 "reason": "smoke_protocol_failed",
-                "experiment_key": exp_key,
+                "experiment_key": key_120,
                 "config": dict(LOCKED_M2_CONFIG),
                 "smoke_summary": smoke["summary"],
             }
@@ -232,16 +264,17 @@ def screen_m2_q8(reg: dict[str, Any], out_dir: Path, *, expected_experiment_key:
     finally:
         ad.close()
 
-    res_120["experiment_key"] = exp_key
+    res_120["experiment_key"] = key_120
     res_120["config"] = dict(LOCKED_M2_CONFIG)
-    res_654["experiment_key"] = exp_key
+    res_654["experiment_key"] = key_654
     res_654["config"] = dict(LOCKED_M2_CONFIG)
     (out_dir / "m2_qwen4b_q8_120.json").write_text(json.dumps(res_120, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out_dir / "m2_qwen4b_q8_654.json").write_text(json.dumps(res_654, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return {
         "run_status": "COMPLETED",
         "gate_status": "SCREENING_ONLY",
-        "experiment_key": exp_key,
+        "experiment_key": key_654,
+        "experiment_key_120": key_120,
         "model": entry["repository"],
         "revision": entry["revision"],
         "config": dict(LOCKED_M2_CONFIG),
@@ -341,7 +374,14 @@ def screen_asr_challenger(
     }
 
 
-def _reuse_m2(reg: dict[str, Any], out_dir: Path, *, expected_experiment_key: str) -> dict[str, Any] | None:
+def _reuse_m2(
+    reg: dict[str, Any],
+    out_dir: Path,
+    *,
+    expected_experiment_key: str = "",
+    expected_120_key: str | None = None,
+    expected_654_key: str | None = None,
+) -> dict[str, Any] | None:
     p120 = out_dir / "m2_qwen4b_q8_120.json"
     p654 = out_dir / "m2_qwen4b_q8_654.json"
     if not (p120.is_file() and p654.is_file()):
@@ -349,16 +389,16 @@ def _reuse_m2(reg: dict[str, Any], out_dir: Path, *, expected_experiment_key: st
     entry = resolve_model("qwen4b-q8", reg)
     r120 = json.loads(p120.read_text(encoding="utf-8"))
     r654 = json.loads(p654.read_text(encoding="utf-8"))
-    if (
-        r120.get("experiment_key") != expected_experiment_key
-        or r654.get("experiment_key") != expected_experiment_key
-    ):
+    k120 = expected_120_key or expected_experiment_key
+    k654 = expected_654_key or expected_experiment_key
+    if r120.get("experiment_key") != k120 or r654.get("experiment_key") != k654:
         return None
     return {
         "run_status": "COMPLETED",
         "gate_status": "SCREENING_ONLY",
         "reused": True,
-        "experiment_key": expected_experiment_key,
+        "experiment_key": k654,
+        "experiment_key_120": k120,
         "model": entry["repository"],
         "revision": entry["revision"],
         "config": r654.get("config") or dict(LOCKED_M2_CONFIG),
@@ -406,23 +446,62 @@ def main(argv: list[str] | None = None) -> int:
     out_dir = ev_dir / "t5_g3_screening"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    reg = download_and_register()
     pcm_path = ev_dir / "ep01_16k.pcm"
     units_path = ev_dir / "ep01_dev60_units.jsonl"
-    pcm_sha = sha256_file(pcm_path)
+    pcm_sha = sha256_file(pcm_path) if pcm_path.is_file() else ""
     units_sha = sha256_file(units_path)
     dataset_sha = sha256_file(JP_SRT_PATH)
-    pcm_f32 = np.frombuffer(pcm_path.read_bytes(), dtype="<i2").astype(np.float32) / 32768.0
+    gold_sha = sha256_file(ZH_SRT_PATH)
     units = [json.loads(ln) for ln in units_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
     nemo_ref = json.loads((ev_dir / "t4_asr/a0_oracle_hybrid_pad500.json").read_text(encoding="utf-8"))["rows"]
 
-    m2_key = m2_experiment_key(resolve_model("qwen4b-q8", reg), dataset_sha256=dataset_sha)
-    a3_key = asr_experiment_key(resolve_model("qwen3-asr-1.7b-8bit", reg), units_sha256=units_sha, pcm_sha256=pcm_sha)
-    a4_key = asr_experiment_key(resolve_model("whisper-large-v3-turbo", reg), units_sha256=units_sha, pcm_sha256=pcm_sha)
+    m2_res = a3_res = a4_res = None
+    reg: dict[str, Any] | None = None
+    if args.reuse_existing and REGISTRY_PATH.is_file():
+        reg = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+        models = reg.get("models") or {}
+        if "qwen4b-q8" in models:
+            try:
+                k120 = m2_experiment_key(
+                    resolve_model("qwen4b-q8", reg), dataset_sha256=dataset_sha, gold_sha256=gold_sha, cohort_name="stratified_120"
+                )
+                k654 = m2_experiment_key(
+                    resolve_model("qwen4b-q8", reg), dataset_sha256=dataset_sha, gold_sha256=gold_sha, cohort_name="full_654"
+                )
+                m2_res = _reuse_m2(reg, out_dir, expected_120_key=k120, expected_654_key=k654)
+            except RuntimeError:
+                m2_res = None
+        if "qwen3-asr-1.7b-8bit" in models and pcm_sha:
+            try:
+                a3_key = asr_experiment_key(resolve_model("qwen3-asr-1.7b-8bit", reg), units_sha256=units_sha, pcm_sha256=pcm_sha)
+                a3_res = _reuse_asr("qwen3-asr-1.7b-8bit", reg, nemo_ref, out_dir, expected_experiment_key=a3_key)
+            except RuntimeError:
+                a3_res = None
+        if "whisper-large-v3-turbo" in models and pcm_sha:
+            try:
+                a4_key = asr_experiment_key(resolve_model("whisper-large-v3-turbo", reg), units_sha256=units_sha, pcm_sha256=pcm_sha)
+                a4_res = _reuse_asr("whisper-large-v3-turbo", reg, nemo_ref, out_dir, expected_experiment_key=a4_key)
+            except RuntimeError:
+                a4_res = None
 
-    m2_res = (_reuse_m2(reg, out_dir, expected_experiment_key=m2_key) if args.reuse_existing else None) or screen_m2_q8(reg, out_dir, expected_experiment_key=m2_key)
-    a3_res = (_reuse_asr("qwen3-asr-1.7b-8bit", reg, nemo_ref, out_dir, expected_experiment_key=a3_key) if args.reuse_existing else None) or screen_asr_challenger("qwen3-asr-1.7b-8bit", reg, pcm_f32, units, nemo_ref, out_dir, expected_experiment_key=a3_key)
-    a4_res = (_reuse_asr("whisper-large-v3-turbo", reg, nemo_ref, out_dir, expected_experiment_key=a4_key) if args.reuse_existing else None) or screen_asr_challenger("whisper-large-v3-turbo", reg, pcm_f32, units, nemo_ref, out_dir, expected_experiment_key=a4_key)
+    if m2_res is None or a3_res is None or a4_res is None:
+        reg = download_and_register()
+        if m2_res is None:
+            k120 = m2_experiment_key(
+                resolve_model("qwen4b-q8", reg), dataset_sha256=dataset_sha, gold_sha256=gold_sha, cohort_name="stratified_120"
+            )
+            k654 = m2_experiment_key(
+                resolve_model("qwen4b-q8", reg), dataset_sha256=dataset_sha, gold_sha256=gold_sha, cohort_name="full_654"
+            )
+            m2_res = screen_m2_q8(reg, out_dir, expected_120_key=k120, expected_654_key=k654)
+        if a3_res is None or a4_res is None:
+            pcm_f32 = np.frombuffer(pcm_path.read_bytes(), dtype="<i2").astype(np.float32) / 32768.0
+            if a3_res is None:
+                a3_key = asr_experiment_key(resolve_model("qwen3-asr-1.7b-8bit", reg), units_sha256=units_sha, pcm_sha256=pcm_sha)
+                a3_res = screen_asr_challenger("qwen3-asr-1.7b-8bit", reg, pcm_f32, units, nemo_ref, out_dir, expected_experiment_key=a3_key)
+            if a4_res is None:
+                a4_key = asr_experiment_key(resolve_model("whisper-large-v3-turbo", reg), units_sha256=units_sha, pcm_sha256=pcm_sha)
+                a4_res = screen_asr_challenger("whisper-large-v3-turbo", reg, pcm_f32, units, nemo_ref, out_dir, expected_experiment_key=a4_key)
 
     summary = {
         "schema_version": "stage8-t5-g3-screening-v1",

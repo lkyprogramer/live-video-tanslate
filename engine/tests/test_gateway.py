@@ -404,3 +404,224 @@ def test_length_limit_translation_not_emitted_over_websocket(config):
         backend.vad_pool.shutdown()
         backend.asr_pool.shutdown()
         backend.mt_pool.shutdown()
+
+
+def test_r1_delta_then_length_limit_emits_discard_and_advances_seq_for_next_cue(config):
+    from concurrent.futures import ThreadPoolExecutor
+    from types import SimpleNamespace
+    from subtitle_service import local_pipeline as lp
+
+    class DeltaAwareTranslator:
+        def __init__(self):
+            self.calls = 0
+            self.last_translate_meta = {}
+
+        def translate(self, _sess, _text_ja, **kwargs):
+            self.calls += 1
+            on_delta = kwargs.get("on_delta")
+            if self.calls <= 2:
+                if on_delta is not None:
+                    on_delta(f"截断第{self.calls}句前两字")
+                self.last_translate_meta = {"stop_reason": "length_limit", "valid": False, "gen_tokens": 256}
+                return "截断的超长文本"
+            if on_delta is not None:
+                on_delta("下一句短前")
+            self.last_translate_meta = {"stop_reason": "eos", "valid": True, "gen_tokens": 6}
+            return "下一句完整中文。"
+
+    class StubBackend(Fake):
+        def __init__(self):
+            super().__init__()
+            self.uses_ane_asr = False
+            self.uses_gpu_scheduler = False
+            self.uses_speech_cpp_asr = False
+            self.profile = SimpleNamespace(asr=SimpleNamespace(max_segment_s=0.0, overlap_ms=350, draft_interval_s=0.0))
+            self.translator = DeltaAwareTranslator()
+            self.vad_pool = ThreadPoolExecutor(max_workers=1)
+            self.asr_pool = ThreadPoolExecutor(max_workers=1)
+            self.mt_pool = ThreadPoolExecutor(max_workers=1)
+
+        async def open(self, emit, *, record=None):
+            sess = lp.LocalSession(self, object(), lp._NoopSession(), emit, record)
+            enqueued = False
+
+            async def _accept(_frame):
+                nonlocal enqueued
+                if not enqueued:
+                    enqueued = True
+                    sess._enqueue_segment(lp.RecognizedSegment(1, 0, 1600, "テスト一"))
+                    sess._enqueue_segment(lp.RecognizedSegment(2, 1600, 3200, "テスト二"))
+                    sess._enqueue_segment(lp.RecognizedSegment(3, 3200, 4800, "テスト三"))
+
+            async def _finish():
+                await sess.pending.put(None)
+                if sess.mt_task is not None:
+                    await sess.mt_task
+
+            sess.accept_pcm = _accept
+            sess.finish = _finish
+            return sess
+
+        async def aclose(self):
+            self.vad_pool.shutdown()
+            self.asr_pool.shutdown()
+            self.mt_pool.shutdown()
+
+    backend = StubBackend()
+    try:
+        with client(config, backend) as (c, _), websocket(c) as ws:
+            start(ws)
+            ws.send_bytes(bytes(6400))
+            ws.send_bytes(bytes(6400))
+            ws.send_json(FIXTURE["finish"])
+            ev1 = ws.receive_json()
+            ev2 = ws.receive_json()
+            ev3 = ws.receive_json()
+            ev4 = ws.receive_json()
+            ev5 = ws.receive_json()
+            ev6 = ws.receive_json()
+            ev7 = ws.receive_json()
+            for ev in (ev1, ev2, ev3, ev4, ev5, ev6, ev7):
+                jsonschema.validate(ev, SCHEMA)
+            assert ev1["type"] == "caption_delta" and ev1["seq"] == 1
+            assert ev2 == {"type": "caption_discard", "session_id": ev1["session_id"], "seq": 1, "reason": "length_limit"}
+            assert ev3["type"] == "caption_delta" and ev3["seq"] == 2
+            assert ev4 == {"type": "caption_discard", "session_id": ev1["session_id"], "seq": 2, "reason": "length_limit"}
+            assert ev5["type"] == "caption_delta" and ev5["seq"] == 3 and ev5["text_zh"] == "下一句短前"
+            assert ev6["type"] == "caption" and ev6["seq"] == 3 and ev6["text_zh"] == "下一句完整中文。"
+            assert ev7["type"] == "finished"
+    finally:
+        backend.vad_pool.shutdown()
+        backend.asr_pool.shutdown()
+        backend.mt_pool.shutdown()
+
+
+def test_r1_gateway_filter_with_active_delta_emits_discard(config):
+    class FilteredAfterDeltaSession:
+        def __init__(self, emit):
+            self.emit = emit
+            self.samples = 0
+
+        async def accept_pcm(self, frame):
+            self.samples += len(frame) // 2
+
+        async def finish(self):
+            await self.emit(CaptionDelta(0, self.samples, "先显示预览", kind="preview"))
+            await self.emit(Caption(0, self.samples, "カタカナ混入"))
+            await self.emit(Caption(0, self.samples, "恢复正常中文。"))
+
+        async def aclose(self):
+            pass
+
+    class B(Fake):
+        async def open(self, emit, *, record=None):
+            return FilteredAfterDeltaSession(emit)
+
+    with client(config, B()) as (c, _), websocket(c) as ws:
+        start(ws)
+        ws.send_bytes(bytes(2048))
+        ws.send_json(FIXTURE["finish"])
+        d1 = ws.receive_json()
+        w1 = ws.receive_json()
+        disc = ws.receive_json()
+        cap = ws.receive_json()
+        fin = ws.receive_json()
+        for ev in (d1, w1, disc, cap, fin):
+            jsonschema.validate(ev, SCHEMA)
+        assert d1["type"] == "caption_delta" and d1["seq"] == 1
+        assert w1["type"] == "warning" and w1["code"] == "translation_invalid"
+        assert disc["type"] == "caption_discard" and disc["seq"] == 1 and disc["reason"] == "translation_invalid"
+        assert cap["type"] == "caption" and cap["seq"] == 2 and cap["text_zh"] == "恢复正常中文。"
+        assert fin["type"] == "finished"
+
+
+def test_r3_backpressure_drains_within_deadline_and_handles_finish_or_disconnect(config, monkeypatch):
+    monkeypatch.setattr(app, "QUEUE_MAX_BYTES", FRAME_BYTES := 6400)
+    monkeypatch.setattr(app, "QUEUE_TIMEOUT", 0.35)
+
+    class PacedBackend(Fake):
+        def __init__(self, delay_s):
+            super().__init__(block=delay_s)
+            self.received_frames = 0
+
+        async def open(self, emit, *, record=None):
+            sess = FakeSession(self, emit)
+            orig = sess.accept_pcm
+
+            async def _accept(frame):
+                self.received_frames += 1
+                await orig(frame)
+
+            sess.accept_pcm = _accept
+            return sess
+
+    # Case 1: queue full + subsequent frames arrive AND finish arrives while draining within deadline -> succeeds cleanly
+    b_ok = PacedBackend(0.06)
+    with client(config, b_ok) as (c, _), websocket(c) as ws:
+        start(ws)
+        for _ in range(3):
+            ws.send_bytes(bytes(FRAME_BYTES))
+        ws.send_json(FIXTURE["finish"])
+        captions = []
+        while True:
+            msg = ws.receive_json()
+            if msg["type"] == "finished":
+                assert msg["accepted_samples"] == 3 * 3200
+                break
+            captions.append(msg)
+        assert b_ok.received_frames == 3
+
+    # Case 2: queue never drains within deadline -> overloaded
+    monkeypatch.setattr(app, "QUEUE_TIMEOUT", 0.05)
+    b_slow = PacedBackend(0.5)
+    with client(config, b_slow) as (c, _), websocket(c) as ws:
+        start(ws)
+        ws.send_bytes(bytes(FRAME_BYTES))
+        ws.send_bytes(bytes(FRAME_BYTES))
+        ws.send_bytes(bytes(FRAME_BYTES))
+        assert_error(ws, "overloaded", 1013)
+
+    # Case 3: client disconnects while backpressured -> closes immediately without waiting for QUEUE_TIMEOUT
+    monkeypatch.setattr(app, "QUEUE_TIMEOUT", 2.0)
+    b_hang = PacedBackend(1.5)
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        port = listener.getsockname()[1]
+        orig_port = config.server.port
+        config.server.port = port
+        srv = uvicorn.Server(
+            uvicorn.Config(
+                app.create_app(config, TOKEN, {"reazon-hy": b_hang}),
+                log_level="error",
+                ws="websockets-sansio",
+            )
+        )
+        t = Thread(target=srv.run, kwargs={"sockets": [listener]}, daemon=True)
+        t.start()
+        dl = time.monotonic() + 3.0
+        while not srv.started:
+            assert time.monotonic() < dl
+            time.sleep(0.01)
+
+        async def _disconnect_under_backpressure():
+            uri = f"ws://127.0.0.1:{port}/v1/captions"
+            async with connect(uri, origin=ORIGIN, proxy=None) as ws:
+                await ws.send(json.dumps(FIXTURE["start"]))
+                json.loads(await ws.recv())
+                for _ in range(3):
+                    await ws.send(bytes(FRAME_BYTES))
+                await asyncio.sleep(0.05)
+            dl_close = time.monotonic() + 1.0
+            while b_hang.closed != 1 and time.monotonic() < dl_close:
+                await asyncio.sleep(0.01)
+            assert b_hang.closed == 1
+
+        try:
+            t0 = time.monotonic()
+            asyncio.run(_disconnect_under_backpressure())
+            assert (time.monotonic() - t0) < 1.2
+        finally:
+            config.server.port = orig_port
+            srv.should_exit = True
+            t.join(4)
+            assert not t.is_alive()

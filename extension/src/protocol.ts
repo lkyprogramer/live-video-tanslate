@@ -14,10 +14,14 @@ export interface CaptionDelta {
   type: 'caption_delta'; session_id: string; seq: number; text_zh: string;
   start_sample: number; end_sample: number; delta_kind?: 'preview' | 'final_token_stream';
 }
+export interface CaptionDiscard {
+  type: 'caption_discard'; session_id: string; seq: number; reason: string;
+}
 export type ServerEvent =
   | { type: 'ready'; session_id: string; version: 1; profile_id: string; language: 'zh-Hans' }
   | Caption
   | CaptionDelta
+  | CaptionDiscard
   | { type: 'warning'; session_id: string; code: string }
   | { type: 'finished'; session_id: string; accepted_samples: number }
   | { type: 'error'; session_id?: string; code: string; reason?: string };
@@ -64,6 +68,11 @@ export function serverEvent(raw: unknown): ServerEvent | undefined {
         };
         if (obj.delta_kind !== undefined) delta.delta_kind = obj.delta_kind;
         return delta;
+      }
+      break;
+    case 'caption_discard':
+      if (integer(obj.seq) && obj.seq > 0 && text(obj.reason)) {
+        return { type: 'caption_discard', session_id, seq: obj.seq, reason: obj.reason };
       }
       break;
     case 'warning':

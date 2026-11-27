@@ -160,9 +160,9 @@ def _summarize_cdp_diagnostics(cdp_rows: list[dict[str, Any]]) -> dict[str, Any]
 def _summarize_model_trace(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
     if not rows:
         return None
-    pcm_times: list[tuple[int, float]] = []
-    asr_start: dict[int, float] = {}
-    mt_start: dict[int, float] = {}
+    pcm_times_by_sid: dict[str, list[tuple[int, float]]] = {}
+    asr_start_by_sid: dict[str, dict[int, float]] = {}
+    mt_start_by_sid: dict[str, dict[int, float]] = {}
     asr_ms: list[float] = []
     mt_ms: list[float] = []
     vad_wait_ms: list[float] = []
@@ -177,6 +177,10 @@ def _summarize_model_trace(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
     for ev in rows:
         st = ev.get("stage")
         t = float(ev.get("t", 0.0))
+        sid_key = str(ev.get("session_id") or "")
+        pcm_times = pcm_times_by_sid.setdefault(sid_key, [])
+        asr_start = asr_start_by_sid.setdefault(sid_key, {})
+        mt_start = mt_start_by_sid.setdefault(sid_key, {})
         if st == "pcm_accepted":
             pcm_times.append((int(ev.get("end_sample", 0)), t))
         elif st == "vad_released":
@@ -190,15 +194,15 @@ def _summarize_model_trace(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
         elif st == "asr_start" and ev.get("segment_id") is not None:
             asr_start[int(ev["segment_id"])] = t
         elif st == "asr_end" and ev.get("segment_id") is not None:
-            sid = int(ev["segment_id"])
-            if sid in asr_start:
-                asr_ms.append(round((t - asr_start[sid]) * 1000.0, 2))
+            seg_id = int(ev["segment_id"])
+            if seg_id in asr_start:
+                asr_ms.append(round((t - asr_start[seg_id]) * 1000.0, 2))
         elif st == "mt_start" and ev.get("segment_id") is not None:
             mt_start[int(ev["segment_id"])] = t
         elif st == "mt_end" and ev.get("segment_id") is not None:
-            sid = int(ev["segment_id"])
-            if sid in mt_start:
-                mt_ms.append(round((t - mt_start[sid]) * 1000.0, 2))
+            seg_id = int(ev["segment_id"])
+            if seg_id in mt_start:
+                mt_ms.append(round((t - mt_start[seg_id]) * 1000.0, 2))
             if ev.get("stop_reason") == "length_limit":
                 length_limit_count += 1
             if ev.get("dropped_reason") == "length_limit":
@@ -240,14 +244,20 @@ def summarize_chrome_run_dir(run_dir: Path) -> dict[str, Any]:
     chrome_doc = json.loads(summary_path.read_text(encoding="utf-8"))
     res = chrome_doc.get("result") or {}
     manifest_path = run_path / "manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.is_file() else {}
+    manifest_present = manifest_path.is_file()
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_present else {}
 
     dom_events = _read_jsonl(run_path / "dom_events.jsonl")
     cdp_rows = _read_jsonl(run_path / "cdp_diagnostics.jsonl")
     model_rows = _read_jsonl(run_path / "model.jsonl")
 
+    swap_raw = res.get("swap_growth_mib")
+    abort_raw = res.get("resource_abort")
+    lifecycle_raw = res.get("lifecycle")
+
     return {
         "run_dir": str(run_path),
+        "manifest_present": manifest_present,
         "run_id": chrome_doc.get("run_id") or manifest.get("run_id"),
         "experiment_id": chrome_doc.get("experiment_id") or manifest.get("experiment_id"),
         "arm_id": chrome_doc.get("arm_id") or (manifest.get("arm") or {}).get("arm_id"),
@@ -265,9 +275,9 @@ def summarize_chrome_run_dir(run_dir: Path) -> dict[str, Any]:
         "srv_peak_rss_mib": res.get("srv_peak_rss_mib"),
         "srv_peak_cpu_pct": res.get("srv_peak_cpu_pct"),
         "chrome_peak_rss_mib": res.get("chrome_peak_rss_mib"),
-        "swap_growth_mib": float(res.get("swap_growth_mib", 0.0) or 0.0),
-        "resource_abort": bool(res.get("resource_abort", False)),
-        "lifecycle": dict(res.get("lifecycle") or {}),
+        "swap_growth_mib": float(swap_raw) if swap_raw is not None else None,
+        "resource_abort": bool(abort_raw) if abort_raw is not None else None,
+        "lifecycle": dict(lifecycle_raw) if isinstance(lifecycle_raw, dict) else None,
         "dom_events": _summarize_dom_events(dom_events),
         "cdp_diagnostics": _summarize_cdp_diagnostics(cdp_rows),
         "model_trace": _summarize_model_trace(model_rows),
@@ -298,7 +308,9 @@ def aggregate_runs(
     roles: dict[str, dict[str, Any]] = {}
     for r in runs:
         role = str(r.get("baseline_role") or "")
-        if role and role not in roles:
+        if role:
+            if role in roles:
+                raise ValueError(f"duplicate baseline_role: {role}")
             roles[role] = r
 
     cand = roles.get("candidate")

@@ -13,7 +13,7 @@ import pytest
 
 from subtitle_service.quality_types import AudioSpan
 
-MAIN_ROOT = Path("/Users/luo/Documents/github/jp-live-video-tanslate")
+MAIN_ROOT = Path(__file__).resolve().parents[3]
 PLAN_DIR = MAIN_ROOT / "docs/live_video_translate_stage8_plan_20261126"
 EXAMPLE_MANIFEST = PLAN_DIR / "templates/run_manifest.example.json"
 THRESHOLDS_PATH = PLAN_DIR / "templates/thresholds.proposed.json"

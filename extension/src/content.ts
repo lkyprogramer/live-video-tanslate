@@ -330,6 +330,22 @@ function install() {
           showDelta(view.cue.text_zh, view.cue.seq, view.cue.delta_kind);
         }
         break;
+      case 'caption_discard':
+        if (view.cue.session_id === sessionId && view.cue.seq > seq) {
+          seq = view.cue.seq;
+          if (activeDeltaSeq === view.cue.seq) {
+            clearTimeout(hideCurr);
+            if (SUBTITLE_DIAGNOSTICS && currCue) cueRemoveReasons.set(cueKey(currCue), 'cleared');
+            label.textContent = '';
+            label.removeAttribute('data-status');
+            label.removeAttribute('data-streaming');
+            activeDeltaSeq = 0;
+            activeDeltaKind = undefined;
+            if (SUBTITLE_DIAGNOSTICS) currCue = undefined;
+            position();
+          }
+        }
+        break;
       case 'caption':
         if (view.cue.session_id === sessionId && view.cue.seq > seq) {
           seq = view.cue.seq;

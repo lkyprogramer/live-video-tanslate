@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import Response
 
-from .backend import BackendError, Caption, CaptionDelta, SubtitleBackend, Warning
+from .backend import BackendError, Caption, CaptionDelta, CaptionDiscard, SubtitleBackend, Warning
 from .config import Settings
 
 log = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ def chinese(text):
 
 
 class Connection:
-    _FLUSH_STAGES = frozenset({"ready", "ws_sent", "ws_delta_sent", "gateway_filtered", "asr_end", "mt_end"})
+    _FLUSH_STAGES = frozenset({"ready", "ws_sent", "ws_delta_sent", "ws_discard_sent", "gateway_filtered", "asr_end", "mt_end"})
 
     def __init__(self, ws, trace_path):
         self.ws = ws
@@ -68,6 +68,7 @@ class Connection:
         self.session_id = None
         self.accepted = 0
         self.seq = 0
+        self.delta_active = False
         self.last_end = 0
         self.active = False
         self.write_lock = asyncio.Lock()
@@ -117,6 +118,7 @@ class Connection:
                     return
                 if not (0 <= item.start_sample < item.end_sample <= self.accepted):
                     return
+                self.delta_active = True
                 extra = {"delta_kind": item.kind} if item.kind is not None else {}
                 await self.send("caption_delta", seq=self.seq + 1, start_sample=item.start_sample,
                                 end_sample=item.end_sample, text_zh=text, **extra)
@@ -125,6 +127,18 @@ class Connection:
                                 start_sample=item.start_sample, end_sample=item.end_sample,
                                 delta_kind=item.kind or "unknown", text_zh=text)
                 return
+            if isinstance(item, CaptionDiscard):
+                if not self.delta_active:
+                    return
+                self.seq += 1
+                self.delta_active = False
+                reason = item.reason or "invalid"
+                await self.send("caption_discard", seq=self.seq, reason=reason)
+                if self.trace_path:
+                    self.record("ws_discard_sent", seq=self.seq, reason=reason,
+                                segment_id=item.segment_id, start_sample=item.start_sample,
+                                end_sample=item.end_sample)
+                return
             text = chinese(item.text_zh)
             span = {"segment_id": item.segment_id, "start_sample": item.start_sample,
                     "end_sample": item.end_sample} if self.trace_path else None
@@ -132,14 +146,27 @@ class Connection:
                 if span is not None:
                     self.record("gateway_filtered", code="translation_invalid", text_zh=item.text_zh, **span)
                 await self.send("warning", code="translation_invalid")
+                if self.delta_active:
+                    self.seq += 1
+                    self.delta_active = False
+                    await self.send("caption_discard", seq=self.seq, reason="translation_invalid")
+                    if span is not None:
+                        self.record("ws_discard_sent", seq=self.seq, reason="translation_invalid", **span)
                 return
             if not (0 <= item.start_sample < item.end_sample <= self.accepted and item.end_sample >= self.last_end):
                 if span is not None:
                     self.record("gateway_filtered", code="adapter_unaligned", text_zh=text, **span)
                 await self.send("warning", code="adapter_unaligned")
+                if self.delta_active:
+                    self.seq += 1
+                    self.delta_active = False
+                    await self.send("caption_discard", seq=self.seq, reason="adapter_unaligned")
+                    if span is not None:
+                        self.record("ws_discard_sent", seq=self.seq, reason="adapter_unaligned", **span)
                 return
             self.seq += 1
             self.last_end = item.end_sample
+            self.delta_active = False
             await self.send("caption", seq=self.seq, start_sample=item.start_sample,
                             end_sample=item.end_sample, text_zh=text)
             if span is not None:
@@ -167,11 +194,18 @@ class Connection:
 
         async def read():
             short_tail = False
+            buffered_msg = None
             following = None
             try:
                 while True:
-                    message = await following if following else await self.ws.receive()
-                    following = None
+                    if buffered_msg is not None:
+                        message = buffered_msg
+                        buffered_msg = None
+                    elif following is not None:
+                        message = await following
+                        following = None
+                    else:
+                        message = await self.ws.receive()
                     if message["type"] == "websocket.disconnect":
                         raise WebSocketDisconnect(message["code"])
                     if finishing.is_set():
@@ -190,18 +224,35 @@ class Connection:
                     if queue_bytes + len(frame) <= QUEUE_MAX_BYTES:
                         await admit(frame)
                         continue
-                    # Keep receiving close notifications even while admission is blocked.
+                    # Backpressure: keep listening for disconnect while honoring the full QUEUE_TIMEOUT deadline.
+                    # Buffer at most one normal following frame/finish instead of aborting early.
+                    deadline_at = time.monotonic() + QUEUE_TIMEOUT
                     pending = asyncio.create_task(admit(frame))
-                    following = asyncio.create_task(self.ws.receive())
                     try:
-                        done, _ = await asyncio.wait(
-                            (pending, following), timeout=QUEUE_TIMEOUT,
-                            return_when=asyncio.FIRST_COMPLETED)
-                        if following in done and following.result()["type"] == "websocket.disconnect":
-                            raise WebSocketDisconnect(following.result()["code"])
-                        if pending not in done:
+                        while True:
+                            remaining = deadline_at - time.monotonic()
+                            if remaining <= 0:
+                                raise BackendError("overloaded")
+                            wait_set = [pending]
+                            if buffered_msg is None:
+                                if following is None:
+                                    following = asyncio.create_task(self.ws.receive())
+                                wait_set.append(following)
+                            done, _ = await asyncio.wait(
+                                wait_set, timeout=remaining,
+                                return_when=asyncio.FIRST_COMPLETED)
+                            if following is not None and following in done:
+                                next_msg = following.result()
+                                following = None
+                                if next_msg["type"] == "websocket.disconnect":
+                                    raise WebSocketDisconnect(next_msg["code"])
+                                buffered_msg = next_msg
+                                if pending not in done:
+                                    continue
+                            if pending in done:
+                                pending.result()
+                                break
                             raise BackendError("overloaded")
-                        pending.result()
                     finally:
                         pending.cancel()
                         await asyncio.gather(pending, return_exceptions=True)

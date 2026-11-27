@@ -4,8 +4,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import pytest
 
-from p0.stage8_eval.aggregate import aggregate_runs, paired_bootstrap_ci, summarize_chrome_run_dir
+from p0.stage8_eval.aggregate import (
+    _summarize_model_trace,
+    aggregate_runs,
+    paired_bootstrap_ci,
+    summarize_chrome_run_dir,
+)
 
 
 def _make_run_dir(
@@ -96,3 +102,37 @@ def test_aggregate_runs_computes_metrics_and_bootstrap_ci(tmp_path):
     assert rep["roles_present"] == ["candidate", "deployed", "subtitles_off"]
     assert rep["comparison"]["dom_shrink_flickers_delta"] == -1
     assert rep["comparison"]["drop_rate_delta_vs_subtitles_off_pp"] == 0.6
+
+
+def test_v1_v5_trace_session_isolation_duplicate_role_and_missing_fields(tmp_path):
+    # Cross-session trace must NOT mix session A's t=1.0 pcm_accepted with session B's t=10.2 ws_sent
+    trace_rows = [
+        {"t": 1.0, "stage": "pcm_accepted", "session_id": "sess-A", "end_sample": 16000},
+        {"t": 10.0, "stage": "pcm_accepted", "session_id": "sess-B", "end_sample": 16000},
+        {"t": 10.2, "stage": "ws_sent", "session_id": "sess-B", "end_sample": 16000, "text_zh": "你好"},
+    ]
+    tr_sum = _summarize_model_trace(trace_rows)
+    assert tr_sum is not None
+    assert tr_sum["seg_end_to_ws_p50_ms"] == 200.0
+    assert tr_sum["seg_end_to_ws_p95_ms"] == 200.0
+
+    # Missing telemetry & manifest must stay None / manifest_present=False, never fake zeros
+    incomplete_dir = tmp_path / "incomplete"
+    incomplete_dir.mkdir()
+    (incomplete_dir / "chrome_run_summary.json").write_text(
+        json.dumps({"run_id": "inc", "baseline_role": "candidate", "duration_s": 120.0, "result": {"current_time": 0.25, "total_frames": 0}}),
+        encoding="utf-8",
+    )
+    inc_sum = summarize_chrome_run_dir(incomplete_dir)
+    assert inc_sum["manifest_present"] is False
+    assert inc_sum["swap_growth_mib"] is None
+    assert inc_sum["resource_abort"] is None
+    assert inc_sum["lifecycle"] is None
+
+    # Duplicate baseline_role must raise ValueError instead of silently taking first
+    th_path = tmp_path / "thresholds.json"
+    th_path.write_text(json.dumps({"schema_version": "stage8-gates-v1", "resources": {}}), encoding="utf-8")
+    d1 = _make_run_dir(tmp_path, "cand1", role="candidate", dom_events=[])
+    d2 = _make_run_dir(tmp_path, "cand2", role="candidate", dom_events=[])
+    with pytest.raises(ValueError, match="duplicate baseline_role"):
+        aggregate_runs([d1, d2], None, None, th_path)

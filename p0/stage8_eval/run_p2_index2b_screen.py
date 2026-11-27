@@ -13,7 +13,7 @@ from p0.stage8_eval.model_adapters import LlamaServerMTAdapter, Qwen3MlxMTAdapte
 from p0.stage8_eval.score import nearest_rank_quantile
 from subtitle_service.local_pipeline import Qwen3Translator
 
-MAIN_ROOT = Path("/Users/luo/Documents/github/jp-live-video-tanslate")
+MAIN_ROOT = Path(__file__).resolve().parents[2]
 CACHE_ROOT = MAIN_ROOT / ".model-cache"
 REGISTRY_PATH = Path(__file__).resolve().parent / "model_registry.json"
 S120_PATH = MAIN_ROOT / "p0/evidence/stage6-ep01-20261126/stratified_120_audit.json"
@@ -75,24 +75,62 @@ def _score_predictions(rows: list[dict[str, Any]], *, field: str, tag_filter: se
     sub = [r for r in rows if tag_filter is None or r["primary_tag"] in tag_filter]
     if not sub:
         return {"count": 0}
-    hyps = [str(r[field]["text_zh"]) for r in sub]
+    raw_hyps = [str(r[field]["text_zh"]) for r in sub]
+    deliv_hyps = [str(r[field]["text_zh"]) if r[field]["valid"] else "" for r in sub]
     refs = [str(r["gold_zh"]) for r in sub]
-    chrf2_cases = [chrf2_standard_0_100(h, ref) for h, ref in zip(hyps, refs)]
-    leg_cases = [legacy_chrf4_score(h, ref) for h, ref in zip(hyps, refs)]
-    lats = [float(r[field]["latency_ms"]) for r in sub]
+    raw_chrf2_cases = [chrf2_standard_0_100(h, ref) for h, ref in zip(raw_hyps, refs)]
+    deliv_chrf2_cases = [chrf2_standard_0_100(h, ref) for h, ref in zip(deliv_hyps, refs)]
+    leg_cases = [legacy_chrf4_score(h, ref) for h, ref in zip(deliv_hyps, refs)]
+
+    attempt_lats: list[float | None] = [
+        float(r[field]["latency_ms"]) if r[field].get("latency_ms") is not None else None for r in sub
+    ]
+    deliv_lats: list[float | None] = [
+        float(r[field]["latency_ms"]) if (r[field]["valid"] and r[field].get("latency_ms") is not None) else None
+        for r in sub
+    ]
+    valid_pairs = [(str(r[field]["text_zh"]), str(r["gold_zh"]), r[field].get("latency_ms")) for r in sub if r[field]["valid"]]
+    valid_lats = [float(lat) for _, _, lat in valid_pairs if lat is not None]
     mems = [float(r[field].get("mem_mib") or 0.0) for r in sub]
+    valid_count = len(valid_pairs)
+
     return {
         "count": len(sub),
-        "valid_count": sum(1 for r in sub if r[field]["valid"]),
+        "valid_count": valid_count,
+        "availability_rate": round(valid_count / len(sub), 4),
         "length_limit_count": sum(1 for r in sub if r[field]["stop_reason"] == "length_limit"),
         "think_leaks": sum(1 for r in sub if r[field].get("think_leak")),
         "kana_leaks": sum(1 for r in sub if r[field].get("kana_leak")),
-        "latency_p50_ms": nearest_rank_quantile(lats, 0.50),
-        "latency_p95_ms": nearest_rank_quantile(lats, 0.95),
+        "latency_p50_ms": nearest_rank_quantile(deliv_lats, 0.50),
+        "latency_p95_ms": nearest_rank_quantile(deliv_lats, 0.95),
         "peak_mem_mib": round(max(mems), 2) if any(mems) else 0.0,
-        "chrf2_case_mean": round(sum(chrf2_cases) / len(chrf2_cases), 4),
-        "chrf2_concat": chrf2_standard_0_100("".join(hyps), "".join(refs)),
-        "legacy_chrf4_concat": legacy_chrf4_score("".join(hyps), "".join(refs)),
+        "chrf2_case_mean": round(sum(deliv_chrf2_cases) / len(deliv_chrf2_cases), 4),
+        "chrf2_concat": chrf2_standard_0_100("".join(deliv_hyps), "".join(refs)),
+        "diagnostic_raw": {
+            "attempt_p50_ms": nearest_rank_quantile(attempt_lats, 0.50),
+            "attempt_p95_ms": nearest_rank_quantile(attempt_lats, 0.95),
+            "chrf2_case_mean": round(sum(raw_chrf2_cases) / len(raw_chrf2_cases), 4),
+            "chrf2_concat": chrf2_standard_0_100("".join(raw_hyps), "".join(refs)),
+        },
+        "valid_only": {
+            "count": valid_count,
+            "success_p50_ms": nearest_rank_quantile(valid_lats, 0.50) if valid_lats else None,
+            "success_p95_ms": nearest_rank_quantile(valid_lats, 0.95) if valid_lats else None,
+            "chrf2_concat": (
+                chrf2_standard_0_100("".join(h for h, _, _ in valid_pairs), "".join(g for _, g, _ in valid_pairs))
+                if valid_pairs
+                else None
+            ),
+        },
+        "delivered": {
+            "denominator": len(sub),
+            "availability_rate": round(valid_count / len(sub), 4),
+            "completion_p50_ms": nearest_rank_quantile(deliv_lats, 0.50),
+            "completion_p95_ms": nearest_rank_quantile(deliv_lats, 0.95),
+            "chrf2_case_mean": round(sum(deliv_chrf2_cases) / len(deliv_chrf2_cases), 4),
+            "chrf2_concat": chrf2_standard_0_100("".join(deliv_hyps), "".join(refs)),
+        },
+        "legacy_chrf4_concat": legacy_chrf4_score("".join(deliv_hyps), "".join(refs)),
         "legacy_chrf4_case_mean": round(sum(leg_cases) / len(leg_cases), 4),
     }
 
@@ -104,6 +142,17 @@ def _eval_adapter(adapter, cohort: list[dict[str, Any]], *, track: str) -> dict[
     for item in cohort:
         src = str(item["clean_jp"] if track == "clean_jp" else item["live_asr_ja"]).strip()
         if not src:
+            results[int(item["cue_idx"])] = {
+                "source_ja": "",
+                "text_zh": "",
+                "stop_reason": "empty_input",
+                "valid": False,
+                "latency_ms": None,
+                "mem_mib": 0.0,
+                "think_leak": False,
+                "kana_leak": False,
+                "gen_tokens": 0,
+            }
             continue
         res = adapter.translate_turn(src, history=[], max_tokens=256)
         mem = res.metrics.get("rss_mib") or res.metrics.get("peak_mlx_mib") or 0.0
@@ -112,7 +161,7 @@ def _eval_adapter(adapter, cohort: list[dict[str, Any]], *, track: str) -> dict[
             "text_zh": res.text_zh,
             "stop_reason": res.stop_reason,
             "valid": bool(res.valid),
-            "latency_ms": float(res.metrics.get("latency_ms", 0.0)),
+            "latency_ms": float(res.metrics["latency_ms"]) if res.metrics.get("latency_ms") is not None else None,
             "mem_mib": float(mem),
             "think_leak": bool(res.metrics.get("think_leak", False)),
             "kana_leak": bool(res.metrics.get("kana_leak", False)),
@@ -162,12 +211,11 @@ def main() -> int:
             "index2b": idx_clean[cid],
             "qwen4b_0ctx": qwen_clean[cid],
         })
-        if cid in idx_asr and cid in qwen_asr:
-            asr_rows.append({
-                **item,
-                "index2b": idx_asr[cid],
-                "qwen4b_0ctx": qwen_asr[cid],
-            })
+        asr_rows.append({
+            **item,
+            "index2b": idx_asr[cid],
+            "qwen4b_0ctx": qwen_asr[cid],
+        })
 
     summary = {
         "schema_version": "stage8-p2-index2b-screen-v1",

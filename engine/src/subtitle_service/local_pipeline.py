@@ -11,10 +11,11 @@ import logging
 from pathlib import Path
 import re
 import threading
+import time
 
 import numpy as np
 
-from .backend import BackendError, Caption, CaptionDelta
+from .backend import BackendError, Caption, CaptionDelta, CaptionDiscard
 from .mt_cache_contract import (
     canonical_messages,
     canonical_prompt_ids,
@@ -724,8 +725,10 @@ class NeMoAneBridge:
                     "enc_frames": int(t_struct.enc_frames),
                 }
         text = ""
+        used_timed_filter = False
         cnt = min(int(n_toks.value), max_toks)
         if dedup_before_sample > 0 and cnt > 0:
+            used_timed_filter = True
             kept_ids = [
                 toks[i].token_id
                 for i in range(cnt)
@@ -737,7 +740,9 @@ class NeMoAneBridge:
             detok_buf = ctypes.create_string_buffer(8192)
             if self._lib.nemo_ane_detokenize(self._handle, arr, len(kept_ids), detok_buf, 8192) == 0:
                 text = detok_buf.value.decode("utf-8", "replace").strip()
-        if not text:
+                if len(kept_ids) < cnt:
+                    text = text.lstrip("、。．，？！?! \u3000")
+        if not used_timed_filter and not text:
             text = out_buf.value.decode("utf-8", "replace").strip()
         if text in ("ピッ!", "ピッ", "ピッ。"):
             return ""
@@ -956,6 +961,7 @@ class SpeechCppNeMoRecognizer:
                 if not res:
                     raise BackendError("backend_error")
                 text = ""
+                used_timed_filter = False
                 if dedup_before_sample > 0 and not self._lib.speech_result_untimed(res):
                     tok_count = int(self._lib.speech_result_token_count(res))
                     if tok_count > 0:
@@ -966,13 +972,14 @@ class SpeechCppNeMoRecognizer:
                         for idx in range(tok_count):
                             if self._lib.speech_result_token(res, idx, ctypes.byref(st), ctypes.byref(en), ctypes.byref(tp)) == 0:
                                 toks.append((float(st.value), float(en.value), tp.value.decode("utf-8", "replace") if tp.value else ""))
+                        used_timed_filter = True
                         text = _filter_tokens_by_sample(
                             toks,
                             start_sample=start_sample,
                             dedup_before_sample=dedup_before_sample,
                             pad_s=pad_s,
                         )
-                if not text:
+                if not used_timed_filter and not text:
                     raw = self._lib.speech_result_text(res)
                     text = raw.decode("utf-8", "replace").strip() if raw else ""
                 self.last_decode_meta = {
@@ -1148,19 +1155,38 @@ class Qwen3Translator:
 
         return _ban_kana
 
-    def _run_prompt(self, messages, *, cancel_event: threading.Event | None = None):
+    def _run_prompt_structured(
+        self,
+        messages,
+        *,
+        cancel_event: threading.Event | None = None,
+        max_tokens: int = 256,
+    ) -> dict:
+        t0 = time.perf_counter()
         if cancel_event is not None and cancel_event.is_set():
-            return ""
+            return {
+                "text": "",
+                "stop_reason": "cancelled",
+                "eos_seen": False,
+                "gen_tokens": 0,
+                "latency_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+            }
         prompt = self.tokenizer.apply_chat_template(
             messages, add_generation_prompt=True, tokenize=False,
         )
         if getattr(self, "_generate_step", None) is None or getattr(self, "_eos_ids", None) is None:
             raw = self._generate(
                 self.model, self.tokenizer, prompt=prompt,
-                max_tokens=256, sampler=self.sampler,
+                max_tokens=max_tokens, sampler=self.sampler,
                 logits_processors=self.logits_processors, verbose=False,
             )
-            return self._clean_output(raw)
+            return {
+                "text": self._clean_output(raw),
+                "stop_reason": "no_step_eos_unverified",
+                "eos_seen": False,
+                "gen_tokens": 0,
+                "latency_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+            }
 
         mx = self._mx
         prompt_ids = mx.array(self.tokenizer.encode(prompt, add_special_tokens=False), dtype=mx.int32)
@@ -1170,25 +1196,60 @@ class Qwen3Translator:
                 raise _Cancelled()
 
         tokens: list[int] = []
+        stop_reason = "length_limit"
+        eos_seen = False
         try:
             for tok, _ in self._generate_step(
                 prompt_ids,
                 self.model,
-                max_tokens=256,
+                max_tokens=max_tokens,
                 sampler=self.sampler,
                 logits_processors=self.logits_processors,
                 prefill_step_size=512,
                 prompt_progress_callback=_check_cancel if cancel_event is not None else None,
             ):
                 if cancel_event is not None and cancel_event.is_set():
-                    return ""
+                    stop_reason = "cancelled"
+                    return {
+                        "text": "",
+                        "stop_reason": "cancelled",
+                        "eos_seen": False,
+                        "gen_tokens": len(tokens),
+                        "latency_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+                    }
                 tid = int(tok)
                 if tid in self._eos_ids:
+                    stop_reason = "eos"
+                    eos_seen = True
                     break
                 tokens.append(tid)
         except _Cancelled:
-            return ""
-        return self._clean_output(self.tokenizer.decode(tokens))
+            return {
+                "text": "",
+                "stop_reason": "cancelled",
+                "eos_seen": False,
+                "gen_tokens": len(tokens),
+                "latency_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+            }
+        except Exception:
+            return {
+                "text": "",
+                "stop_reason": "error",
+                "eos_seen": False,
+                "gen_tokens": len(tokens),
+                "latency_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+            }
+        text = self._clean_output(self.tokenizer.decode(tokens))
+        return {
+            "text": text,
+            "stop_reason": stop_reason,
+            "eos_seen": eos_seen,
+            "gen_tokens": len(tokens),
+            "latency_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+        }
+
+    def _run_prompt(self, messages, *, cancel_event: threading.Event | None = None):
+        return str(self._run_prompt_structured(messages, cancel_event=cancel_event)["text"])
 
     def _run_cached_prompt(
         self,
@@ -1344,6 +1405,7 @@ class Qwen3Translator:
             return ""
         has_cache = getattr(self, "_prompt_cache", None) is not None
         is_rolling = has_cache and isinstance(session, _Qwen3Session) and session.max_turns > 0
+        t_start = time.perf_counter()
         if is_rolling:
             cache_extra = int(self._prompt_cache[0].offset) - self._prefix_len
             gap_exceeded = (
@@ -1421,27 +1483,68 @@ class Qwen3Translator:
                 max_tokens=max_tokens,
             )
         else:
-            raw = self._run_prompt([
-                {"role": "system", "content": self.SYSTEM_PROMPT},
-                {"role": "user", "content": f"请翻译以下日语台词为简体中文：\n{text_ja}"},
-            ])
+            prompt_res = self._run_prompt_structured(
+                [
+                    {"role": "system", "content": self.SYSTEM_PROMPT},
+                    {"role": "user", "content": f"请翻译以下日语台词为简体中文：\n{text_ja}"},
+                ],
+                cancel_event=cancel_event,
+                max_tokens=max_tokens,
+            )
+            raw = str(prompt_res["text"])
+            self.last_translate_meta = {
+                "stop_reason": prompt_res["stop_reason"],
+                "eos_seen": bool(prompt_res["eos_seen"]),
+                "reused_tokens": 0,
+                "trimmed_tokens": 0,
+                "fed_tokens": 0,
+                "gen_tokens": int(prompt_res["gen_tokens"]),
+                "latency_ms": float(prompt_res["latency_ms"]),
+                "valid": bool(
+                    raw
+                    and prompt_res["eos_seen"]
+                    and prompt_res["stop_reason"] == "eos"
+                    and not _KANA.search(raw)
+                ),
+            }
         if cancel_event is not None and cancel_event.is_set():
             return ""
-        stop_reason = (getattr(self, "last_translate_meta", {}) or {}).get("stop_reason", "eos")
+        parent_meta = dict(getattr(self, "last_translate_meta", None) or {})
+        stop_reason = parent_meta.get("stop_reason", "eos")
         if raw and stop_reason == "eos" and _KANA.search(raw):
-            repaired = self._run_prompt(
+            parent_tokens = int(parent_meta.get("gen_tokens", 0))
+            parent_lat = float(parent_meta.get("latency_ms", round((time.perf_counter() - t_start) * 1000.0, 2)))
+            rep = self._run_prompt_structured(
                 [
                     {"role": "system", "content": self.SYSTEM_PROMPT},
                     {"role": "user", "content": f"{self.REPAIR_PROMPT}原文：{text_ja}\n上次含假名草稿：{raw}"},
                 ],
                 cancel_event=cancel_event,
+                max_tokens=max_tokens,
             )
-            if repaired:
-                if isinstance(getattr(self, "last_translate_meta", None), dict) and not _KANA.search(repaired):
-                    self.last_translate_meta["valid"] = True
-                    self.last_translate_meta["stop_reason"] = "eos"
-                    self.last_translate_meta["repaired"] = True
-                return repaired
+            rep_text = str(rep["text"])
+            rep_kana = bool(_KANA.search(rep_text)) if rep_text else False
+            rep_valid = bool(rep_text and rep["eos_seen"] and rep["stop_reason"] == "eos" and not rep_kana)
+            rep_lat = float(rep["latency_ms"])
+            self.last_translate_meta = {
+                **parent_meta,
+                "parent_gen_tokens": parent_tokens,
+                "parent_latency_ms": parent_lat,
+                "repair_attempted": True,
+                "repair_stop_reason": rep["stop_reason"],
+                "repair_eos_seen": bool(rep["eos_seen"]),
+                "repair_gen_tokens": int(rep["gen_tokens"]),
+                "repair_latency_ms": rep_lat,
+                "total_latency_ms": round(parent_lat + rep_lat, 2),
+                "gen_tokens": parent_tokens + int(rep["gen_tokens"]),
+                "stop_reason": "eos" if rep_valid else str(rep["stop_reason"]),
+                "eos_seen": bool(rep["eos_seen"]),
+                "repaired": rep_valid,
+                "valid": rep_valid,
+            }
+            if rep_kana:
+                self.last_translate_meta["kana_leak"] = True
+            return rep_text if rep_valid else ""
         return raw
 
     def translate_draft(self, session, text_ja: str, *, cancel_event: threading.Event | None = None) -> str:
@@ -1655,9 +1758,14 @@ class LocalSession:
         self._delta_tasks: set[asyncio.Task] = set()
         self._draft_interval_s = float(getattr(backend.profile.asr, "draft_interval_s", 0.0))
         self._pending_draft: _DraftSnapshot | None = None
-        self._draft_cancel = threading.Event()
+        self._draft_gen = 0
+        self._active_draft_cancel: threading.Event | None = None
+        self._last_final_end_sample = 0
         self._last_draft_ja = ""
         self._active_draft_best: tuple[int, int, str] | None = None
+        self._last_mt_drop_reason: str | None = None
+        self._preview_emitted = False
+        self._preview_span: tuple[int, int] = (0, 0)
         ane_runtime = bool(backend.uses_ane_asr and getattr(backend, "ane_runtime_active", True))
         self._use_ane_parallel = ane_runtime
         self._use_gpu_serial = bool(backend.uses_gpu_scheduler or (backend.uses_ane_asr and not ane_runtime))
@@ -1680,7 +1788,7 @@ class LocalSession:
             self._ane_mt_ready = asyncio.Event()
             self._ane_mt_idle = asyncio.Event()
             self._ane_mt_idle.set()
-            self._pending_draft_ja: tuple[_DraftSnapshot, str] | None = None
+            self._pending_draft_ja: tuple[_DraftSnapshot, str, int, threading.Event] | None = None
             self._cpp_asr_task = asyncio.create_task(self._run_ane_asr())
             self.mt_task = asyncio.create_task(self._run_ane_mt_scheduler())
         elif self.backend.uses_speech_cpp_asr:
@@ -1690,6 +1798,34 @@ class LocalSession:
         else:
             self._cpp_asr_task = None
             self.mt_task = asyncio.create_task(self.run_translation())
+
+    def _cancel_active_draft(self) -> None:
+        self._draft_gen += 1
+        if self._active_draft_cancel is not None:
+            self._active_draft_cancel.set()
+            self._active_draft_cancel = None
+
+    def _begin_draft_token(self) -> tuple[int, threading.Event]:
+        self._cancel_active_draft()
+        ev = threading.Event()
+        self._active_draft_cancel = ev
+        return self._draft_gen, ev
+
+    async def _emit_mt_result(self, segment: RecognizedSegment, translated: str) -> None:
+        if self.cancelled.is_set():
+            return
+        self._preview_emitted = False
+        if translated:
+            await self.emit(Caption(segment.start_sample, segment.end_sample, translated, segment.segment_id))
+        else:
+            await self.emit(
+                CaptionDiscard(
+                    segment.start_sample,
+                    segment.end_sample,
+                    self._last_mt_drop_reason or "empty",
+                    segment.segment_id,
+                )
+            )
 
     def _schedule_delta(self, segment: RecognizedSegment, partial: str):
         if self.cancelled.is_set() or not partial:
@@ -1788,6 +1924,7 @@ class LocalSession:
         return text if meaningful else ""
 
     def translate(self, segment, loop: asyncio.AbstractEventLoop | None = None):
+        self._last_mt_drop_reason = None
         if self.record:
             self.record("mt_start", **vars(segment))
         on_delta = None
@@ -1825,7 +1962,15 @@ class LocalSession:
                 extra["dropped_reason"] = str(mt_meta.get("stop_reason") or "invalid")
             self.record("mt_end", text_zh=text, **vars(segment), **extra)
         if is_invalid:
+            if isinstance(mt_meta, dict) and mt_meta.get("kana_leak"):
+                self._last_mt_drop_reason = "kana_leak"
+            elif isinstance(mt_meta, dict) and not text and mt_meta.get("stop_reason") == "eos":
+                self._last_mt_drop_reason = "empty"
+            else:
+                self._last_mt_drop_reason = str(mt_meta.get("stop_reason") or "invalid")
             return ""
+        if not text:
+            self._last_mt_drop_reason = "empty"
         return text
 
     async def run_translation(self):
@@ -1837,8 +1982,7 @@ class LocalSession:
                 self.mt_work = loop.run_in_executor(self.backend.mt_pool, self.translate, segment, loop)
                 translated = await asyncio.shield(self.mt_work)
                 await self._drain_deltas()
-                if not self.cancelled.is_set() and translated:
-                    await self.emit(Caption(segment.start_sample, segment.end_sample, translated, segment.segment_id))
+                await self._emit_mt_result(segment, translated)
         except Exception:
             if not self.cancelled.is_set():
                 await self.emit(BackendError())
@@ -1914,24 +2058,28 @@ class LocalSession:
                         break
                     if text:
                         seg = RecognizedSegment(item.segment_id, item.start_sample, item.end_sample, text)
+                        self._preview_emitted = False
                         self._mt_queue.append(seg)
                         self._ane_mt_idle.clear()
                         if self.record:
                             self.record("mt_enqueued", **vars(seg))
                         self._ane_mt_ready.set()
+                    elif self._preview_emitted:
+                        self._preview_emitted = False
+                        await self.emit(CaptionDiscard(item.start_sample, item.end_sample, "asr_empty", item.segment_id))
                     continue
                 if self._pending_draft is not None:
                     snap = self._pending_draft
                     self._pending_draft = None
                     if self.cancelled.is_set():
                         break
-                    self._draft_cancel.clear()
+                    draft_gen, draft_cancel = self._begin_draft_token()
                     self.asr_work = loop.run_in_executor(
                         self.backend.asr_pool,
-                        lambda s=snap: _call_with_cancel(
+                        lambda s=snap, ev=draft_cancel: _call_with_cancel(
                             self.backend.recognizer.decode,
                             s.samples,
-                            cancel_event=self._draft_cancel,
+                            cancel_event=ev,
                             start_sample=s.start_sample,
                             dedup_before_sample=s.dedup_before_sample,
                             decoding_override="greedy",
@@ -1942,14 +2090,16 @@ class LocalSession:
                     draft_ja = await asyncio.shield(self.asr_work)
                     if (
                         not self.cancelled.is_set()
-                        and not self._draft_cancel.is_set()
+                        and not draft_cancel.is_set()
+                        and draft_gen == self._draft_gen
+                        and snap.end_sample > self._last_final_end_sample
                         and not self._asr_queue
                         and not self._mt_queue
                         and draft_ja
                     ):
                         self._record_draft_candidate(snap, draft_ja)
                         if _should_emit_draft_ja(self._last_draft_ja, draft_ja):
-                            self._pending_draft_ja = (snap, draft_ja)
+                            self._pending_draft_ja = (snap, draft_ja, draft_gen, draft_cancel)
                             self._ane_mt_ready.set()
                     continue
                 if self._asr_input_done:
@@ -1970,13 +2120,13 @@ class LocalSession:
             loop = asyncio.get_running_loop()
             gpu_lock = getattr(self.backend, "_gpu_fallback_lock", None)
 
-            def _draft_mt(ja: str):
+            def _draft_mt(ja: str, ev: threading.Event):
                 with (gpu_lock if gpu_lock is not None else nullcontext()):
                     return _call_with_cancel(
                         self.backend.translator.translate_draft,
                         self.translation,
                         ja,
-                        cancel_event=self._draft_cancel,
+                        cancel_event=ev,
                     )
 
             while not self.cancelled.is_set():
@@ -1985,27 +2135,37 @@ class LocalSession:
                     self.mt_work = loop.run_in_executor(self.backend.mt_pool, self.translate, segment, loop)
                     translated = await asyncio.shield(self.mt_work)
                     await self._drain_deltas()
-                    if not self.cancelled.is_set() and translated:
-                        await self.emit(Caption(segment.start_sample, segment.end_sample, translated, segment.segment_id))
+                    await self._emit_mt_result(segment, translated)
                     if not self._mt_queue:
                         self._ane_mt_idle.set()
                     continue
                 self._ane_mt_idle.set()
                 if self._pending_draft_ja is not None:
-                    snap, draft_ja = self._pending_draft_ja
+                    snap, draft_ja, draft_gen, draft_cancel = self._pending_draft_ja
                     self._pending_draft_ja = None
-                    if self.cancelled.is_set() or self._draft_cancel.is_set() or self._asr_queue or self._mt_queue:
+                    if (
+                        self.cancelled.is_set()
+                        or draft_cancel.is_set()
+                        or draft_gen != self._draft_gen
+                        or snap.end_sample <= self._last_final_end_sample
+                        or self._asr_queue
+                        or self._mt_queue
+                    ):
                         continue
-                    self.mt_work = loop.run_in_executor(self.backend.mt_pool, _draft_mt, draft_ja)
+                    self.mt_work = loop.run_in_executor(self.backend.mt_pool, _draft_mt, draft_ja, draft_cancel)
                     draft_zh = await asyncio.shield(self.mt_work)
                     if (
                         not self.cancelled.is_set()
-                        and not self._draft_cancel.is_set()
+                        and not draft_cancel.is_set()
+                        and draft_gen == self._draft_gen
+                        and snap.end_sample > self._last_final_end_sample
                         and not self._asr_queue
                         and not self._mt_queue
                         and draft_zh
                     ):
                         self._last_draft_ja = draft_ja
+                        self._preview_emitted = True
+                        self._preview_span = (snap.start_sample, snap.end_sample)
                         if self.record:
                             self.record(
                                 "draft_sent",
@@ -2019,6 +2179,9 @@ class LocalSession:
                         )
                     continue
                 if self._mt_input_done:
+                    if not self.cancelled.is_set() and self._preview_emitted:
+                        self._preview_emitted = False
+                        await self.emit(CaptionDiscard(*self._preview_span, "session_finished"))
                     break
                 self._ane_mt_ready.clear()
                 await self._ane_mt_ready.wait()
@@ -2038,8 +2201,7 @@ class LocalSession:
                     self.mt_work = loop.run_in_executor(self.backend.mt_pool, self.translate, segment, loop)
                     translated = await asyncio.shield(self.mt_work)
                     await self._drain_deltas()
-                    if not self.cancelled.is_set() and translated:
-                        await self.emit(Caption(segment.start_sample, segment.end_sample, translated, segment.segment_id))
+                    await self._emit_mt_result(segment, translated)
                     continue
                 if self._asr_queue:
                     item = self._asr_queue.popleft()
@@ -2075,22 +2237,26 @@ class LocalSession:
                         break
                     if text:
                         seg = RecognizedSegment(item.segment_id, item.start_sample, item.end_sample, text)
+                        self._preview_emitted = False
                         self._mt_queue.append(seg)
                         if self.record:
                             self.record("mt_enqueued", **vars(seg))
+                    elif self._preview_emitted:
+                        self._preview_emitted = False
+                        await self.emit(CaptionDiscard(item.start_sample, item.end_sample, "asr_empty", item.segment_id))
                     continue
                 if self._pending_draft is not None:
                     snap = self._pending_draft
                     self._pending_draft = None
                     if self.cancelled.is_set():
                         break
-                    self._draft_cancel.clear()
+                    draft_gen, draft_cancel = self._begin_draft_token()
                     self.asr_work = loop.run_in_executor(
                         self.backend.asr_pool,
-                        lambda s=snap: _call_with_cancel(
+                        lambda s=snap, ev=draft_cancel: _call_with_cancel(
                             self.backend.recognizer.decode,
                             s.samples,
-                            cancel_event=self._draft_cancel,
+                            cancel_event=ev,
                             start_sample=s.start_sample,
                             dedup_before_sample=s.dedup_before_sample,
                             decoding_override="greedy",
@@ -2100,7 +2266,9 @@ class LocalSession:
                     draft_ja = await asyncio.shield(self.asr_work)
                     if (
                         self.cancelled.is_set()
-                        or self._draft_cancel.is_set()
+                        or draft_cancel.is_set()
+                        or draft_gen != self._draft_gen
+                        or snap.end_sample <= self._last_final_end_sample
                         or self._asr_queue
                         or self._mt_queue
                         or not draft_ja
@@ -2111,22 +2279,26 @@ class LocalSession:
                         continue
                     self.mt_work = loop.run_in_executor(
                         self.backend.mt_pool,
-                        lambda ja=draft_ja: _call_with_cancel(
+                        lambda ja=draft_ja, ev=draft_cancel: _call_with_cancel(
                             self.backend.translator.translate_draft,
                             self.translation,
                             ja,
-                            cancel_event=self._draft_cancel,
+                            cancel_event=ev,
                         ),
                     )
                     draft_zh = await asyncio.shield(self.mt_work)
                     if (
                         not self.cancelled.is_set()
-                        and not self._draft_cancel.is_set()
+                        and not draft_cancel.is_set()
+                        and draft_gen == self._draft_gen
+                        and snap.end_sample > self._last_final_end_sample
                         and not self._asr_queue
                         and not self._mt_queue
                         and draft_zh
                     ):
                         self._last_draft_ja = draft_ja
+                        self._preview_emitted = True
+                        self._preview_span = (snap.start_sample, snap.end_sample)
                         if self.record:
                             self.record(
                                 "draft_sent",
@@ -2140,6 +2312,9 @@ class LocalSession:
                         )
                     continue
                 if self._input_done:
+                    if not self.cancelled.is_set() and self._preview_emitted:
+                        self._preview_emitted = False
+                        await self.emit(CaptionDiscard(*self._preview_span, "session_finished"))
                     break
                 self._work_ready.clear()
                 await self._work_ready.wait()
@@ -2179,7 +2354,11 @@ class LocalSession:
         if self._use_gpu_serial or self._use_ane_parallel:
             if released:
                 best_draft = self._active_draft_best
-                self._draft_cancel.set()
+                self._cancel_active_draft()
+                for chunk in released:
+                    self._last_final_end_sample = max(
+                        self._last_final_end_sample, chunk.start_sample + len(chunk.samples)
+                    )
                 self._pending_draft = None
                 if self._use_ane_parallel:
                     self._pending_draft_ja = None
@@ -2233,7 +2412,7 @@ class LocalSession:
                     raise BackendError("overloaded") from None
 
     async def finish(self):
-        self._draft_cancel.set()
+        self._cancel_active_draft()
         self._pending_draft = None
         await self.accept_pcm(None)
         if self._use_gpu_serial:
@@ -2259,7 +2438,7 @@ class LocalSession:
             return
         self.closed = True
         self.cancelled.set()
-        self._draft_cancel.set()
+        self._cancel_active_draft()
         self._pending_draft = None
         self._active_draft_best = None
         if self._use_gpu_serial:

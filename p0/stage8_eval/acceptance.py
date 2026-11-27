@@ -30,6 +30,15 @@ def _eval_g0_identity(report: dict[str, Any]) -> tuple[str, list[str]]:
         reasons.append("MEDIA_HASH_MISMATCH")
         return "FAIL", reasons
 
+    for role_name in ("deployed", "candidate", "subtitles_off"):
+        if role_name not in roles:
+            continue
+        run = roles[role_name]
+        if run.get("manifest_present") is not True:
+            return "BLOCKED", [f"MISSING_MANIFEST_{role_name.upper()}"]
+        if not run.get("media_sha256") or not run.get("thresholds_sha256"):
+            return "BLOCKED", [f"MISSING_IDENTITY_HASHES_{role_name.upper()}"]
+
     for r in runs:
         th = r.get("thresholds_sha256")
         if th and expected_th and th != expected_th:
@@ -41,20 +50,38 @@ def _eval_g0_identity(report: dict[str, Any]) -> tuple[str, list[str]]:
         if r.get("all_timeouts_filtered") or int(r.get("dropped_timeouts", 0) or 0) > 0:
             reasons.append("TIMEOUTS_FILTERED_FROM_DENOMINATOR")
             return "FAIL", reasons
+        dur = r.get("duration_s")
+        cur_t = r.get("current_time_s")
+        if dur is None or float(dur) <= 0.0:
+            return "BLOCKED", ["MISSING_PLAYBACK_DURATION"]
+        if cur_t is None or float(cur_t) < 0.8 * float(dur):
+            return "BLOCKED", ["INCOMPLETE_PLAYBACK_DURATION"]
+        tot_frames = r.get("total_frames")
+        if tot_frames is None or int(tot_frames) <= 0:
+            return "BLOCKED", ["MISSING_OR_ZERO_VIDEO_FRAMES"]
 
     for role_name in ("deployed", "candidate"):
         dom = roles[role_name].get("dom_events") or {}
-        if int(dom.get("total", 0) or 0) <= 0 or (
-            int(dom.get("streaming", 0) or 0) + int(dom.get("final", 0) or 0) <= 0
-        ):
-            reasons.append(f"MISSING_DOM_EVENTS_{role_name.upper()}")
+        if int(dom.get("total", 0) or 0) <= 0 or int(dom.get("final", 0) or 0) <= 0:
+            reasons.append(f"MISSING_FINAL_DOM_EVENTS_{role_name.upper()}")
             return "BLOCKED", reasons
 
     return "PASS", ["G0_IDENTITY_AND_DOM_OK"]
 
 
 def _eval_g1_lifecycle(cand: dict[str, Any], thresholds: dict[str, Any]) -> tuple[str, list[str]]:
-    lc = cand.get("lifecycle") or {}
+    lc = cand.get("lifecycle")
+    if not isinstance(lc, dict):
+        return "BLOCKED", ["MISSING_LIFECYCLE_TELEMETRY"]
+    required_fields = (
+        "new_disconnects",
+        "new_overloads",
+        "old_epoch_commits",
+        "silent_final_drops",
+        "out_of_order_final_accepts",
+    )
+    if any(lc.get(f) is None for f in required_fields):
+        return "BLOCKED", ["MISSING_LIFECYCLE_TELEMETRY"]
     cfg = thresholds.get("lifecycle") or {}
     checks = [
         ("new_disconnects", int(cfg.get("new_disconnects_max", 0)), "LIFECYCLE_NEW_DISCONNECTS"),
@@ -63,7 +90,7 @@ def _eval_g1_lifecycle(cand: dict[str, Any], thresholds: dict[str, Any]) -> tupl
         ("silent_final_drops", int(cfg.get("silent_final_drops_max", 0)), "LIFECYCLE_SILENT_FINAL_DROPS"),
         ("out_of_order_final_accepts", int(cfg.get("out_of_order_final_accepts_max", 0)), "LIFECYCLE_OUT_OF_ORDER"),
     ]
-    reasons = [code for field, limit, code in checks if int(lc.get(field, 0) or 0) > limit]
+    reasons = [code for field, limit, code in checks if int(lc[field]) > limit]
     if reasons:
         return "FAIL", reasons
     return "PASS", ["G1_LIFECYCLE_OK"]
@@ -135,15 +162,27 @@ def _eval_g3_resources(
     thresholds: dict[str, Any],
 ) -> tuple[str, list[str]]:
     res_cfg = thresholds.get("resources") or {}
-    if cand.get("resource_abort"):
+    abort_val = cand.get("resource_abort")
+    swap_val = cand.get("swap_growth_mib")
+    if abort_val is None or swap_val is None:
+        return "BLOCKED", ["MISSING_RESOURCE_TELEMETRY"]
+    if abort_val:
         return "FAIL", ["CANDIDATE_RESOURCE_ABORT"]
-    swap = float(cand.get("swap_growth_mib", 0.0) or 0.0)
+    swap = float(swap_val)
     if swap > float(res_cfg.get("swap_growth_stop_mib", 256.0)):
         return "FAIL", ["SWAP_GROWTH_EXCEEDS_STOP_LIMIT"]
-    drop_delta = (report.get("comparison") or {}).get("drop_rate_delta_vs_subtitles_off_pp")
-    if drop_delta is None and "subtitles_off" not in (report.get("roles") or {}):
+    roles = report.get("roles") or {}
+    sub_off = roles.get("subtitles_off")
+    if sub_off is None:
         return "BLOCKED", ["SUBTITLES_OFF_BASELINE_MISSING"]
-    if drop_delta is not None and float(drop_delta) > float(
+    for run in (cand, sub_off):
+        tf = run.get("total_frames")
+        if tf is None or int(tf) <= 0:
+            return "BLOCKED", ["MISSING_OR_ZERO_VIDEO_FRAMES"]
+    drop_delta = (report.get("comparison") or {}).get("drop_rate_delta_vs_subtitles_off_pp")
+    if drop_delta is None:
+        return "BLOCKED", ["SUBTITLES_OFF_BASELINE_OR_DROP_DELTA_MISSING"]
+    if float(drop_delta) > float(
         res_cfg.get("video_drop_rate_increase_max_percentage_points", 1.0)
     ):
         return "FAIL", ["VIDEO_DROP_RATE_INCREASE_EXCEEDS_1PP"]
@@ -161,9 +200,11 @@ def _eval_g4_quality_and_review(
     holdout = report.get("holdout")
 
     if isinstance(human_review, dict):
-        if int(human_review.get("protected_new_e4", 0) or 0) > int(qual_cfg.get("protected_new_e4_max", 0)):
+        new_e4 = human_review.get("protected_new_e4")
+        key_reg = human_review.get("protected_key_info_regressions")
+        if new_e4 is not None and int(new_e4) > int(qual_cfg.get("protected_new_e4_max", 0)):
             return "FAIL", ["PROTECTED_NEW_E4_REGRESSION"]
-        if int(human_review.get("protected_key_info_regressions", 0) or 0) > int(
+        if key_reg is not None and int(key_reg) > int(
             qual_cfg.get("protected_key_information_regressions_max", 0)
         ):
             return "FAIL", ["PROTECTED_KEY_INFO_REGRESSION"]
@@ -174,9 +215,14 @@ def _eval_g4_quality_and_review(
         return "FAIL", ["HOLDOUT_REUSED_MORE_THAN_ONCE"]
     if not isinstance(human_review, dict) or not human_review.get("verified"):
         return "INCONCLUSIVE", ["QUALITY_REVIEW_MISSING"]
+    if human_review.get("protected_new_e4") is None or human_review.get("protected_key_info_regressions") is None:
+        return "INCONCLUSIVE", ["PROTECTED_REVIEW_FIELDS_MISSING"]
 
     rel_red = holdout.get("critical_error_relative_reduction")
-    ci_low = (holdout.get("paired_bootstrap") or {}).get("ci95_low")
+    pb = holdout.get("paired_bootstrap") or {}
+    if int(pb.get("n", 0) or 0) <= 0:
+        return "BLOCKED", ["HOLDOUT_EMPTY_SAMPLE_SIZE"]
+    ci_low = pb.get("ci95_low")
     if rel_red is None or ci_low is None:
         return "INCONCLUSIVE", ["QUALITY_STATISTICAL_DATA_MISSING"]
     min_red = float(qual_cfg.get("critical_error_relative_reduction_min", 0.25))

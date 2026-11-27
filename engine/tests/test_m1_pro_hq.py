@@ -192,6 +192,8 @@ def test_mlx_asr_and_mt_share_single_persistent_thread(tmp_path, monkeypatch):
 
 
 def test_collapse_repetition_and_kana_repair():
+    import mlx.core as mx
+
     assert lp._collapse_repetition("いうのを、" + "このように、" * 20) == "いうのを、このように、"
     assert lp._collapse_repetition("今日はいい天気ですね。") == "今日はいい天気ですね。"
 
@@ -199,24 +201,43 @@ def test_collapse_repetition_and_kana_repair():
         def apply_chat_template(self, messages, add_generation_prompt=True, tokenize=False):
             return messages[-1]["content"]
 
+        def encode(self, text, add_special_tokens=False):
+            return [1] * max(1, len(text))
+
+        def decode(self, ids):
+            return "".join(self._id_to_text[i] for i in ids)
+
+    tok = FakeTokenizer()
+    tok._id_to_text = {
+        10: "先简要回顾副语言信息。",
+        11: "先に是什么",
+        12: "首先是什么",
+    }
     calls = []
     tr = lp.Qwen3Translator.__new__(lp.Qwen3Translator)
+    tr._mx = mx
     tr.model = object()
-    tr.tokenizer = FakeTokenizer()
+    tr.tokenizer = tok
     tr.sampler = object()
     tr.logits_processors = []
+    tr._eos_ids = {99}
 
-    def fake_gen_clean(model, tokenizer, prompt, **kwargs):
-        calls.append(prompt)
-        return "先简要回顾副语言信息。"
+    responses = iter([([10], True)])
 
-    tr._generate = fake_gen_clean
+    def fake_step(prompt_ids, model, **kwargs):
+        calls.append(len(prompt_ids))
+        seq, hit_eos = next(responses)
+        for tid in seq:
+            yield mx.array(tid), None
+        if hit_eos:
+            yield mx.array(99), None
+
+    tr._generate_step = fake_step
     assert tr.translate(lp._NoopSession(), "パラ言語情報") == "先简要回顾副语言信息。"
     assert len(calls) == 1
 
     calls.clear()
-    responses = iter(["先に是什么", "首先是什么"])
-    tr._generate = lambda model, tokenizer, prompt, **kwargs: (calls.append(prompt) or next(responses))
+    responses = iter([([11], True), ([12], True)])
     assert tr.translate(lp._NoopSession(), "何であるか") == "首先是什么"
     assert len(calls) == 2
 
@@ -1627,4 +1648,457 @@ def test_p1_pure_punctuation_asr_skipped_before_mt():
     assert asr_ends[0].get("mt_skipped") == "punct_only"
     assert asr_ends[1].get("mt_skipped") == "punct_only"
     assert "mt_skipped" not in asr_ends[2]
+
+
+def test_r2_kana_repair_requires_true_eos_and_tracks_tokens_and_latency():
+    import mlx.core as mx
+
+    class FakeTokenizer:
+        def apply_chat_template(self, messages, add_generation_prompt=True, tokenize=False):
+            return messages[-1]["content"]
+
+        def encode(self, text, add_special_tokens=False):
+            return [1] * max(1, len(text))
+
+        def decode(self, ids):
+            return "".join(self._id_to_text[i] for i in ids)
+
+    tok = FakeTokenizer()
+    tok._id_to_text = {
+        1: "字",
+        10: "まず",  # parent output containing kana
+        11: "首先完整。",  # valid non-kana repair
+        12: "",  # empty repair
+        13: "まだ仮名。",  # kana again
+    }
+    tr = lp.Qwen3Translator.__new__(lp.Qwen3Translator)
+    tr._mx = mx
+    tr.model = object()
+    tr.tokenizer = tok
+    tr.sampler = object()
+    tr.logits_processors = []
+    tr._eos_ids = {99}
+    tr._prompt_cache = None
+
+    def _run_case(mode: str, *, cancel_on_repair: bool = False):
+        call_idx = 0
+        cancel_ev = threading.Event()
+
+        def step(prompt_ids, model, **kwargs):
+            nonlocal call_idx
+            call_idx += 1
+            if call_idx == 1:
+                yield mx.array(10), None
+                yield mx.array(99), None
+                return
+            if mode == "eos":
+                yield mx.array(11), None
+                yield mx.array(99), None
+            elif mode == "length_limit":
+                for _ in range(kwargs.get("max_tokens", 8)):
+                    yield mx.array(1), None
+            elif mode == "cancel":
+                if cancel_on_repair:
+                    cancel_ev.set()
+                yield mx.array(11), None
+                yield mx.array(99), None
+            elif mode == "exception":
+                raise RuntimeError("boom")
+            elif mode == "empty":
+                yield mx.array(99), None
+            elif mode == "kana_again":
+                yield mx.array(13), None
+                yield mx.array(99), None
+
+        tr._generate_step = step
+        out = tr.translate(lp._NoopSession(), "まず何ですか", cancel_event=cancel_ev, max_tokens=6)
+        return out, dict(tr.last_translate_meta)
+
+    out_ok, meta_ok = _run_case("eos")
+    assert out_ok == "首先完整。"
+    assert meta_ok["valid"] is True and meta_ok["stop_reason"] == "eos" and meta_ok["repaired"] is True
+    assert meta_ok["parent_gen_tokens"] == 1 and meta_ok["repair_gen_tokens"] == 1 and meta_ok["gen_tokens"] == 2
+    assert meta_ok["total_latency_ms"] >= meta_ok["repair_latency_ms"]
+
+    out_lim, meta_lim = _run_case("length_limit")
+    assert out_lim == "" and meta_lim["valid"] is False
+    assert meta_lim["stop_reason"] == "length_limit" and meta_lim["repair_eos_seen"] is False
+    assert meta_lim["gen_tokens"] == 7
+
+    out_can, meta_can = _run_case("cancel", cancel_on_repair=True)
+    assert out_can == "" and meta_can["valid"] is False and meta_can["stop_reason"] == "cancelled"
+
+    out_exc, meta_exc = _run_case("exception")
+    assert out_exc == "" and meta_exc["valid"] is False and meta_exc["stop_reason"] == "error"
+
+    out_emp, meta_emp = _run_case("empty")
+    assert out_emp == "" and meta_emp["valid"] is False
+
+    out_kana, meta_kana = _run_case("kana_again")
+    assert out_kana == "" and meta_kana["valid"] is False and meta_kana.get("kana_leak") is True
+
+    # Verify LocalSession blocks truncated repair from emitting Caption and emits CaptionDiscard when deltas existed
+    emitted = []
+    from types import SimpleNamespace
+    from concurrent.futures import ThreadPoolExecutor
+
+    class FakeLocalBackend:
+        uses_ane_asr = False
+        uses_gpu_scheduler = False
+        uses_speech_cpp_asr = False
+        profile = SimpleNamespace(asr=SimpleNamespace(max_segment_s=0.0, overlap_ms=350, draft_interval_s=0.0))
+        translator = tr
+        vad_pool = ThreadPoolExecutor(max_workers=1)
+        asr_pool = ThreadPoolExecutor(max_workers=1)
+        mt_pool = ThreadPoolExecutor(max_workers=1)
+
+    async def verify_session():
+        def step_limit(prompt_ids, model, **kwargs):
+            if step_limit.n == 0:
+                step_limit.n += 1
+                yield mx.array(10), None
+                yield mx.array(99), None
+                return
+            for _ in range(4):
+                yield mx.array(1), None
+
+        step_limit.n = 0
+        tr._generate_step = step_limit
+        b = FakeLocalBackend()
+        sess = lp.LocalSession(b, object(), lp._NoopSession(), lambda ev: emitted.append(ev) or asyncio.sleep(0), None)
+        sess._enqueue_segment(lp.RecognizedSegment(1, 0, 1600, "まず"))
+        await sess.pending.put(None)
+        await sess.mt_task
+        await sess.aclose()
+        b.vad_pool.shutdown()
+        b.asr_pool.shutdown()
+        b.mt_pool.shutdown()
+
+    asyncio.run(verify_session())
+    assert not any(isinstance(e, lp.Caption) for e in emitted)
+    assert any(isinstance(e, lp.CaptionDiscard) and e.reason == "length_limit" for e in emitted)
+
+
+def test_r4_gpu_fallback_timed_all_old_returns_empty_not_full_text():
+    import ctypes
+
+    rec = lp.SpeechCppNeMoRecognizer.__new__(lp.SpeechCppNeMoRecognizer)
+    rec._lock = threading.Lock()
+    rec._model = object()
+    rec._device = "ane"
+    rec._ane = None
+    rec._ane_init_fallback_reason = "ane_retired"
+    rec._pad_samples = 8000
+    rec._decoding = b"hybrid"
+    rec._fallback_device = "gpu"
+    rec.last_decode_meta = {}
+
+    scenario = {"tokens": [(0.60, 0.69, "前の"), (0.70, 0.80, "区間")], "untimed": 0, "full": "前の区間"}
+
+    class FakeLib:
+        def speech_request_new(self, _model, _req_ptr):
+            return 0
+
+        def speech_request_set_audio(self, *_args):
+            return 0
+
+        def speech_request_set_string(self, *_args):
+            return 0
+
+        def speech_request_set_bool(self, *_args):
+            return 0
+
+        def speech_request_set_progress(self, *_args):
+            return 0
+
+        def speech_transcribe(self, _req):
+            return 0
+
+        def speech_request_result(self, _req):
+            return 22
+
+        def speech_result_untimed(self, _res):
+            return scenario["untimed"]
+
+        def speech_result_token_count(self, _res):
+            return len(scenario["tokens"])
+
+        def speech_result_token(self, _res, idx, st_ptr, en_ptr, tp_ptr):
+            st, en, tok_s = scenario["tokens"][idx]
+            st_ptr._obj.value = st
+            en_ptr._obj.value = en
+            tp_ptr._obj.value = tok_s.encode("utf-8")
+            return 0
+
+        def speech_result_text(self, _res):
+            return scenario["full"].encode("utf-8")
+
+        def speech_request_free(self, _req):
+            return None
+
+    rec._lib = FakeLib()
+    pcm = np.zeros(16000, dtype=np.float32)
+
+    # All-old: midpoints 0.645/0.75 - 0.5 pad = 0.145s/0.25s = 2320/4000, dedup_before_sample=12500 -> MUST be ""
+    assert rec.decode(pcm, start_sample=0, dedup_before_sample=12500) == ""
+
+    # Partly-new: second token midpoint at 1.40s -> 1.40-0.5=0.90s=14400 >= 12500 -> returns only new token
+    scenario["tokens"] = [(0.60, 0.69, "前の"), (1.35, 1.45, "続き")]
+    assert rec.decode(pcm, start_sample=0, dedup_before_sample=12500) == "続き"
+
+    # Untimed: falls back to full result text
+    scenario["untimed"] = 1
+    assert rec.decode(pcm, start_sample=0, dedup_before_sample=12500) == "前の区間"
+
+
+def test_r5_ane_scheduler_prevents_stale_draft_resurrection_after_empty_final_and_new_draft():
+    from concurrent.futures import ThreadPoolExecutor
+    from types import SimpleNamespace
+
+    a_draft_started = threading.Event()
+    release_a_draft = threading.Event()
+    b_draft_done = threading.Event()
+    emitted = []
+
+    class InterleavedBackend:
+        uses_ane_asr = True
+        ane_runtime_active = True
+        uses_gpu_scheduler = False
+        uses_speech_cpp_asr = True
+        uses_mlx_asr = False
+        _gpu_fallback_lock = threading.Lock()
+        profile = SimpleNamespace(asr=SimpleNamespace(max_segment_s=0.0, overlap_ms=350, draft_interval_s=0.4))
+        vad_pool = ThreadPoolExecutor(max_workers=1)
+        asr_pool = ThreadPoolExecutor(max_workers=1)
+        mt_pool = ThreadPoolExecutor(max_workers=1)
+
+        class recognizer:
+            last_decode_meta = {"backend": "ane", "fallback_reason": None, "timings": None}
+
+            @staticmethod
+            def decode(samples, **kwargs):
+                st = kwargs.get("start_sample", 0)
+                ov = kwargs.get("decoding_override")
+                if ov == "greedy":
+                    return "古いドラフトの文ですよ。" if st < 32000 else "新しいBドラフトの文ですよ。"
+                return ""  # A overlap final decodes empty!
+
+        class translator:
+            @staticmethod
+            def translate(_sess, text_ja, **_kwargs):
+                return ""
+
+            @staticmethod
+            def translate_draft(_sess, ja, *, cancel_event=None):
+                if "古い" in ja:
+                    a_draft_started.set()
+                    release_a_draft.wait(timeout=2.0)
+                    return "过期草稿A"
+                b_draft_done.set()
+                return "新片段B"
+
+    async def scenario():
+        b = InterleavedBackend()
+        sess = lp.LocalSession(b, object(), lp._NoopSession(), lambda ev: emitted.append(ev) or asyncio.sleep(0), None)
+        step = 0
+
+        def fake_push(frame, draft_interval_s=0.0):
+            nonlocal step
+            step += 1
+            if step == 1:
+                return [], lp._DraftSnapshot(0, 16000, np.zeros(16000, dtype=np.float32), 0)
+            if step == 2:
+                return [lp._EmittedChunk(0, np.zeros(32000, dtype=np.float32), 16000, "vad_tail")], None
+            if step == 3:
+                return [], lp._DraftSnapshot(32000, 48000, np.zeros(16000, dtype=np.float32), 0)
+            return [], None
+
+        sess.segmenter.push_and_preview = fake_push
+        await sess.accept_pcm(b"\x00\x00" * 1600)
+        assert await asyncio.to_thread(a_draft_started.wait, 2.0)
+
+        # A final arrives (cancels draft A); A overlap final decodes empty -> B draft starts immediately
+        await sess.accept_pcm(b"\x00\x00" * 1600)
+        await asyncio.sleep(0.05)
+        await sess.accept_pcm(b"\x00\x00" * 1600)
+
+        # Unblock stale Draft A MT while Draft B is starting/completing
+        release_a_draft.set()
+        assert await asyncio.to_thread(b_draft_done.wait, 2.0)
+        await asyncio.sleep(0.05)
+        await sess.finish()
+        await sess.aclose()
+        b.vad_pool.shutdown()
+        b.asr_pool.shutdown()
+        b.mt_pool.shutdown()
+
+    asyncio.run(scenario())
+    texts = [e.text_zh for e in emitted if isinstance(e, lp.CaptionDelta)]
+    assert "过期草稿A" not in texts
+    assert "新片段B" in texts
+
+
+def test_r1_ane_parallel_empty_seg2_does_not_discard_translating_seg1_preview_and_finish_discards_orphan():
+    from concurrent.futures import ThreadPoolExecutor
+    from types import SimpleNamespace
+
+    seg1_mt_started = threading.Event()
+    release_seg1_mt = threading.Event()
+    emitted = []
+
+    class ParallelRaceBackend:
+        uses_ane_asr = True
+        ane_runtime_active = True
+        uses_gpu_scheduler = False
+        uses_speech_cpp_asr = True
+        uses_mlx_asr = False
+        _gpu_fallback_lock = threading.Lock()
+        profile = SimpleNamespace(asr=SimpleNamespace(max_segment_s=0.0, overlap_ms=350, draft_interval_s=0.4))
+        vad_pool = ThreadPoolExecutor(max_workers=1)
+        asr_pool = ThreadPoolExecutor(max_workers=1)
+        mt_pool = ThreadPoolExecutor(max_workers=1)
+
+        class recognizer:
+            last_decode_meta = {"backend": "ane", "fallback_reason": None, "timings": None}
+
+            @staticmethod
+            def decode(samples, **kwargs):
+                st = kwargs.get("start_sample", 0)
+                if kwargs.get("decoding_override") == "greedy":
+                    return "古いドラフトの文ですよ。"
+                return "本番の一句目。" if st < 32000 else ""
+
+        class translator:
+            @staticmethod
+            def translate_draft(_sess, ja, *, cancel_event=None):
+                return "第一句预览"
+
+            @staticmethod
+            def translate(_sess, text_ja, **_kwargs):
+                seg1_mt_started.set()
+                release_seg1_mt.wait(timeout=2.0)
+                return "第一句终稿。"
+
+    async def scenario_race():
+        b = ParallelRaceBackend()
+        sess = lp.LocalSession(b, object(), lp._NoopSession(), lambda ev: emitted.append(ev) or asyncio.sleep(0), None)
+        step = 0
+
+        def fake_push(frame, draft_interval_s=0.0):
+            nonlocal step
+            step += 1
+            if step == 1:
+                return [], lp._DraftSnapshot(0, 16000, np.zeros(16000, dtype=np.float32), 0)
+            if step == 2:
+                return [
+                    lp._EmittedChunk(0, np.zeros(32000, dtype=np.float32), 0, "vad_natural"),
+                    lp._EmittedChunk(32000, np.zeros(16000, dtype=np.float32), 32000, "vad_tail"),
+                ], None
+            return [], None
+
+        sess.segmenter.push_and_preview = fake_push
+        await sess.accept_pcm(b"\x00\x00" * 1600)
+        await asyncio.sleep(0.05)
+        await sess.accept_pcm(b"\x00\x00" * 1600)
+        assert await asyncio.to_thread(seg1_mt_started.wait, 2.0)
+        await asyncio.sleep(0.05)
+        # Empty seg2 MUST NOT discard seg1's active preview while seg1 is translating!
+        assert not any(isinstance(e, lp.CaptionDiscard) for e in emitted)
+        release_seg1_mt.set()
+        await sess.finish()
+        await sess.aclose()
+        b.vad_pool.shutdown()
+        b.asr_pool.shutdown()
+        b.mt_pool.shutdown()
+
+    asyncio.run(scenario_race())
+    assert [type(e).__name__ for e in emitted] == ["CaptionDelta", "Caption"]
+    assert emitted[1].text_zh == "第一句终稿。"
+
+    # Also test finish() with orphan preview (no final segment emitted) emits CaptionDiscard("session_finished")
+    emitted_finish = []
+
+    class OrphanPreviewBackend:
+        uses_ane_asr = True
+        ane_runtime_active = True
+        uses_gpu_scheduler = False
+        uses_speech_cpp_asr = True
+        uses_mlx_asr = False
+        _gpu_fallback_lock = threading.Lock()
+        profile = SimpleNamespace(asr=SimpleNamespace(max_segment_s=0.0, overlap_ms=350, draft_interval_s=0.4))
+        vad_pool = ThreadPoolExecutor(max_workers=1)
+        asr_pool = ThreadPoolExecutor(max_workers=1)
+        mt_pool = ThreadPoolExecutor(max_workers=1)
+
+        class recognizer:
+            last_decode_meta = {"backend": "ane", "fallback_reason": None, "timings": None}
+
+            @staticmethod
+            def decode(*_args, **_kwargs):
+                return "未確定の長いプレビュー文。"
+
+        class translator:
+            @staticmethod
+            def translate_draft(_sess, _ja, *, cancel_event=None):
+                return "未完成预览"
+
+            @staticmethod
+            def translate(*_args, **_kwargs):
+                return ""
+
+    async def scenario_orphan_finish():
+        b = OrphanPreviewBackend()
+        sess = lp.LocalSession(b, object(), lp._NoopSession(), lambda ev: emitted_finish.append(ev) or asyncio.sleep(0), None)
+        sent = False
+
+        def fake_push(frame, draft_interval_s=0.0):
+            nonlocal sent
+            if frame is not None and not sent:
+                sent = True
+                return [], lp._DraftSnapshot(0, 16000, np.zeros(16000, dtype=np.float32), 0)
+            return [], None
+
+        sess.segmenter.push_and_preview = fake_push
+        await sess.accept_pcm(b"\x00\x00" * 1600)
+        await asyncio.sleep(0.05)
+        await sess.finish()
+        await sess.aclose()
+        b.vad_pool.shutdown()
+        b.asr_pool.shutdown()
+        b.mt_pool.shutdown()
+
+    asyncio.run(scenario_orphan_finish())
+    assert [type(e).__name__ for e in emitted_finish] == ["CaptionDelta", "CaptionDiscard"]
+    assert emitted_finish[1].reason == "session_finished"
+
+
+def test_r4_nemo_ane_bridge_timed_empty_detok_does_not_fallback_to_full_buffer():
+    import ctypes
+
+    bridge = lp.NeMoAneBridge.__new__(lp.NeMoAneBridge)
+    bridge._handle = 1
+    bridge._retired_logged = False
+    bridge._has_timings = False
+    bridge._CANCEL_CB = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+    bridge.last_timings = None
+
+    class FakeAneLib:
+        def nemo_ane_retired(self, _h):
+            return 0
+
+        def nemo_ane_transcribe(self, _h, _ptr, _n, _pad, _beam, _cb, _ud, out_buf, _cap, toks, _max_t, n_toks, *_rest):
+            raw = "前の区間".encode("utf-8")
+            ctypes.memmove(out_buf, raw, len(raw))
+            toks[0].token_id = 5
+            toks[0].frame = 20  # 20 * 1280 - 5600 = 20000 >= 12000
+            n_toks._obj.value = 1
+            return 0
+
+        def nemo_ane_detokenize(self, _h, _ids, _n, detok_buf, _cap):
+            ctypes.memmove(detok_buf, b"   ", 3)
+            return 0
+
+    bridge._lib = FakeAneLib()
+    out = bridge.transcribe(np.zeros(16000, dtype=np.float32), pad_samples=5600, use_beam=0, dedup_before_sample=12000)
+    assert out == ""
 
